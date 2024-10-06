@@ -206,6 +206,11 @@ public final class MecanumDrive {
         }
     }
 
+    public MecanumDrive(HardwareMap hardwareMap)
+    {
+        this(hardwareMap, new Pose2d(0, 0, 0));
+    }
+
     public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
         this.pose = pose;
 
