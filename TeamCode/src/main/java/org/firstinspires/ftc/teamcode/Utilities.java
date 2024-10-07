@@ -30,6 +30,21 @@ public class Utilities
 		}).start();
 	}
 
+	public static void WaitToFinish(DcMotorEx motor)
+	{
+		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > 10)
+		{
+			try
+			{
+				Thread.sleep(10);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static double centimetersToInches(double centimeters) { return centimeters / 2.54; }
 
 	public static double inchesToCentimeters(double inches) { return inches * 2.54; }
@@ -151,6 +166,7 @@ public class Utilities
 	public enum State
 	{
 		IDLE,
+		READY,
 		BUSY
 	}
 
