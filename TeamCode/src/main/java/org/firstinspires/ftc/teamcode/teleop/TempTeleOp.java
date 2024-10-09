@@ -29,15 +29,15 @@ public final class TempTeleOp extends LinearOpMode
 
 	public static class Constants
 	{
-		public static float pickupClawIdle = 0.0f;
-		public static float pickupClawBusy = 1.0f;
+		public static float pickupClawIdle = 1.0f;
+		public static float pickupClawBusy = 0.0f;
 		public static float scoreClawIdle = 0.0f;
 		public static float scoreClawBusy = 1.0f;
 		public static float rotatorIdle = 0.0f;
 		public static float rotatorBusy = 1.0f;
 
-		public static int tumblerIdle = 0;
-		public static int tumblerPickup = 0;
+		public static int tumblerIdle = 200;
+		public static int tumblerPickup = 1000;
 		public static int tumblerDeliver = 0;
 
 	}
@@ -62,7 +62,10 @@ public final class TempTeleOp extends LinearOpMode
 		tumbler = hardwareMap.get(DcMotorEx.class, "tumbler");
 		tumbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		tumbler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // melc
+		tumbler.setTargetPosition(0);
+		tumbler.setPower(0.2);
 
 		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
 		pickupClaw.setPosition(Constants.pickupClawIdle);
