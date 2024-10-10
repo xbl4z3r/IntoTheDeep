@@ -16,6 +16,8 @@ public class TwoMotorTest extends LinearOpMode
 	{
 		motor1 = hardwareMap.get(DcMotorEx.class, "motor1");
 		motor2 = hardwareMap.get(DcMotorEx.class, "motor2");
+		motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 		motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 		motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -30,6 +32,9 @@ public class TwoMotorTest extends LinearOpMode
 			motor2.setPower(gamepad1.right_stick_y);
 
 			telemetry.addData("Power: ", gamepad1.right_stick_y);
+			telemetry.addData("Motor 1 Pos: ", motor1.getCurrentPosition());
+			telemetry.addData("Motor 2 Pos: ", motor2.getCurrentPosition());
+			telemetry.update();
 		}
 	}
 }

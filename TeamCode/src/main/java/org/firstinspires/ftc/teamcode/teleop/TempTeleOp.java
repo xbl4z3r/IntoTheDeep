@@ -9,11 +9,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
+
+import java.util.zip.CheckedInputStream;
 
 
 @TeleOp(name = "\uD83C\uDD98⚠️ Temp Op ⚠️\uD83C\uDD98", group = "TeleOp")
@@ -23,22 +26,27 @@ public final class TempTeleOp extends LinearOpMode
 
 	MecanumDrive mecanumDrive;
 
-	DcMotorEx tumbler;
+	DcMotorEx tumbler, lift1, lift2;
 
-	Servo pickupClaw, rotator, scoreClaw;
+	Servo pickupClaw, rotator, scoreClaw, scoreTumbler;
 
 	public static class Constants
 	{
-		public static float pickupClawIdle = 1.0f;
-		public static float pickupClawBusy = 0.0f;
-		public static float scoreClawIdle = 0.0f;
-		public static float scoreClawBusy = 1.0f;
 		public static float rotatorIdle = 0.0f;
 		public static float rotatorBusy = 1.0f;
+		public static float pickupClawIdle = 1.0f;
+		public static float pickupClawBusy = 0.0f;
+		public static float scoreTumblerIdle = 1.0f;
+		public static float scoreTumblerBusy = 0.0f;
+		public static float scoreClawIdle = 0.0f;
+		public static float scoreClawBusy = 1.0f;
 
 		public static int tumblerIdle = 200;
 		public static int tumblerPickup = 1000;
 		public static int tumblerDeliver = 0;
+
+		public static int liftIdle = 0;
+		public static int liftHighBasket = 1950;
 
 	}
 
@@ -65,13 +73,32 @@ public final class TempTeleOp extends LinearOpMode
 		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // melc
 		tumbler.setTargetPosition(0);
-		tumbler.setPower(0.2);
+		tumbler.setPower(0.4);
+
+		lift1 = hardwareMap.get(DcMotorEx.class, "lift1");
+		lift2 = hardwareMap.get(DcMotorEx.class, "lift2");
+		lift2.setDirection(DcMotorSimple.Direction.REVERSE);
+		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		lift1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		lift2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		lift1.setTargetPosition(0);
+		lift2.setTargetPosition(0);
+		lift1.setPower(0.2);
+		lift2.setPower(0.2);
 
 		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
 		pickupClaw.setPosition(Constants.pickupClawIdle);
 		rotator = hardwareMap.get(Servo.class, "rotator");
 		rotator.setPosition(Constants.rotatorIdle);
 		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
+		scoreClaw.setPosition(Constants.scoreClawIdle);
+		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
+		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
 	}
 
 
@@ -81,6 +108,7 @@ public final class TempTeleOp extends LinearOpMode
 		{
 			Wheels();
 			Pickup();
+			Lift();
 
 			Telemetry();
 		}
@@ -100,6 +128,7 @@ public final class TempTeleOp extends LinearOpMode
 
 	private boolean pickupSafe = false;
 	private Utilities.State pickupState = Utilities.State.IDLE;
+	private Utilities.State scoreClawState = Utilities.State.IDLE;
 	private void Pickup()
 	{
 		if (wheelsGamepad.a && !pickupSafe)
@@ -133,6 +162,7 @@ public final class TempTeleOp extends LinearOpMode
 					});
 
 					pickupState = Utilities.State.IDLE;
+					scoreClawState = Utilities.State.BUSY;
 
 					break;
 			}
@@ -140,12 +170,71 @@ public final class TempTeleOp extends LinearOpMode
 		else pickupSafe = wheelsGamepad.a;
 	}
 
+	private Utilities.State liftState = Utilities.State.IDLE;
+	private int liftLevel = 0;
+	private boolean scoreSafe = false;
+	void Lift()
+	{
+		if (armGamepad.dpad_down)
+			liftLevel = 0;
+		else if (armGamepad.dpad_up)
+			liftLevel = 3;
+
+		if (liftState == Utilities.State.IDLE)
+		{
+			if (armGamepad.a && !scoreSafe)
+			{
+				liftState = Utilities.State.BUSY;
+
+				scoreClaw.setPosition(Constants.scoreClawBusy);
+				scoreClawState = Utilities.State.BUSY;
+
+				scoreTumbler.setPosition(Constants.scoreTumblerBusy);
+
+				scoreSafe = true;
+			}
+			else scoreSafe = armGamepad.a;
+		}
+		else // BUSY
+		{
+			switch (liftLevel)
+			{
+				case 0:
+					lift1.setTargetPosition(Constants.liftIdle);
+					lift2.setTargetPosition(Constants.liftIdle);
+					break;
+				case 3:
+					lift1.setTargetPosition(Constants.liftHighBasket);
+					lift2.setTargetPosition(Constants.liftHighBasket);
+					break;
+				default:
+					throw new RuntimeException("Invalid lift level!");
+			}
+
+			if (armGamepad.a && !scoreSafe)
+			{
+				scoreClaw.setPosition(Constants.scoreClawIdle);
+				setTimeout(500, () -> {
+					scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+					lift1.setTargetPosition(Constants.liftIdle);
+					lift2.setTargetPosition(Constants.liftIdle);
+				});
+			}
+			else scoreSafe = armGamepad.a;
+		}
+	}
 
 
 	private void Telemetry()
 	{
-		telemetry.addData("Pickup State", pickupState.name());
+		telemetry.addData("Pickup State:     ", pickupState.name());
+		telemetry.addData("Score Claw State: ", scoreClawState.name());
+		telemetry.addData("Tumbler Pose:     ", tumbler.getCurrentPosition());
 
+		telemetry.addData("Lift State:       ", liftState.name());
+		telemetry.addData("Lift Level:       ", liftLevel);
+		telemetry.addData("Lift1 Pos:        ", lift1.getCurrentPosition());
+		telemetry.addData("Lift2 Pos:        ", lift2.getCurrentPosition());
 
 		telemetry.update();
 	}
