@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @TeleOp(name = "EncoderRead", group = "Testing")
 public class EncoderRead extends LinearOpMode
 {
@@ -23,7 +25,8 @@ public class EncoderRead extends LinearOpMode
 		{
 			motor.setPower(gamepad1.left_stick_y);
 
-			telemetry.addData("Pose: ", motor.getCurrentPosition());
+			telemetry.addData("Pose:    ", motor.getCurrentPosition());
+			telemetry.addData("Current: ", motor.getCurrent(CurrentUnit.MILLIAMPS));
 			telemetry.update();
 		}
 	}

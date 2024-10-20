@@ -28,21 +28,27 @@ public final class TempTeleOp extends LinearOpMode
 
 	DcMotorEx tumbler, lift1, lift2;
 
-	Servo pickupClaw, rotator, scoreClaw, scoreTumbler;
+	Servo rotator, bigAngler, smallAngler, pickupClaw, scoreClaw, scoreTumbler;
 
 	public static class Constants
 	{
 		public static float rotatorIdle = 0.0f;
-		public static float rotatorBusy = 1.0f;
+		public static float rotatorBusy = 0.9f;
+
+		public static float bigAnglerCenter = 0.38f;
+		public static float smallAnglerCenter = 0.41f;
+
 		public static float pickupClawIdle = 1.0f;
 		public static float pickupClawBusy = 0.0f;
-		public static float scoreTumblerIdle = 1.0f;
-		public static float scoreTumblerBusy = 0.0f;
-		public static float scoreClawIdle = 0.0f;
-		public static float scoreClawBusy = 1.0f;
 
-		public static int tumblerIdle = 200;
-		public static int tumblerPickup = 1000;
+		public static float scoreTumblerIdle = 1.0f;
+		public static float scoreTumblerBusy = 0.1f;
+
+		public static float scoreClawIdle = 1.0f;
+		public static float scoreClawBusy = 0.0f;
+
+		public static int tumblerIdle = 300;
+		public static int tumblerPickup = 900;
 		public static int tumblerDeliver = 0;
 
 		public static int liftIdle = 0;
@@ -73,7 +79,7 @@ public final class TempTeleOp extends LinearOpMode
 		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // melc
 		tumbler.setTargetPosition(0);
-		tumbler.setPower(0.4);
+		tumbler.setPower(0.6);
 
 		lift1 = hardwareMap.get(DcMotorEx.class, "lift1");
 		lift2 = hardwareMap.get(DcMotorEx.class, "lift2");
@@ -88,13 +94,17 @@ public final class TempTeleOp extends LinearOpMode
 		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift1.setTargetPosition(0);
 		lift2.setTargetPosition(0);
-		lift1.setPower(0.2);
-		lift2.setPower(0.2);
+		lift1.setPower(1.0);
+		lift2.setPower(1.0);
 
-		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
-		pickupClaw.setPosition(Constants.pickupClawIdle);
 		rotator = hardwareMap.get(Servo.class, "rotator");
 		rotator.setPosition(Constants.rotatorIdle);
+		bigAngler = hardwareMap.get(Servo.class, "bigAngler");
+		bigAngler.setPosition(Constants.bigAnglerCenter);
+		smallAngler = hardwareMap.get(Servo.class, "smallAngler");
+		smallAngler.setPosition(Constants.smallAnglerCenter);
+		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
+		pickupClaw.setPosition(Constants.pickupClawIdle);
 		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
 		scoreClaw.setPosition(Constants.scoreClawIdle);
 		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
@@ -122,7 +132,7 @@ public final class TempTeleOp extends LinearOpMode
 		else if (wheelsGamepad.left_bumper)
 			speed = 0.4f; // supress
 
-		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_x, wheelsGamepad.left_stick_y).times(speed),
+		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(speed),
 				wheelsGamepad.left_trigger - wheelsGamepad.right_trigger));
 	}
 
@@ -155,10 +165,13 @@ public final class TempTeleOp extends LinearOpMode
 						WaitToFinish(tumbler);
 
 						scoreClaw.setPosition(Constants.scoreClawBusy);
-						pickupClaw.setPosition(Constants.pickupClawIdle);
 
-						setTimeout(300,
-								() -> tumbler.setTargetPosition(Constants.tumblerIdle));
+						setTimeout(500, () -> {
+							pickupClaw.setPosition(Constants.pickupClawIdle);
+
+							setTimeout(300,
+									() -> tumbler.setTargetPosition(Constants.tumblerIdle));
+						});
 					});
 
 					pickupState = Utilities.State.IDLE;
@@ -219,6 +232,11 @@ public final class TempTeleOp extends LinearOpMode
 					lift1.setTargetPosition(Constants.liftIdle);
 					lift2.setTargetPosition(Constants.liftIdle);
 				});
+
+				scoreClawState = Utilities.State.IDLE;
+				liftState = Utilities.State.IDLE;
+
+				scoreSafe = true;
 			}
 			else scoreSafe = armGamepad.a;
 		}
