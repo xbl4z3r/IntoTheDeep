@@ -97,17 +97,18 @@ public final class TempTeleOp extends LinearOpMode
 		lift1.setPower(1.0);
 		lift2.setPower(1.0);
 
-		rotator = hardwareMap.get(Servo.class, "rotator");
-		rotator.setPosition(Constants.rotatorIdle);
-		bigAngler = hardwareMap.get(Servo.class, "bigAngler");
-		bigAngler.setPosition(Constants.bigAnglerCenter);
-		smallAngler = hardwareMap.get(Servo.class, "smallAngler");
-		smallAngler.setPosition(Constants.smallAnglerCenter);
-		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
-		pickupClaw.setPosition(Constants.pickupClawIdle);
-		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
-		scoreClaw.setPosition(Constants.scoreClawIdle);
+		rotator      = hardwareMap.get(Servo.class, "rotator");
+		bigAngler    = hardwareMap.get(Servo.class, "bigAngler");
+		smallAngler  = hardwareMap.get(Servo.class, "smallAngler");
+		pickupClaw   = hardwareMap.get(Servo.class, "pickupClaw");
+		scoreClaw    = hardwareMap.get(Servo.class, "scoreClaw");
 		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
+
+		rotator.setPosition(Constants.rotatorIdle);
+		bigAngler.setPosition(Constants.bigAnglerCenter);
+		smallAngler.setPosition(Constants.smallAnglerCenter);
+		pickupClaw.setPosition(Constants.pickupClawIdle);
+		scoreClaw.setPosition(Constants.scoreClawIdle);
 		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
 	}
 

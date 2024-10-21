@@ -26,10 +26,10 @@ public class DiverTest extends LinearOpMode
 	{
 		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
 		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
-		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
-		smolTumbler = hardwareMap.get(Servo.class, "sTumbler");
-		rotatorServo = hardwareMap.get(Servo.class, "rotator");
-		clawServo = hardwareMap.get(Servo.class, "claw");
+		tumblerServo  = hardwareMap.get(Servo.class, "tumbler");
+		smolTumbler   = hardwareMap.get(Servo.class, "sTumbler");
+		rotatorServo  = hardwareMap.get(Servo.class, "rotator");
+		clawServo     = hardwareMap.get(Servo.class, "claw");
 
 		extendoServo1.setPosition(1);
 		extendoServo2.setPosition(0);
