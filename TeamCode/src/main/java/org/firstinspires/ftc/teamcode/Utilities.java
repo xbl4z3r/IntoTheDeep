@@ -32,7 +32,7 @@ public class Utilities
 
 	public static void WaitToFinish(DcMotorEx motor)
 	{
-		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > 10)
+		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > motor.getTargetPositionTolerance())
 		{
 			try
 			{
@@ -43,6 +43,11 @@ public class Utilities
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static boolean IsMotorFinished(DcMotorEx motor)
+	{
+		return true;
 	}
 
 	public static double centimetersToInches(double centimeters) { return centimeters / 2.54; }
@@ -168,13 +173,6 @@ public class Utilities
 		IDLE,
 		READY,
 		BUSY
-	}
-
-	public enum DelayDirection
-	{
-		BEFORE,
-		AFTER,
-		BOTH
 	}
 
 	public enum Alliance

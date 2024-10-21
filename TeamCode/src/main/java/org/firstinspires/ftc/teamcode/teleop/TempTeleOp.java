@@ -32,8 +32,8 @@ public final class TempTeleOp extends LinearOpMode
 
 	public static class Constants
 	{
-		public static float rotatorIdle = 0.0f;
-		public static float rotatorBusy = 0.9f;
+		public static float rotatorIdle = 0.33f;
+		public static float rotatorBusy = 1.0f;
 
 		public static float bigAnglerCenter = 0.38f;
 		public static float smallAnglerCenter = 0.41f;
@@ -41,19 +41,18 @@ public final class TempTeleOp extends LinearOpMode
 		public static float pickupClawIdle = 1.0f;
 		public static float pickupClawBusy = 0.0f;
 
-		public static float scoreTumblerIdle = 1.0f;
+		public static float scoreTumblerIdle = 0.85f;
 		public static float scoreTumblerBusy = 0.1f;
 
-		public static float scoreClawIdle = 1.0f;
+		public static float scoreClawIdle = 0.4f;
 		public static float scoreClawBusy = 0.0f;
 
 		public static int tumblerIdle = 300;
-		public static int tumblerPickup = 900;
+		public static int tumblerPickup = 850;
 		public static int tumblerDeliver = 0;
 
-		public static int liftIdle = 0;
-		public static int liftHighBasket = 1950;
-
+		public static int liftLoading = 0;
+		public static int[] liftLevels = { 0, 0, 1500, 1950 };
 	}
 
 	@Override
@@ -78,7 +77,7 @@ public final class TempTeleOp extends LinearOpMode
 		tumbler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // melc
-		tumbler.setTargetPosition(0);
+		tumbler.setTargetPosition(Constants.tumblerIdle);
 		tumbler.setPower(0.6);
 
 		lift1 = hardwareMap.get(DcMotorEx.class, "lift1");
@@ -97,18 +96,17 @@ public final class TempTeleOp extends LinearOpMode
 		lift1.setPower(1.0);
 		lift2.setPower(1.0);
 
-		rotator      = hardwareMap.get(Servo.class, "rotator");
-		bigAngler    = hardwareMap.get(Servo.class, "bigAngler");
-		smallAngler  = hardwareMap.get(Servo.class, "smallAngler");
-		pickupClaw   = hardwareMap.get(Servo.class, "pickupClaw");
-		scoreClaw    = hardwareMap.get(Servo.class, "scoreClaw");
-		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
-
+		rotator = hardwareMap.get(Servo.class, "rotator");
 		rotator.setPosition(Constants.rotatorIdle);
+		bigAngler = hardwareMap.get(Servo.class, "bigAngler");
 		bigAngler.setPosition(Constants.bigAnglerCenter);
+		smallAngler = hardwareMap.get(Servo.class, "smallAngler");
 		smallAngler.setPosition(Constants.smallAnglerCenter);
+		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
 		pickupClaw.setPosition(Constants.pickupClawIdle);
+		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
 		scoreClaw.setPosition(Constants.scoreClawIdle);
+		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
 		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
 	}
 
@@ -120,6 +118,7 @@ public final class TempTeleOp extends LinearOpMode
 			Wheels();
 			Pickup();
 			Lift();
+			SetMotorPowers();
 
 			Telemetry();
 		}
@@ -160,19 +159,24 @@ public final class TempTeleOp extends LinearOpMode
 
 					pickupClaw.setPosition(Constants.pickupClawBusy);
 					setTimeout(300, () -> {
-						tumbler.setTargetPosition(Constants.tumblerDeliver);
 						rotator.setPosition(Constants.rotatorBusy);
 
-						WaitToFinish(tumbler);
-
-						scoreClaw.setPosition(Constants.scoreClawBusy);
-
 						setTimeout(500, () -> {
-							pickupClaw.setPosition(Constants.pickupClawIdle);
+							tumbler.setTargetPosition(Constants.tumblerDeliver);
+							WaitToFinish(tumbler);
 
-							setTimeout(300,
-									() -> tumbler.setTargetPosition(Constants.tumblerIdle));
+							scoreClaw.setPosition(Constants.scoreClawBusy);
+
+							setTimeout(400, () -> {
+								pickupClaw.setPosition(Constants.pickupClawIdle);
+
+								setTimeout(300, () -> {
+											tumbler.setTargetPosition(Constants.tumblerIdle);
+											rotator.setPosition(Constants.rotatorIdle);
+										});
+							});
 						});
+
 					});
 
 					pickupState = Utilities.State.IDLE;
@@ -189,9 +193,13 @@ public final class TempTeleOp extends LinearOpMode
 	private boolean scoreSafe = false;
 	void Lift()
 	{
-		if (armGamepad.dpad_down)
+		if (armGamepad.dpad_down) // lowest
 			liftLevel = 0;
-		else if (armGamepad.dpad_up)
+		else if (armGamepad.dpad_right) //
+			liftLevel = 1;
+		else if (armGamepad.dpad_left) // low basket
+			liftLevel = 2;
+		else if (armGamepad.dpad_up) // high basket
 			liftLevel = 3;
 
 		if (liftState == Utilities.State.IDLE)
@@ -211,27 +219,16 @@ public final class TempTeleOp extends LinearOpMode
 		}
 		else // BUSY
 		{
-			switch (liftLevel)
-			{
-				case 0:
-					lift1.setTargetPosition(Constants.liftIdle);
-					lift2.setTargetPosition(Constants.liftIdle);
-					break;
-				case 3:
-					lift1.setTargetPosition(Constants.liftHighBasket);
-					lift2.setTargetPosition(Constants.liftHighBasket);
-					break;
-				default:
-					throw new RuntimeException("Invalid lift level!");
-			}
+			lift1.setTargetPosition(Constants.liftLevels[liftLevel]);
+			lift2.setTargetPosition(Constants.liftLevels[liftLevel]);
 
 			if (armGamepad.a && !scoreSafe)
 			{
 				scoreClaw.setPosition(Constants.scoreClawIdle);
 				setTimeout(500, () -> {
 					scoreTumbler.setPosition(Constants.scoreTumblerIdle);
-					lift1.setTargetPosition(Constants.liftIdle);
-					lift2.setTargetPosition(Constants.liftIdle);
+					lift1.setTargetPosition(Constants.liftLoading);
+					lift2.setTargetPosition(Constants.liftLoading);
 				});
 
 				scoreClawState = Utilities.State.IDLE;
@@ -241,6 +238,11 @@ public final class TempTeleOp extends LinearOpMode
 			}
 			else scoreSafe = armGamepad.a;
 		}
+	}
+
+	private void SetMotorPowers()
+	{
+
 	}
 
 
@@ -254,6 +256,11 @@ public final class TempTeleOp extends LinearOpMode
 		telemetry.addData("Lift Level:       ", liftLevel);
 		telemetry.addData("Lift1 Pos:        ", lift1.getCurrentPosition());
 		telemetry.addData("Lift2 Pos:        ", lift2.getCurrentPosition());
+		telemetry.addData("Lift1 Pow:        ", lift1.getPower());
+		telemetry.addData("Lift2 Pow:        ", lift2.getPower());
+		telemetry.addData("Lift1 Tol:        ", lift1.getTargetPositionTolerance());
+		telemetry.addData("Lift2 Tol:        ", lift2.getTargetPositionTolerance());
+
 
 		telemetry.update();
 	}
