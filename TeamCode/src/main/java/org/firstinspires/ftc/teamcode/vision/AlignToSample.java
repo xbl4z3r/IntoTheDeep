@@ -56,12 +56,15 @@ public class AlignToSample extends LinearOpMode
 				.setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
 				.setRoi(ImageRegion.entireFrame())
 				.setDrawContours(true)
+				.setDilateSize(50)
+				.setErodeSize(50)
 				.build();
 		portal = new VisionPortal.Builder()
 				.addProcessor(processor)
 				.setCameraResolution(new Size(640, 480))
 				.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
 				.build();
+
 
 		servo = hardwareMap.get(Servo.class, "rotator");
 		servo.setPosition(0.5);
@@ -75,11 +78,13 @@ public class AlignToSample extends LinearOpMode
 			ColorBlobLocatorProcessor.Util.filterByArea(1500, 200000, blobs);
 
 			telemetry.update();
-			telemetry.addData("FPS: ", portal.getFps());
+			telemetry.addData("FPS:         ", portal.getFps());
+			telemetry.addData("Servo Angle: ", servo.getPosition());
 
 			if (blobs.isEmpty())
 				continue;
 
+			// Find biggest blob
 			ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
 			for (ColorBlobLocatorProcessor.Blob b : blobs)
 			{
@@ -87,8 +92,21 @@ public class AlignToSample extends LinearOpMode
 					blob = b;
 			}
 
-			telemetry.addData("Angle", blob.getBoxFit().toString());
-			telemetry.addData("Size", blob.getContourArea());
+			double angle = blob.getBoxFit().angle;
+			org.opencv.core.Size size = blob.getBoxFit().size;
+
+			// Math the angle
+			if (size.width > size.height)
+				angle += 90;
+
+			// Command servo
+			servo.setPosition(angle / 180.0);
+
+			// Telemetry
+			telemetry.addData("Width:       ", size.width);
+			telemetry.addData("Height:      ", size.height);
+			telemetry.addData("Angle:       ", angle);
+			telemetry.addData("Area:        ", blob.getContourArea());
 		}
 	}
 }
