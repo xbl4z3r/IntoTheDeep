@@ -11,7 +11,9 @@ import org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
+import org.firstinspires.ftc.vision.opencv.ColorSpace;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.opencv.core.Scalar;
 
 import java.util.List;
 
@@ -97,10 +99,10 @@ public class AlignToSample extends LinearOpMode
 
 			// Math the angle
 			if (size.width > size.height)
-				angle += 90;
+				angle += 90.0;
 
 			// Command servo
-			servo.setPosition(angle / 180.0);
+			servo.setPosition(1.0 - (angle / 180.0));
 
 			// Telemetry
 			telemetry.addData("Width:       ", size.width);
