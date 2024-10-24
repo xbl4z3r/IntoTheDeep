@@ -42,21 +42,21 @@ public class DiverTest extends LinearOpMode
 	private Utilities.State armState = Utilities.State.IDLE;
 	private Utilities.State clawState = Utilities.State.IDLE;
 	private int rotatorState = 1; // 0 left, 1 center, 2 right
-	private boolean sf = false;
+	private boolean rotatorSafe = false;
 	private void Run()
 	{
 		// Rotator
-		if (gamepad1.left_bumper && rotatorState > 0 && !sf)
+		if (gamepad1.left_bumper && rotatorState > 0 && !rotatorSafe)
 		{
-			sf = true;
+			rotatorSafe = true;
 			rotatorState--;
 		}
-		else if (gamepad1.right_bumper && rotatorState < 2 && !sf)
+		else if (gamepad1.right_bumper && rotatorState < 2 && !rotatorSafe)
 		{
-			sf = true;
+			rotatorSafe = true;
 			rotatorState++;
 		}
-		if (!gamepad1.left_bumper && !gamepad1.right_bumper) sf = false;
+		if (!gamepad1.left_bumper && !gamepad1.right_bumper) rotatorSafe = false;
 
 		if (clawState == Utilities.State.IDLE)
 		{

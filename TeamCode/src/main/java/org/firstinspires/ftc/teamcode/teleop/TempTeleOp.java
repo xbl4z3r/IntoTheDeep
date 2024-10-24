@@ -52,7 +52,7 @@ public final class TempTeleOp extends LinearOpMode
 		public static int tumblerDeliver = -900;
 
 		public static int liftLoading = 0;
-		public static int[] liftLevels = { 0, 1000, 800, 1950 };
+		public static int[] liftLevels = { 0, 100, 800, 1950 };
 	}
 
 	@Override
@@ -118,6 +118,7 @@ public final class TempTeleOp extends LinearOpMode
 		while (opModeIsActive() && !isStopRequested())
 		{
 			Wheels();
+			Anglers();
 			Pickup();
 			Lift();
 			SetMotorPowers();
@@ -136,6 +137,39 @@ public final class TempTeleOp extends LinearOpMode
 
 		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(-speed),
 				wheelsGamepad.left_trigger - wheelsGamepad.right_trigger));
+	}
+
+	private int bigAnglerPos = 1;
+	private int smallAnglerPos = 1;
+	private boolean bigAnglerSafe = false;
+	private boolean smallAnglerSafe = false;
+	private void Anglers()
+	{
+		// Big
+		if (armGamepad.left_bumper && bigAnglerPos > 0 && !bigAnglerSafe)
+		{
+			bigAnglerSafe = true;
+			bigAnglerPos--;
+		}
+		else if (armGamepad.right_bumper && bigAnglerPos < 2 && !bigAnglerSafe)
+		{
+			bigAnglerSafe = true;
+			bigAnglerPos++;
+		}
+		if (!armGamepad.left_bumper && !armGamepad.right_bumper) bigAnglerSafe = false;
+
+		// Small
+		if (armGamepad.left_bumper && smallAnglerPos > 0 && !smallAnglerSafe)
+		{
+			smallAnglerSafe = true;
+			smallAnglerPos--;
+		}
+		else if (armGamepad.right_bumper && smallAnglerPos < 2 && !smallAnglerSafe)
+		{
+			smallAnglerSafe = true;
+			smallAnglerPos++;
+		}
+		if (!armGamepad.left_bumper && !armGamepad.right_bumper) smallAnglerSafe = false;
 	}
 
 	private boolean pickupSafe = false;
@@ -193,7 +227,7 @@ public final class TempTeleOp extends LinearOpMode
 	{
 		if (armGamepad.dpad_down) // lowest
 			liftLevel = 0;
-		else if (armGamepad.dpad_right) //
+		else if (armGamepad.dpad_right) // high bar
 			liftLevel = 1;
 		else if (armGamepad.dpad_left) // low basket
 			liftLevel = 2;
