@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.BuildConfig;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
 
@@ -158,6 +159,7 @@ public final class TempTeleOp extends LinearOpMode
 		}
 		if (!armGamepad.left_bumper && !armGamepad.right_bumper) bigAnglerSafe = false;
 
+
 		// Small
 		if (armGamepad.left_bumper && smallAnglerPos > 0 && !smallAnglerSafe)
 		{
@@ -170,7 +172,43 @@ public final class TempTeleOp extends LinearOpMode
 			smallAnglerPos++;
 		}
 		if (!armGamepad.left_bumper && !armGamepad.right_bumper) smallAnglerSafe = false;
+
+
+		if (pickupState == Utilities.State.BUSY)
+		{
+			switch (bigAnglerPos)
+			{
+				case 0:
+					bigAngler.setPosition(Constants.bigAnglerCenter - 0.2);
+					break;
+				case 1:
+					bigAngler.setPosition(Constants.bigAnglerCenter);
+					break;
+				case 2:
+					bigAngler.setPosition(Constants.bigAnglerCenter + 0.2);
+					break;
+			}
+
+			switch (smallAnglerPos)
+			{
+				case 0:
+					smallAngler.setPosition(Constants.smallAnglerCenter - 0.2);
+					break;
+				case 1:
+					smallAngler.setPosition(Constants.smallAnglerCenter);
+					break;
+				case 2:
+					smallAngler.setPosition(Constants.smallAnglerCenter + 0.2);
+					break;
+			}
+		}
+		else
+		{
+			bigAngler.setPosition(Constants.bigAnglerCenter);
+			smallAngler.setPosition(Constants.smallAnglerCenter);
+		}
 	}
+
 
 	private boolean pickupSafe = false;
 	private Utilities.State pickupState = Utilities.State.IDLE;
