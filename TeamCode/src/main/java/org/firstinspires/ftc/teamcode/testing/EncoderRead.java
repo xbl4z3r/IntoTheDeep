@@ -23,7 +23,7 @@ public class EncoderRead extends LinearOpMode
 
 		while (opModeIsActive() && !isStopRequested())
 		{
-			motor.setPower(gamepad1.left_stick_y);
+			motor.setPower(gamepad1.left_stick_y * 0.7);
 
 			telemetry.addData("Pose:    ", motor.getCurrentPosition());
 			telemetry.addData("Current: ", motor.getCurrent(CurrentUnit.MILLIAMPS));
