@@ -53,7 +53,7 @@ public final class TempTeleOp extends LinearOpMode
 		public static int tumblerDeliver = -900;
 
 		public static int liftLoading = 0;
-		public static int[] liftLevels = { 0, 100, 800, 1950 };
+		public static int[] liftLevels = { 0, 1500, 800, 1950 };
 	}
 
 	@Override
@@ -136,7 +136,7 @@ public final class TempTeleOp extends LinearOpMode
 		else if (wheelsGamepad.left_bumper)
 			speed = 0.4f; // supress
 
-		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(-speed),
+		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(speed),
 				wheelsGamepad.left_trigger - wheelsGamepad.right_trigger));
 	}
 
