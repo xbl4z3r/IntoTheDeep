@@ -13,23 +13,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.BuildConfig;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
-
-import java.util.zip.CheckedInputStream;
-
 
 @TeleOp(name = "\uD83C\uDD98⚠️ Temp Op ⚠️\uD83C\uDD98", group = "TeleOp")
 public final class TempTeleOp extends LinearOpMode
 {
-	Gamepad wheelsGamepad, armGamepad;
-
-	MecanumDrive mecanumDrive;
-
-	DcMotorEx tumbler, lift1, lift2;
-
-	Servo rotator, bigAngler, smallAngler, pickupClaw, scoreClaw, scoreTumbler;
+	private Gamepad wheelsGamepad, armGamepad;
+	private MecanumDrive mecanumDrive;
+	private DcMotorEx tumbler, lift1, lift2;
+	private Servo rotator, bigAngler, smallAngler, pickupClaw, scoreClaw, scoreTumbler;
 
 	public static class Constants
 	{
@@ -53,16 +46,14 @@ public final class TempTeleOp extends LinearOpMode
 		public static int tumblerDeliver = -900;
 
 		public static int liftLoading = 0;
-		public static int[] liftLevels = { 0, 1500, 800, 1950 };
+		public static int[] liftLevels = {0, 1500, 800, 1950};
 	}
 
 	@Override
 	public void runOpMode() throws InterruptedException
 	{
 		Init();
-
 		waitForStart();
-
 		Run();
 	}
 
@@ -77,7 +68,7 @@ public final class TempTeleOp extends LinearOpMode
 		tumbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		tumbler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // melc
+		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		tumbler.setTargetPosition(Constants.tumblerIdle);
 		tumbler.setPower(0.6);
 
@@ -123,7 +114,6 @@ public final class TempTeleOp extends LinearOpMode
 			Pickup();
 			Lift();
 			SetMotorPowers();
-
 			Telemetry();
 		}
 	}
@@ -134,8 +124,7 @@ public final class TempTeleOp extends LinearOpMode
 		if (wheelsGamepad.right_bumper)
 			speed = 1.0f; // turbo
 		else if (wheelsGamepad.left_bumper)
-			speed = 0.4f; // supress
-
+			speed = 0.4f; // suppress
 		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(speed),
 				wheelsGamepad.left_trigger - wheelsGamepad.right_trigger));
 	}
@@ -144,6 +133,7 @@ public final class TempTeleOp extends LinearOpMode
 	private int smallAnglerPos = 1;
 	private boolean bigAnglerSafe = false;
 	private boolean smallAnglerSafe = false;
+
 	private void Anglers()
 	{
 		// Big
@@ -213,6 +203,7 @@ public final class TempTeleOp extends LinearOpMode
 	private boolean pickupSafe = false;
 	private Utilities.State pickupState = Utilities.State.IDLE;
 	private Utilities.State scoreClawState = Utilities.State.IDLE;
+
 	private void Pickup()
 	{
 		if (wheelsGamepad.a && !pickupSafe)
@@ -229,30 +220,23 @@ public final class TempTeleOp extends LinearOpMode
 			else if (pickupState == Utilities.State.BUSY)
 			{
 				pickupClaw.setPosition(Constants.pickupClawBusy);
-				setTimeout(500, () -> {
+				setTimeout(() -> {
 					rotator.setPosition(Constants.rotatorBusy);
-
-					setTimeout(500, () -> {
+					setTimeout(() -> {
 						tumbler.setTargetPosition(Constants.tumblerDeliver);
 						WaitToFinish(tumbler);
-
 						scoreClaw.setPosition(Constants.scoreClawBusy);
-
-						setTimeout(400, () -> {
+						setTimeout(() -> {
 							pickupClaw.setPosition(Constants.pickupClawIdle);
-
-							setTimeout(300, () -> {
+							setTimeout(() -> {
 								tumbler.setTargetPosition(Constants.tumblerIdle);
 								rotator.setPosition(Constants.rotatorIdle);
-
-
 								pickupState = Utilities.State.IDLE;
 								scoreClawState = Utilities.State.BUSY;
-							});
-						});
-					});
-
-				});
+							}, 300);
+						}, 400);
+					}, 500);
+				}, 500);
 			}
 		}
 		else pickupSafe = wheelsGamepad.a;
@@ -261,6 +245,7 @@ public final class TempTeleOp extends LinearOpMode
 	private Utilities.State liftState = Utilities.State.IDLE;
 	private int liftLevel = 0;
 	private boolean scoreSafe = false;
+
 	void Lift()
 	{
 		if (armGamepad.dpad_down) // lowest
@@ -295,16 +280,16 @@ public final class TempTeleOp extends LinearOpMode
 			if (armGamepad.a && !scoreSafe)
 			{
 				scoreClaw.setPosition(Constants.scoreClawIdle);
-				setTimeout(300, () -> {
+				setTimeout(() -> {
 					scoreTumbler.setPosition(Constants.scoreTumblerIdle);
-					setTimeout(1500, () -> {
+					setTimeout(() -> {
 						lift1.setTargetPosition(Constants.liftLoading);
 						lift2.setTargetPosition(Constants.liftLoading);
 
 						scoreClawState = Utilities.State.IDLE;
 						liftState = Utilities.State.IDLE;
-					});
-				});
+					}, 1500);
+				}, 300);
 
 				scoreSafe = true;
 			}
@@ -315,7 +300,7 @@ public final class TempTeleOp extends LinearOpMode
 	private void SetMotorPowers()
 	{
 		if ((Math.abs(lift1.getTargetPosition() - lift1.getCurrentPosition()) > lift1.getTargetPositionTolerance()) ||
-			(Math.abs(lift2.getTargetPosition() - lift2.getCurrentPosition()) > lift2.getTargetPositionTolerance()))
+				(Math.abs(lift2.getTargetPosition() - lift2.getCurrentPosition()) > lift2.getTargetPositionTolerance()))
 		{
 			lift1.setPower(1.0);
 			lift2.setPower(1.0);

@@ -17,15 +17,10 @@ import org.firstinspires.ftc.teamcode.Utilities;
 @TeleOp(name = "Temp \uD83D\uDC79Fane\uD83D\uDC79 Op ", group = "TeleOp")
 public class TempFaneOp extends LinearOpMode
 {
-	Gamepad wheelsGamepad, armGamepad;
-
-	MecanumDrive mecanumDrive;
-
-	DcMotorEx lift;
-	Servo extendoServo1, extendoServo2, tumblerServo, smolTumbler, rotatorServo, clawServo;
-
-
-
+	private Gamepad wheelsGamepad, armGamepad;
+	private MecanumDrive mecanumDrive;
+	private DcMotorEx lift;
+	private Servo extendoServo1, extendoServo2, tumblerServo, smallTumbler, rotatorServo, clawServo;
 
 
 	@Override
@@ -43,24 +38,22 @@ public class TempFaneOp extends LinearOpMode
 
 		mecanumDrive = new MecanumDrive(hardwareMap);
 
-
 		lift = hardwareMap.get(DcMotorEx.class, "lift");
 		lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
 		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
 		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
-		tumblerServo  = hardwareMap.get(Servo.class, "tumbler");
-		smolTumbler   = hardwareMap.get(Servo.class, "sTumbler");
-		rotatorServo  = hardwareMap.get(Servo.class, "rotator");
-		clawServo     = hardwareMap.get(Servo.class, "claw");
+		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
+		smallTumbler = hardwareMap.get(Servo.class, "sTumbler");
+		rotatorServo = hardwareMap.get(Servo.class, "rotator");
+		clawServo = hardwareMap.get(Servo.class, "claw");
 
 		extendoServo1.setPosition(1);
 		extendoServo2.setPosition(0);
 		tumblerServo.setPosition(1);
-		smolTumbler.setPosition(0.8);
+		smallTumbler.setPosition(0.8);
 		rotatorServo.setPosition(0.5);
 		clawServo.setPosition(1);
 	}
@@ -85,8 +78,7 @@ public class TempFaneOp extends LinearOpMode
 		if (wheelsGamepad.right_bumper)
 			speed = 1.0f; // turbo
 		else if (wheelsGamepad.left_bumper)
-			speed = 0.4f; // supress
-
+			speed = 0.4f; // suppress
 		mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(wheelsGamepad.left_stick_y, wheelsGamepad.left_stick_x).times(speed),
 				wheelsGamepad.left_trigger - wheelsGamepad.right_trigger));
 	}
@@ -95,6 +87,7 @@ public class TempFaneOp extends LinearOpMode
 	private Utilities.State clawState = Utilities.State.IDLE;
 	private int rotatorState = 1; // 0 left, 1 center, 2 right
 	private boolean rotatorSafe = false;
+
 	private void Diver()
 	{
 		// Rotator
@@ -135,13 +128,12 @@ public class TempFaneOp extends LinearOpMode
 			clawState = Utilities.State.IDLE;
 
 			clawServo.setPosition(1);
-			setTimeout(500,
-					() -> {
-						extendoServo1.setPosition(0);
-						extendoServo2.setPosition(1);
-						tumblerServo.setPosition(0.2);
-						smolTumbler.setPosition(1);
-					});
+			setTimeout(() -> {
+				extendoServo1.setPosition(0);
+				extendoServo2.setPosition(1);
+				tumblerServo.setPosition(0.2);
+				smallTumbler.setPosition(1);
+			}, 500);
 		}
 		else if (gamepad1.a && armState == Utilities.State.BUSY)
 		{
@@ -151,18 +143,15 @@ public class TempFaneOp extends LinearOpMode
 			rotatorState = 1;
 
 			clawServo.setPosition(0.2);
-			setTimeout(500,
-					() -> {
-						extendoServo1.setPosition(1);
-						extendoServo2.setPosition(0);
-						tumblerServo.setPosition(1);
-						smolTumbler.setPosition(0);
-						rotatorServo.setPosition(0.5);
-					});
+			setTimeout(() -> {
+				extendoServo1.setPosition(1);
+				extendoServo2.setPosition(0);
+				tumblerServo.setPosition(1);
+				smallTumbler.setPosition(0);
+				rotatorServo.setPosition(0.5);
+			}, 500);
 		}
 	}
-
-
 
 	private void Lift()
 	{

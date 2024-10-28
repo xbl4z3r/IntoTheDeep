@@ -18,13 +18,16 @@ import java.util.Locale;
 
 public class Utilities
 {
-	public static void setTimeout(long delay, Runnable runnable)
+	public static void setTimeout(Runnable runnable, long delay)
 	{
 		new Thread(() -> {
-			try {
+			try
+			{
 				Thread.sleep(delay);
 				runnable.run();
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 		}).start();
@@ -45,18 +48,20 @@ public class Utilities
 		}
 	}
 
-	public static boolean IsMotorFinished(DcMotorEx motor)
+	public static double centimetersToInches(double centimeters)
 	{
-		return true;
+		return centimeters / 2.54;
 	}
 
-	public static double centimetersToInches(double centimeters) { return centimeters / 2.54; }
-
-	public static double inchesToCentimeters(double inches) { return inches * 2.54; }
+	public static double inchesToCentimeters(double inches)
+	{
+		return inches * 2.54;
+	}
 
 	/**
 	 * Convert an angle to a servo position
-	 * @param angle The angle to convert
+	 *
+	 * @param angle    The angle to convert
 	 * @param maxAngle The angle that corresponds to the maximum servo position relative to the starting position (in degrees, usually 180)
 	 * @return The servo position
 	 */
@@ -67,6 +72,7 @@ public class Utilities
 
 	/**
 	 * Convert an angle to a servo position (assuming the maximum angle is 180 degrees)
+	 *
 	 * @param angle The angle to convert
 	 * @return The servo position
 	 */
@@ -75,17 +81,25 @@ public class Utilities
 		return angleToServoPosition(angle, 180);
 	}
 
-
 	public static double Clamp(double value, double lower, double higher)
 	{
 		return value <= lower ? lower : Math.min(value, higher);
 	}
 
-	public static Action WaitFor(double delay) { return new SleepAction(delay); }
+	public static Action WaitFor(double delay)
+	{
+		return new SleepAction(delay);
+	}
 
-	public static Action RunInParallel(Action... actions) { return new ParallelAction(actions); }
+	public static Action RunInParallel(Action... actions)
+	{
+		return new ParallelAction(actions);
+	}
 
-	public static Action RunSequentially(Action... actions) { return new SequentialAction(actions); }
+	public static Action RunSequentially(Action... actions)
+	{
+		return new SequentialAction(actions);
+	}
 
 	public static Scalar hsvToRgb(double h, double s, double v)
 	{
@@ -102,22 +116,33 @@ public class Utilities
 		double gPrime = 0;
 		double bPrime = 0;
 
-		if (0 <= hPrimeDivided && hPrimeDivided < 1) {
+		if (0 <= hPrimeDivided && hPrimeDivided < 1)
+		{
 			rPrime = c;
 			gPrime = x;
-		} else if (1 <= hPrimeDivided && hPrimeDivided < 2) {
+		}
+		else if (1 <= hPrimeDivided && hPrimeDivided < 2)
+		{
 			rPrime = x;
 			gPrime = c;
-		} else if (2 <= hPrimeDivided && hPrimeDivided < 3) {
+		}
+		else if (2 <= hPrimeDivided && hPrimeDivided < 3)
+		{
 			gPrime = c;
 			bPrime = x;
-		} else if (3 <= hPrimeDivided && hPrimeDivided < 4) {
+		}
+		else if (3 <= hPrimeDivided && hPrimeDivided < 4)
+		{
 			gPrime = x;
 			bPrime = c;
-		} else if (4 <= hPrimeDivided && hPrimeDivided < 5) {
+		}
+		else if (4 <= hPrimeDivided && hPrimeDivided < 5)
+		{
 			rPrime = x;
 			bPrime = c;
-		} else if (5 <= hPrimeDivided && hPrimeDivided < 6) {
+		}
+		else if (5 <= hPrimeDivided && hPrimeDivided < 6)
+		{
 			rPrime = c;
 			bPrime = x;
 		}
@@ -133,7 +158,8 @@ public class Utilities
 
 	public static void CutPower(DcMotorEx... devices)
 	{
-		for (DcMotorEx device : devices) {
+		for (DcMotorEx device : devices)
+		{
 			device.setPower(0);
 			device.setMotorDisable();
 		}
