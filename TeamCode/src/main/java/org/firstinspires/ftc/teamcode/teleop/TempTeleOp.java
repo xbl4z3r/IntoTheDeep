@@ -66,7 +66,6 @@ public final class TempTeleOp extends LinearOpMode
 
 		tumbler = hardwareMap.get(DcMotorEx.class, "tumbler");
 		tumbler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		tumbler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		tumbler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		tumbler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		tumbler.setTargetPosition(Constants.tumblerIdle);
@@ -81,8 +80,6 @@ public final class TempTeleOp extends LinearOpMode
 		lift2.setTargetPositionTolerance(100);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-		lift2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift1.setTargetPosition(0);
@@ -91,16 +88,17 @@ public final class TempTeleOp extends LinearOpMode
 		lift2.setPower(1.0);
 
 		rotator = hardwareMap.get(Servo.class, "rotator");
-		rotator.setPosition(Constants.rotatorIdle);
 		bigAngler = hardwareMap.get(Servo.class, "bigAngler");
-		bigAngler.setPosition(Constants.bigAnglerCenter);
 		smallAngler = hardwareMap.get(Servo.class, "smallAngler");
-		smallAngler.setPosition(Constants.smallAnglerCenter);
 		pickupClaw = hardwareMap.get(Servo.class, "pickupClaw");
-		pickupClaw.setPosition(Constants.pickupClawIdle);
 		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
-		scoreClaw.setPosition(Constants.scoreClawIdle);
 		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
+
+		rotator.setPosition(Constants.rotatorIdle);
+		bigAngler.setPosition(Constants.bigAnglerCenter);
+		smallAngler.setPosition(Constants.smallAnglerCenter);
+		pickupClaw.setPosition(Constants.pickupClawIdle);
+		scoreClaw.setPosition(Constants.scoreClawIdle);
 		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
 	}
 
@@ -133,7 +131,6 @@ public final class TempTeleOp extends LinearOpMode
 	private int smallAnglerPos = 1;
 	private boolean bigAnglerSafe = false;
 	private boolean smallAnglerSafe = false;
-
 	private void Anglers()
 	{
 		// Big
@@ -203,7 +200,6 @@ public final class TempTeleOp extends LinearOpMode
 	private boolean pickupSafe = false;
 	private Utilities.State pickupState = Utilities.State.IDLE;
 	private Utilities.State scoreClawState = Utilities.State.IDLE;
-
 	private void Pickup()
 	{
 		if (wheelsGamepad.a && !pickupSafe)
@@ -245,7 +241,6 @@ public final class TempTeleOp extends LinearOpMode
 	private Utilities.State liftState = Utilities.State.IDLE;
 	private int liftLevel = 0;
 	private boolean scoreSafe = false;
-
 	void Lift()
 	{
 		if (armGamepad.dpad_down) // lowest

@@ -11,9 +11,7 @@ import org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
-import org.firstinspires.ftc.vision.opencv.ColorSpace;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.opencv.core.Scalar;
 
 import java.util.List;
 

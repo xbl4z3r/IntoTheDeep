@@ -20,7 +20,37 @@ public class TempFaneOp extends LinearOpMode
 	private Gamepad wheelsGamepad, armGamepad;
 	private MecanumDrive mecanumDrive;
 	private DcMotorEx lift;
-	private Servo extendoServo1, extendoServo2, tumblerServo, smallTumbler, rotatorServo, clawServo;
+	private Servo extendoServo1, extendoServo2, tumblerServo, smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw;
+
+	public static class Constants
+	{
+		public static float extendo1Retracted = 1;
+		public static float extendo2Retracted = 0;
+		public static float extendo1Extended = 0;
+		public static float extendo2Extended = 1;
+
+		public static float tumblerIdle = 1;
+		public static float tumblerBusy = 0.2f;
+
+		public static float smallTumblerIdle = 0;
+		public static float smallTumblerBusy = 1;
+
+		public static float rotatorLeft = 0.25f;
+		public static float rotatorCenter = 0.5f;
+		public static float rotatorRight = 0.75f;
+
+		public static float clawIdle = 1;
+		public static float clawBusy = 0.2f;
+
+		public static int liftLoading = 0;
+		public static int[] liftLevels = { 0, 0, 0, 0 };
+
+		public static float scoreTumblerIdle = 0;
+		public static float scoreTumblerBasket = 0.75f;
+
+		public static float scoreClawIdle = 0;
+		public static float scoreClawBusy = 1;
+	}
 
 
 	@Override
@@ -39,9 +69,13 @@ public class TempFaneOp extends LinearOpMode
 		mecanumDrive = new MecanumDrive(hardwareMap);
 
 		lift = hardwareMap.get(DcMotorEx.class, "lift");
+		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		//lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		//lift.setTargetPosition(0);
+		//lift.setPower(0.8);
+
 
 		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
 		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
@@ -49,13 +83,17 @@ public class TempFaneOp extends LinearOpMode
 		smallTumbler = hardwareMap.get(Servo.class, "sTumbler");
 		rotatorServo = hardwareMap.get(Servo.class, "rotator");
 		clawServo = hardwareMap.get(Servo.class, "claw");
+		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
+		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
 
-		extendoServo1.setPosition(1);
-		extendoServo2.setPosition(0);
-		tumblerServo.setPosition(1);
-		smallTumbler.setPosition(0.8);
-		rotatorServo.setPosition(0.5);
-		clawServo.setPosition(1);
+		extendoServo1.setPosition(Constants.extendo1Retracted);
+		extendoServo2.setPosition(Constants.extendo2Retracted);
+		tumblerServo.setPosition(Constants.tumblerIdle);
+		smallTumbler.setPosition(Constants.smallTumblerIdle);
+		rotatorServo.setPosition(Constants.rotatorCenter);
+		clawServo.setPosition(Constants.clawIdle);
+		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+		scoreClaw.setPosition(Constants.scoreClawIdle);
 	}
 
 	private void Run()
@@ -64,7 +102,6 @@ public class TempFaneOp extends LinearOpMode
 		{
 			Wheels();
 			Diver();
-
 
 			Lift();
 
@@ -85,9 +122,9 @@ public class TempFaneOp extends LinearOpMode
 
 	private Utilities.State armState = Utilities.State.IDLE;
 	private Utilities.State clawState = Utilities.State.IDLE;
+	private Utilities.State scoreClawState = Utilities.State.IDLE;
 	private int rotatorState = 1; // 0 left, 1 center, 2 right
 	private boolean rotatorSafe = false;
-
 	private void Diver()
 	{
 		// Rotator
@@ -107,15 +144,9 @@ public class TempFaneOp extends LinearOpMode
 		{
 			switch (rotatorState)
 			{
-				case 0:
-					rotatorServo.setPosition(0);
-					break;
-				case 1:
-					rotatorServo.setPosition(0.5);
-					break;
-				case 2:
-					rotatorServo.setPosition(1);
-					break;
+				case 0: rotatorServo.setPosition(Constants.rotatorLeft);   break;
+				case 1: rotatorServo.setPosition(Constants.rotatorCenter); break;
+				case 2: rotatorServo.setPosition(Constants.rotatorRight);  break;
 				default:
 					break;
 			}
@@ -127,12 +158,12 @@ public class TempFaneOp extends LinearOpMode
 			armState = Utilities.State.BUSY;
 			clawState = Utilities.State.IDLE;
 
-			clawServo.setPosition(1);
+			clawServo.setPosition(Constants.clawIdle);
 			setTimeout(() -> {
-				extendoServo1.setPosition(0);
-				extendoServo2.setPosition(1);
-				tumblerServo.setPosition(0.2);
-				smallTumbler.setPosition(1);
+				extendoServo1.setPosition(Constants.extendo1Extended);
+				extendoServo2.setPosition(Constants.extendo2Extended);
+				tumblerServo.setPosition(Constants.tumblerBusy);
+				smallTumbler.setPosition(Constants.smallTumblerBusy);
 			}, 500);
 		}
 		else if (gamepad1.a && armState == Utilities.State.BUSY)
@@ -142,30 +173,80 @@ public class TempFaneOp extends LinearOpMode
 
 			rotatorState = 1;
 
-			clawServo.setPosition(0.2);
+			clawServo.setPosition(Constants.clawBusy);
 			setTimeout(() -> {
-				extendoServo1.setPosition(1);
-				extendoServo2.setPosition(0);
-				tumblerServo.setPosition(1);
-				smallTumbler.setPosition(0);
-				rotatorServo.setPosition(0.5);
+				extendoServo1.setPosition(Constants.extendo1Retracted);
+				extendoServo2.setPosition(Constants.extendo2Retracted);
+				tumblerServo.setPosition(Constants.tumblerIdle);
+				smallTumbler.setPosition(Constants.smallTumblerBusy);
+				rotatorServo.setPosition(Constants.rotatorCenter);
 			}, 500);
 		}
 	}
 
+	private Utilities.State liftState = Utilities.State.IDLE;
+	private int liftLevel = 0;
+	private boolean scoreSafe = false;
 	private void Lift()
 	{
 		lift.setPower(armGamepad.right_stick_y);
+
+		if (armGamepad.dpad_down) //
+			liftLevel = 0;
+		else if (armGamepad.dpad_right) //
+			liftLevel = 1;
+		else if (armGamepad.dpad_left) //
+			liftLevel = 2;
+		else if (armGamepad.dpad_up) //
+			liftLevel = 3;
+
+		if (liftState == Utilities.State.IDLE)
+		{
+			if (armGamepad.a && !scoreSafe)
+			{
+				liftState = Utilities.State.BUSY;
+
+				scoreClaw.setPosition(Constants.scoreClawBusy);
+				scoreClawState = Utilities.State.BUSY;
+
+				scoreTumbler.setPosition(Constants.scoreTumblerBasket);
+
+				scoreSafe = true;
+			}
+			else scoreSafe = armGamepad.a;
+		}
+		else // BUSY
+		{
+//			lift.setTargetPosition(Constants.liftLevels[liftLevel]);
+
+			if (armGamepad.a && !scoreSafe)
+			{
+				scoreClaw.setPosition(Constants.scoreClawIdle);
+				setTimeout(() -> {
+					scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+					setTimeout(() -> {
+//						lift.setTargetPosition(Constants.liftLoading);
+
+						scoreClawState = Utilities.State.IDLE;
+						liftState = Utilities.State.IDLE;
+					}, 1500);
+				}, 300);
+
+				scoreSafe = true;
+			}
+			else scoreSafe = armGamepad.a;
+		}
 	}
 
 	private void Telemetry()
 	{
-		telemetry.addData("Arm     State: ", armState.name());
-		telemetry.addData("Rotator State: ", rotatorState);
-		telemetry.addData("Claw    State: ", clawState.name());
+		telemetry.addData("Arm        State: ", armState.name());
+		telemetry.addData("Rotator    State: ", rotatorState);
+		telemetry.addData("Claw       State: ", clawState.name());
+		telemetry.addData("Score Claw State: ", clawState.name());
 
-		telemetry.addData("Lift Pow:      ", lift.getPower());
-		telemetry.addData("Lift Pos:      ", lift.getCurrentPosition());
+		telemetry.addData("Lift Pow:         ", lift.getPower());
+		telemetry.addData("Lift Pos:         ", lift.getCurrentPosition());
 
 		telemetry.update();
 	}
