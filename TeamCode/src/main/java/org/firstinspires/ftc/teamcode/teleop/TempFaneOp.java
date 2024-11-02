@@ -73,8 +73,8 @@ public class TempFaneOp extends LinearOpMode
 		lift = hardwareMap.get(DcMotorEx.class, "lift");
 		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift.setTargetPosition(0);
+		lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift.setPower(1);
 
 
