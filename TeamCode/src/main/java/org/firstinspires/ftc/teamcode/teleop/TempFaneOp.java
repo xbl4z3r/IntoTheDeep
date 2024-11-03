@@ -32,10 +32,9 @@ public class TempFaneOp extends LinearOpMode
 		public static float tumblerLoad = 0;
 		public static float tumblerIdle = 0.17f;
 		public static float tumblerBusy = 0.7f;
-		public static float tumblerOffset = 0.2f; // Max - Busy
-
+		public static float tumblerOffset = 0.15f; // Max - Busy
 		public static float smallTumblerIdle = 1;
-		public static float smallTumblerBusy = 0;
+		public static float smallTumblerBusy = 0.5f;
 
 		public static float rotatorLeft = 0.25f;
 		public static float rotatorCenter = 0.5f;
@@ -45,7 +44,8 @@ public class TempFaneOp extends LinearOpMode
 		public static float clawBusy = 0.2f;
 
 		public static int liftLoading = 0;
-		public static int[] liftLevels = { 0, 0, 550, 1100 };
+		public static int liftOffset = 0;
+		public static int[] liftLevels = { 0, 330, 550, 1100 };
 
 		public static float scoreTumblerIdle = 0;
 		public static float scoreTumblerBasket = 0.75f;
@@ -228,21 +228,36 @@ public class TempFaneOp extends LinearOpMode
 		}
 		else // BUSY
 		{
-			lift.setTargetPosition(Constants.liftLevels[liftLevel]);
+			lift.setTargetPosition(Constants.liftLevels[liftLevel] - Constants.liftOffset);
 
 			if (armGamepad.a && !scoreSafe)
 			{
-				scoreClaw.setPosition(Constants.scoreClawIdle);
-				setTimeout(() -> {
-					scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+				if(liftLevel > 1) {
+					scoreClaw.setPosition(Constants.scoreClawIdle);
 					setTimeout(() -> {
-						lift.setTargetPosition(Constants.liftLoading);
+						scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+						setTimeout(() -> {
+							lift.setTargetPosition(Constants.liftLoading);
 
-						scoreClawState = Utilities.State.IDLE;
-						liftState = Utilities.State.IDLE;
-					}, 1500);
-				}, 500);
-
+							scoreClawState = Utilities.State.IDLE;
+							liftState = Utilities.State.IDLE;
+						}, 1500);
+					}, 500);
+				} else if(liftLevel == 1) {
+					Constants.liftOffset = 250;
+					setTimeout(() -> {
+						scoreClaw.setPosition(Constants.scoreClawIdle);
+						setTimeout(() -> {
+							scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+							setTimeout(() -> {
+								lift.setTargetPosition(Constants.liftLoading);
+								scoreClawState = Utilities.State.IDLE;
+								liftState = Utilities.State.IDLE;
+								Constants.liftOffset = 0;
+							}, 500);
+						}, 500);
+					}, 200);
+				}
 				scoreSafe = true;
 			}
 			else scoreSafe = armGamepad.a;
