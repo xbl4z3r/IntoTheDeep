@@ -13,11 +13,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
 
 @TeleOp(name = "\uD83C\uDD98⚠️ Temp Op ⚠️\uD83C\uDD98", group = "TeleOp")
-public final class TempTeleOp extends LinearOpMode
+public final class TempTeleOp extends BaseOpMode
 {
 	private Gamepad wheelsGamepad, armGamepad;
 	private MecanumDrive mecanumDrive;
@@ -50,14 +51,7 @@ public final class TempTeleOp extends LinearOpMode
 	}
 
 	@Override
-	public void runOpMode() throws InterruptedException
-	{
-		Init();
-		waitForStart();
-		Run();
-	}
-
-	private void Init()
+	protected void OnInitialize()
 	{
 		wheelsGamepad = gamepad1;
 		armGamepad = gamepad2;
@@ -102,18 +96,15 @@ public final class TempTeleOp extends LinearOpMode
 		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
 	}
 
-
-	private void Run()
+	@Override
+	protected void OnRun()
 	{
-		while (opModeIsActive() && !isStopRequested())
-		{
-			Wheels();
-			Anglers();
-			Pickup();
-			Lift();
-			SetMotorPowers();
-			Telemetry();
-		}
+		Wheels();
+		Anglers();
+		Pickup();
+		Lift();
+		SetMotorPowers();
+		Telemetry();
 	}
 
 	private void Wheels()

@@ -1,0 +1,203 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.lang.reflect.Field;
+
+/**
+ * Base class for all OpModes. This class provides a simple way to create OpModes with a consistent
+ * structure. It also provides a way to use the FTC Dashboard for telemetry.
+ *
+ * @author Christi
+ */
+public abstract class BaseOpMode extends LinearOpMode
+{
+	private boolean internal_DebugMode = false;
+	private boolean internal_DummyMode = false;
+
+	protected InputSystem input1, input2;
+	private final InputSystem.Key debugKey = new InputSystem.Key("left_stick_button");
+	private final InputSystem.Key dummyKey = new InputSystem.Key("right_stick_button");
+
+	private ElapsedTime internal_ElapsedTimeSinceInit;
+	private ElapsedTime internal_ElapsedTimeSinceStart;
+	private final ElapsedTime internal_LoopTime = new ElapsedTime();
+
+	@Override
+	public void runOpMode()
+	{
+		internal_ElapsedTimeSinceInit = new ElapsedTime();
+
+		boolean internal_IsAutonomous = this.getClass().isAnnotationPresent(Autonomous.class);
+		this.telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+		telemetry.setMsTransmissionInterval(50);
+		telemetry.addLine("[STATUS] Initializing...");
+		telemetry.update();
+
+		input1 = new InputSystem(gamepad1, telemetry);
+		input2 = new InputSystem(gamepad2, telemetry);
+
+		// Initialize the robot
+		OnInitialize();
+
+		// Wait for the start button to be pressed
+		while (!isStarted() && !isStopRequested()) {
+			if (IsDebugRequested()) {
+				internal_DebugMode = !internal_DebugMode;
+				telemetry.addLine("[DEBUG] Debug mode is enabled");
+				telemetry.update();
+			}
+			ListenForDummyMode();
+			WhileWaitingForStart();
+		}
+
+		// Run the robot
+		internal_ElapsedTimeSinceStart = new ElapsedTime();
+		OnStart();
+		while (!isStopRequested()) {
+			internal_LoopTime.reset();
+			if (IsDebugRequested()) internal_DebugMode = !internal_DebugMode;
+			OnRun();
+			telemetry.clear();
+			OnTelemetry(telemetry);
+			if (internal_DebugMode) OnDebug();
+			telemetry.update();
+			if (internal_IsAutonomous) break;
+		}
+		OnStop();
+
+		// Stop the robot
+		telemetry.clear();
+		telemetry.addLine("[STATUS] Stopping...");
+		telemetry.update();
+	}
+
+	protected abstract void OnInitialize();
+
+	protected abstract void OnRun();
+
+	protected void WhileWaitingForStart()
+	{
+		// Override this method to add custom behavior while waiting for start
+	}
+
+	/**
+	 * This method is called when the OpMode is started.
+	 * It is called before the loop starts.
+	 * Override this method to add custom start behavior
+	 */
+	protected void OnStart()
+	{
+	}
+
+	/**
+	 * This method is called when the OpMode is stopped.
+	 * It is called after the loop has stopped.
+	 * Override this method to add custom stop behavior
+	 */
+	protected void OnStop()
+	{
+	}
+
+	/**
+	 * Override this method to add telemetry data
+	 */
+	protected void OnTelemetry(Telemetry telemetry)
+	{
+	}
+
+	/**
+	 * Override this method to add custom debug behavior
+	 */
+	protected void OnDebug()
+	{
+		telemetry.addLine("[DEBUG] Debug mode is enabled");
+		telemetry.addData("[DEBUG] Dummy Mode", internal_DummyMode);
+		Class<?> clazz = this.getClass();
+		Field[] fields = clazz.getDeclaredFields();
+
+		for (Field field : fields) {
+			field.setAccessible(true);
+			try {
+				Object value = field.get(this);
+				if (value instanceof DcMotorEx) {
+					DcMotorEx motor = (DcMotorEx) value;
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Power", motor.getPower());
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Velocity", motor.getVelocity());
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", motor.getCurrentPosition());
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Target Position", motor.getTargetPosition());
+				} else if (value instanceof Servo) {
+					Servo servo = (Servo) value;
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", servo.getPosition());
+				} else if (value instanceof Enum) {
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), ((Enum<?>) value).name());
+				} else {
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), value);
+				}
+			} catch (Exception e) {
+				telemetry.addData("[!] " + Utilities.toDisplayString(field.getName()), "Error: " + e.getMessage());
+			}
+		}
+		telemetry.addData("[DEBUG] Elapsed Time Since Init", getElapsedTimeSinceInit());
+		telemetry.addData("[DEBUG] Elapsed Time Since Start", getElapsedTimeSinceStart());
+		telemetry.addData("[DEBUG] Loop Time", internal_LoopTime.milliseconds());
+		telemetry.update();
+	}
+
+	private boolean IsDebugRequested()
+	{
+		return input1.wasPressedThisFrame(debugKey) || input2.wasPressedThisFrame(debugKey);
+	}
+
+	private void ListenForDummyMode()
+	{
+		if (internal_DummyMode) return;
+		if (input1.wasPressedThisFrame(dummyKey) || input2.wasPressedThisFrame(dummyKey)) {
+			internal_DummyMode = true;
+			Class<?> clazz = this.getClass();
+			Field[] fields = clazz.getDeclaredFields();
+
+			for (Field field : fields) {
+				field.setAccessible(true);
+				try {
+					Object value = field.get(this);
+					if (value instanceof DcMotorEx) {
+						DcMotorEx motor = (DcMotorEx) value;
+						motor.setPower(0);
+						motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+					}
+				} catch (Exception e) {
+					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
+				}
+			}
+		}
+		telemetry.addLine("[DEBUG] Dummy mode is enabled");
+		telemetry.update();
+	}
+
+	protected double getElapsedTimeSinceInit()
+	{
+		if (internal_ElapsedTimeSinceInit == null) return -1;
+		return internal_ElapsedTimeSinceInit.seconds();
+	}
+
+	protected double getElapsedTimeSinceStart()
+	{
+		if (internal_ElapsedTimeSinceStart == null) return -1;
+		return internal_ElapsedTimeSinceStart.seconds();
+	}
+
+	protected ElapsedTime getLoopTime()
+	{
+		return internal_LoopTime;
+	}
+}

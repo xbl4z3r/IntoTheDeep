@@ -11,11 +11,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
 
-@TeleOp(name = "Temp \uD83D\uDC79Fane\uD83D\uDC79 Op ", group = "TeleOp")
-public class TempFaneOp extends LinearOpMode
+@TeleOp(name = "Temp \uD83D\uDC79Fane\uD83D\uDC79 Op", group = "TeleOp")
+public class TempFaneOp extends BaseOpMode
 {
 	private Gamepad wheelsGamepad, armGamepad;
 	private MecanumDrive mecanumDrive;
@@ -54,16 +55,8 @@ public class TempFaneOp extends LinearOpMode
 		public static float scoreClawBusy = 0;
 	}
 
-
 	@Override
-	public void runOpMode() throws InterruptedException
-	{
-		Init();
-		waitForStart();
-		Run();
-	}
-
-	private void Init()
+	protected void OnInitialize()
 	{
 		wheelsGamepad = gamepad1;
 		armGamepad = gamepad2;
@@ -76,7 +69,6 @@ public class TempFaneOp extends LinearOpMode
 		lift.setTargetPosition(0);
 		lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift.setPower(1);
-
 
 		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
 		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
@@ -97,17 +89,13 @@ public class TempFaneOp extends LinearOpMode
 		scoreClaw.setPosition(Constants.scoreClawIdle);
 	}
 
-	private void Run()
+	@Override
+	protected void OnRun()
 	{
-		while (!isStopRequested())
-		{
-			Wheels();
-			Diver();
-
-			Lift();
-
-			Telemetry();
-		}
+		Wheels();
+		Diver();
+		Lift();
+		Telemetry();
 	}
 
 	private void Wheels()

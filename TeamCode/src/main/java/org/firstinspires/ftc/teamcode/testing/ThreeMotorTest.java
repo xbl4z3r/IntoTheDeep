@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name = "TwoMotorTest", group = "Testing")
-public class TwoMotorTest extends LinearOpMode
+public class ThreeMotorTest extends LinearOpMode
 {
 	DcMotorEx motor1, motor2, motor3;
 

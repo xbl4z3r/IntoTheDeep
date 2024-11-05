@@ -84,11 +84,16 @@ public class InputSystem
 		}
 	}
 
+	public boolean wasPressedThisFrame(String key)
+	{
+		return wasPressedThisFrame(new Key(key));
+	}
+
 	public boolean wasPressedThisFrame(BindingCombo keyCombo)
 	{
 		for (Binding key : keyCombo.getBindings())
 			if (key instanceof Key && !wasPressedThisFrame((Key) key)) return false;
-			else if (key instanceof Axis && getValue((Axis) key) <= 0.75) return false;
+			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE) return false;
 		return true;
 	}
 
@@ -105,11 +110,16 @@ public class InputSystem
 		}
 	}
 
+	public boolean isPressed(String key)
+	{
+		return isPressed(new Key(key));
+	}
+
 	public boolean isPressed(BindingCombo keyCombo)
 	{
 		for (Binding key : keyCombo.getBindings())
 			if (key instanceof Key && !isPressed((Key) key)) return false;
-			else if (key instanceof Axis && getValue((Axis) key) <= 0.75) return false;
+			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE) return false;
 		return true;
 	}
 
@@ -124,6 +134,11 @@ public class InputSystem
 			print("[ERROR] Could not get key " + key.getId());
 			return 0d;
 		}
+	}
+
+	public double getValue(String key)
+	{
+		return getValue(new Axis(key));
 	}
 
 	private void print(String message)

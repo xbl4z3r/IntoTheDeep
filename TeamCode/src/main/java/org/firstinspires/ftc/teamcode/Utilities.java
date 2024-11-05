@@ -156,6 +156,18 @@ public class Utilities
 		return new Scalar(r, g, b);
 	}
 
+	public static String toDisplayString(String input) {
+		StringBuilder displayString = new StringBuilder();
+		for (char c : input.toCharArray()) {
+			if (Character.isUpperCase(c) && displayString.length() > 0)
+				displayString.append(' ');
+			displayString.append(c);
+		}
+		if (displayString.length() > 0)
+			displayString.setCharAt(0, Character.toUpperCase(displayString.charAt(0)));
+		return displayString.toString();
+	}
+
 	public static void CutPower(DcMotorEx... devices)
 	{
 		for (DcMotorEx device : devices)
