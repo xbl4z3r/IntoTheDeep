@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Utilities.CutPower;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -25,7 +27,7 @@ public abstract class BaseOpMode extends LinearOpMode
 
 	protected InputSystem input1, input2;
 	private final InputSystem.Key debugKey = new InputSystem.Key("left_stick_button");
-	private final InputSystem.Key dummyKey = new InputSystem.Key("right_stick_button");
+	private final InputSystem.Key dummyKey = new InputSystem.Key("start");
 
 	private ElapsedTime internal_ElapsedTimeSinceInit;
 	private ElapsedTime internal_ElapsedTimeSinceStart;
@@ -161,8 +163,10 @@ public abstract class BaseOpMode extends LinearOpMode
 	private void ListenForDummyMode()
 	{
 		if (internal_DummyMode) return;
+		if (!internal_DebugMode) return;
 		if (input1.wasPressedThisFrame(dummyKey) || input2.wasPressedThisFrame(dummyKey)) {
 			internal_DummyMode = true;
+
 			Class<?> clazz = this.getClass();
 			Field[] fields = clazz.getDeclaredFields();
 
@@ -174,14 +178,17 @@ public abstract class BaseOpMode extends LinearOpMode
 						DcMotorEx motor = (DcMotorEx) value;
 						motor.setPower(0);
 						motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+					} else if(value instanceof Servo) {
+						CutPower((Servo) value);
 					}
 				} catch (Exception e) {
 					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 				}
 			}
+
+			telemetry.addLine("[DEBUG] Dummy mode is enabled");
+			telemetry.update();
 		}
-		telemetry.addLine("[DEBUG] Dummy mode is enabled");
-		telemetry.update();
 	}
 
 	protected double getElapsedTimeSinceInit()

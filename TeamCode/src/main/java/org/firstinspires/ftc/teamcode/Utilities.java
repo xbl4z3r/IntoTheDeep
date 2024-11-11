@@ -86,6 +86,11 @@ public class Utilities
 		return value <= lower ? lower : Math.min(value, higher);
 	}
 
+	public static float Clamp(float value, float lower, float higher)
+	{
+		return value <= lower ? lower : Math.min(value, higher);
+	}
+
 	public static Action WaitFor(double delay)
 	{
 		return new SleepAction(delay);
@@ -209,7 +214,6 @@ public class Utilities
 	public enum State
 	{
 		IDLE,
-		READY,
 		BUSY
 	}
 

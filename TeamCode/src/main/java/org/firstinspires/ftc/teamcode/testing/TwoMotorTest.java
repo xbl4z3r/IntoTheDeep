@@ -26,7 +26,7 @@ public final class TwoMotorTest extends BaseOpMode
 		motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 		motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+		//motor1.setDirection(DcMotorSimple.Direction.REVERSE);
 	}
 
 	@Override

@@ -30,7 +30,6 @@ public final class FaneOp extends BaseOpMode
 		public static float extendo1Extended = 1;
 		public static float extendo2Extended = 0;
 
-		public static float tumblerLoad = 0;
 		public static float tumblerIdle = 0.17f;
 		public static float tumblerBusy = 0.7f;
 		public static float tumblerOffset = 0.15f; // Max - Busy
@@ -176,7 +175,7 @@ public final class FaneOp extends BaseOpMode
 				setTimeout(() -> {
 					extendoServo1.setPosition(Constants.extendo1Retracted);
 					extendoServo2.setPosition(Constants.extendo2Retracted);
-					tumblerServo.setPosition(Constants.tumblerLoad);
+					tumblerServo.setPosition(Constants.tumblerIdle - Constants.tumblerOffset);
 					smallTumbler.setPosition(Constants.smallTumblerIdle);
 					rotatorServo.setPosition(Constants.rotatorCenter);
 					setTimeout(() -> {
