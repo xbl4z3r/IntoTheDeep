@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -160,6 +162,13 @@ public class InputSystem
 		public String getId()
 		{
 			return id;
+		}
+
+		@NonNull
+		@Override
+		public String toString()
+		{
+			return id.toUpperCase();
 		}
 	}
 

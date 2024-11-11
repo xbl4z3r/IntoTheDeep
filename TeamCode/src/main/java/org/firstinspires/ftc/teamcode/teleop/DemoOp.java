@@ -34,7 +34,7 @@ public final class DemoOp extends BaseOpMode
 		public static float SMALL_TUMBLER_IDLE = 0.1f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
-		public static float ROTATOR_CENTER = 0.5f;
+		public static float ROTATOR_BASE = 0.5f;
 
 		public static float CLAW_IDLE = 0.9f;
 		public static float CLAW_BUSY = 0.5f;
@@ -109,7 +109,7 @@ public final class DemoOp extends BaseOpMode
 		extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
 		tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 		smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
-		rotatorServo.setPosition(Constants.ROTATOR_CENTER);
+		rotatorServo.setPosition(Constants.ROTATOR_BASE);
 		clawServo.setPosition(Constants.CLAW_IDLE);
 		scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 		scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
@@ -143,7 +143,7 @@ public final class DemoOp extends BaseOpMode
 
 	private Utilities.State armState = Utilities.State.IDLE;
 	private Utilities.State clawState = Utilities.State.IDLE;
-	private float rotatorValue = Constants.ROTATOR_CENTER;
+	private float rotatorValue = Constants.ROTATOR_BASE;
 
 	private void Extendo()
 	{
@@ -175,8 +175,8 @@ public final class DemoOp extends BaseOpMode
 					extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
 					tumblerServo.setPosition(Constants.TUMBLER_BUSY);
 					smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
-					rotatorServo.setPosition(Constants.ROTATOR_CENTER);
-					rotatorValue = Constants.ROTATOR_CENTER;
+					rotatorServo.setPosition(Constants.ROTATOR_BASE);
+					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
 						tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 						setTimeout(() -> {
@@ -261,20 +261,18 @@ public final class DemoOp extends BaseOpMode
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-		telemetry.addData("[DEBUG] Lift1 Power", lift1.getPower());
-		telemetry.addData("[DEBUG] Lift2 Power", lift2.getPower());
-		telemetry.addData("[DEBUG] Lift1 Target", lift1.getTargetPosition());
-		telemetry.addData("[DEBUG] Lift2 Target", lift2.getTargetPosition());
-		telemetry.addData("[DEBUG] Lift1 Pos", lift1.getCurrentPosition());
-		telemetry.addData("[DEBUG] Lift2 Pos", lift2.getCurrentPosition());
+		telemetry.addLine("[SYSTEM] Op mode running...");
 		if(suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
-			telemetry.addLine("[INFO] Press Y again to suspend");
-			telemetry.addLine("[INFO] Press X to cancel");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CANCEL_SUSPEND_KEY + " to cancel");
 		} else {
 			telemetry.addLine("[INFO] Welcome Drivers!");
-			telemetry.addData("[INFO] Robot Position", mecanumDrive.pose.position);
-			telemetry.addData("[INFO] Robot Heading", mecanumDrive.pose.heading);
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY, " to enter Suspend Mode");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY, " to move to Basket Low");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY, " to move to Basket High");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY, " to move to Submersible High");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY, " to score");
 		}
 	}
 }

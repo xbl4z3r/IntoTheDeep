@@ -25,43 +25,60 @@ public final class FaneOp extends BaseOpMode
 
 	private static class Constants
 	{
-		public static float extendo1Retracted = 0;
-		public static float extendo2Retracted = 1;
-		public static float extendo1Extended = 1;
-		public static float extendo2Extended = 0;
+		public static float EXTENDO1_RETRACTED = 0;
+		public static float EXTENDO2_RETRACTED = 1;
+		public static float EXTENDO1_EXTENDED = 1;
+		public static float EXTENDO2_EXTENDED = 0;
 
-		public static float tumblerIdle = 0.17f;
-		public static float tumblerBusy = 0.7f;
-		public static float tumblerOffset = 0.15f; // Max - Busy
-		public static float smallTumblerIdle = 1;
-		public static float smallTumblerBusy = 0.5f;
+		public static float TUMBLER_IDLE = 0.17f;
+		public static float TUMBLER_BUSY = 0.7f;
+		public static float TUMBLER_OFFSET = 0.15f;  // The amount of position to add to obtain the grabbing position and subtract to obtain the load position
 
-		public static float rotatorLeft = 0.25f;
-		public static float rotatorCenter = 0.5f;
-		public static float rotatorRight = 0.75f;
+		public static float SMALL_TUMBLER_IDLE = 1;
+		public static float SMALL_TUMBLER_BUSY = 0.5f;
 
-		public static float clawIdle = 0.6f;
-		public static float clawBusy = 0.2f;
+		public static float ROTATOR_BASE = 0.5f;
 
-		public static int liftLoading = 0;
-		public static int liftOffset = 0;
-		public static int[] liftLevels = {0, 330, 550, 1100};
+		public static float CLAW_IDLE = 0.6f;
+		public static float CLAW_BUSY = 0.2f;
 
-		public static float scoreTumblerIdle = 0;
-		public static float scoreTumblerBasket = 0.75f;
+		public static int LIFT_IDLE = 0;
+		public static int LIFT_SUSPEND = 0;
+		public static int LIFT_OFFSET = 0;
 
-		public static float scoreClawIdle = 1;
-		public static float scoreClawBusy = 0;
+		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
+		public static int[] LIFT_LEVELS = {330, 550, 1100};
+
+		public static float SCORE_TUMBLER_IDLE = 0;
+		public static float SCORE_TUMBLER_BUSY = 0.75f;
+
+		public static float SCORE_CLAW_IDLE = 1;
+		public static float SCORE_CLAW_BUSY = 0;
 	}
 
 	private static class Keybindings
 	{
-		public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
-		public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
-		public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
-		public static final InputSystem.Axis DRIVE_Y = new InputSystem.Axis("left_stick_y");
-		public static final InputSystem.Axis DRIVE_ROT_L = new InputSystem.Axis("left_trigger");
-		public static final InputSystem.Axis DRIVE_ROT_R = new InputSystem.Axis("right_trigger");
+		public static class Arm
+		{
+			public static final InputSystem.Key BASKET_LOW_KEY = new InputSystem.Key("dpad_down");
+			public static final InputSystem.Key BASKET_HIGH_KEY = new InputSystem.Key("dpad_up");
+			public static final InputSystem.Key SUBMERSIBLE_HIGH_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
+			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
+			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
+		}
+
+		public static class Drive
+		{
+			public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
+			public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
+			public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
+			public static final InputSystem.Axis DRIVE_Y = new InputSystem.Axis("left_stick_y");
+			public static final InputSystem.Axis DRIVE_ROT_L = new InputSystem.Axis("left_trigger");
+			public static final InputSystem.Axis DRIVE_ROT_R = new InputSystem.Axis("right_trigger");
+			public static final InputSystem.Axis ROTATOR_ANGLE = new InputSystem.Axis("right_stick_x");
+			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
+		}
 	}
 
 	@Override
@@ -88,185 +105,183 @@ public final class FaneOp extends BaseOpMode
 		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
 		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
 
-		extendoServo1.setPosition(Constants.extendo1Retracted);
-		extendoServo2.setPosition(Constants.extendo2Retracted);
-		tumblerServo.setPosition(Constants.tumblerIdle);
-		smallTumbler.setPosition(Constants.smallTumblerIdle);
-		rotatorServo.setPosition(Constants.rotatorCenter);
-		clawServo.setPosition(Constants.clawIdle);
-		scoreTumbler.setPosition(Constants.scoreTumblerIdle);
-		scoreClaw.setPosition(Constants.scoreClawIdle);
+		extendoServo1.setPosition(Constants.EXTENDO1_RETRACTED);
+		extendoServo2.setPosition(Constants.EXTENDO2_RETRACTED);
+		tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+		smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+		rotatorServo.setPosition(Constants.ROTATOR_BASE);
+		clawServo.setPosition(Constants.CLAW_IDLE);
+		scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+		scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
 	}
 
 	@Override
 	protected void OnRun()
 	{
+		Suspender();
 		Drive();
-		Diver();
+		if(suspendState == Utilities.State.BUSY) return;
 		Lift();
+		Extendo();
+		Scorer();
 	}
 
 	private void Drive()
 	{
 		float speed = 0.7f;
-		if (driveInput.isPressed(Keybindings.TURBO_KEY)) speed = 1.0f;
-		else if (driveInput.isPressed(Keybindings.SUPPRESS_KEY)) speed = 0.4f;
+		if (driveInput.isPressed(Keybindings.Drive.TURBO_KEY)) speed = 1.0f;
+		else if (driveInput.isPressed(Keybindings.Drive.SUPPRESS_KEY)) speed = 0.4f;
 		mecanumDrive.setDrivePowers(
-				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.DRIVE_Y),
-						driveInput.getValue(Keybindings.DRIVE_X)).times(speed),
-						-driveInput.getValue(Keybindings.DRIVE_ROT_L) + driveInput.getValue(Keybindings.DRIVE_ROT_R)
+				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
+						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(speed),
+						-driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) + driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)
 				)
 		);
 	}
 
+	private boolean armReady = false;
+
 	private Utilities.State armState = Utilities.State.IDLE;
 	private Utilities.State clawState = Utilities.State.IDLE;
-	private Utilities.State scoreClawState = Utilities.State.IDLE;
-	private int rotatorState = 1; // 0 left, 1 center, 2 right
-	private boolean rotatorSafe = false;
+	private float rotatorValue = Constants.ROTATOR_BASE;
 
-	private void Diver()
+	private void Extendo()
 	{
-		// Rotator
-		if (gamepad1.right_bumper && rotatorState > 0 && !rotatorSafe) {
-			rotatorSafe = true;
-			rotatorState--;
-		} else if (gamepad1.left_bumper && rotatorState < 2 && !rotatorSafe) {
-			rotatorSafe = true;
-			rotatorState++;
-		}
-		if (!gamepad1.left_bumper && !gamepad1.right_bumper) rotatorSafe = false;
-
 		if (clawState == Utilities.State.IDLE) {
-			switch (rotatorState) {
-				case 0:
-					rotatorServo.setPosition(Constants.rotatorLeft);
-					break;
-				case 1:
-					rotatorServo.setPosition(Constants.rotatorCenter);
-					break;
-				case 2:
-					rotatorServo.setPosition(Constants.rotatorRight);
-					break;
-				default:
-					break;
-			}
+			rotatorValue += driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 10f;
+			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
+			rotatorServo.setPosition(rotatorValue);
 		}
 
 		// Grab
-		if (gamepad1.x && armState == Utilities.State.IDLE) {
+		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
+		if (armState == Utilities.State.IDLE) {
 			armState = Utilities.State.BUSY;
 			clawState = Utilities.State.IDLE;
 
-			clawServo.setPosition(Constants.clawIdle);
+			clawServo.setPosition(Constants.CLAW_IDLE);
 			setTimeout(() -> {
-				extendoServo1.setPosition(Constants.extendo1Extended);
-				extendoServo2.setPosition(Constants.extendo2Extended);
-				tumblerServo.setPosition(Constants.tumblerBusy);
-				smallTumbler.setPosition(Constants.smallTumblerBusy);
+				extendoServo1.setPosition(Constants.EXTENDO1_EXTENDED);
+				extendoServo2.setPosition(Constants.EXTENDO2_EXTENDED);
+				tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+				smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			}, 500);
-		} else if (gamepad1.a && armState == Utilities.State.BUSY) {
+		} else if (armState == Utilities.State.BUSY) {
 			armState = Utilities.State.IDLE;
-			tumblerServo.setPosition(Constants.tumblerBusy + Constants.tumblerOffset);
+			tumblerServo.setPosition(Constants.TUMBLER_BUSY + Constants.TUMBLER_OFFSET);
 			setTimeout(() -> {
 				clawState = Utilities.State.BUSY;
-				rotatorState = 1;
-				clawServo.setPosition(Constants.clawBusy);
+				clawServo.setPosition(Constants.CLAW_BUSY);
 				setTimeout(() -> {
-					extendoServo1.setPosition(Constants.extendo1Retracted);
-					extendoServo2.setPosition(Constants.extendo2Retracted);
-					tumblerServo.setPosition(Constants.tumblerIdle - Constants.tumblerOffset);
-					smallTumbler.setPosition(Constants.smallTumblerIdle);
-					rotatorServo.setPosition(Constants.rotatorCenter);
+					extendoServo1.setPosition(Constants.EXTENDO1_RETRACTED);
+					extendoServo2.setPosition(Constants.EXTENDO2_RETRACTED);
+					tumblerServo.setPosition(Constants.TUMBLER_BUSY - Constants.TUMBLER_OFFSET);
+					smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+					rotatorServo.setPosition(Constants.ROTATOR_BASE);
+					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
-						scoreClaw.setPosition(Constants.scoreClawBusy);
+						tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 						setTimeout(() -> {
-							clawServo.setPosition(Constants.clawIdle);
-							setTimeout(() -> tumblerServo.setPosition(Constants.tumblerIdle),
-									400);
+							scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
+							setTimeout(() -> {
+								clawServo.setPosition(Constants.CLAW_IDLE);
+								armReady = true;
+							}, 600);
 						}, 500);
-					}, 800);
+					}, 500);
 				}, 500);
-			}, 300);
+			}, 400);
 		}
 	}
 
 	private Utilities.State liftState = Utilities.State.IDLE;
 	private int liftLevel = 0;
-	private boolean scoreSafe = false;
 
 	private void Lift()
 	{
-		if (gamepad2.dpad_down) //
-			liftLevel = 0;
-		else if (gamepad2.dpad_right) //
-			liftLevel = 1;
-		else if (gamepad2.dpad_left) // low basket
-			liftLevel = 2;
-		else if (gamepad2.dpad_up) // high basket
-			liftLevel = 3;
+		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
+		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
+		else if (armInput.wasPressedThisFrame(Keybindings.Arm.SUBMERSIBLE_HIGH_KEY)) liftLevel = 2;
 
 		if (liftState == Utilities.State.IDLE) {
-			if (lift.getTargetPosition() != Constants.liftLoading)
-				lift.setTargetPosition(Constants.liftLoading);
+			if (lift.getTargetPosition() != Constants.LIFT_IDLE)
+				lift.setTargetPosition(Constants.LIFT_IDLE);
+		} else if (liftState == Utilities.State.BUSY) {
+			lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+		}
+	}
 
-			if (gamepad2.a && !scoreSafe) {
-				liftState = Utilities.State.BUSY;
+	private Utilities.State suspendState = Utilities.State.IDLE;
 
-				scoreClaw.setPosition(Constants.scoreClawBusy);
-				scoreClawState = Utilities.State.BUSY;
+	// TODO: Lock the axle in place when suspending the arm and use the drive motors to power the lift
+	private void Suspender()
+	{
+		if (armInput.wasPressedThisFrame(Keybindings.Arm.CANCEL_SUSPEND_KEY) && suspendState == Utilities.State.BUSY) {
+			lift.setTargetPosition(Constants.LIFT_IDLE);
+			suspendState = Utilities.State.IDLE;
+			return;
+		}
 
-				setTimeout(() -> scoreTumbler.setPosition(Constants.scoreTumblerBasket), 2000);
+		if (!armInput.wasPressedThisFrame(Keybindings.Arm.SUSPEND_KEY)) return;
 
-				scoreSafe = true;
-			} else scoreSafe = gamepad2.a;
-		} else // BUSY
-		{
-			lift.setTargetPosition(Constants.liftLevels[liftLevel] - Constants.liftOffset);
+		if(suspendState == Utilities.State.IDLE) {
+			lift.setTargetPosition(Constants.LIFT_SUSPEND);
+			suspendState = Utilities.State.BUSY;
+		} else {
+			lift.setTargetPosition(Constants.LIFT_IDLE);
+		}
+	}
 
-			if (gamepad2.a && !scoreSafe) {
-				if (liftLevel > 1) {
-					scoreClaw.setPosition(Constants.scoreClawIdle);
+	private void Scorer()
+	{
+		if (!armReady) return;
+		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
+		if (liftState == Utilities.State.IDLE) {
+			liftState = Utilities.State.BUSY;
+			scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
+			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BUSY), 2000);
+		} else if (liftState == Utilities.State.BUSY) {
+			if (liftLevel < 2) { // BASKET_LOW, BASKET_HIGH
+				scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+				setTimeout(() -> {
+					scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 					setTimeout(() -> {
-						scoreTumbler.setPosition(Constants.scoreTumblerIdle);
+						lift.setTargetPosition(Constants.LIFT_IDLE);
+						liftState = Utilities.State.IDLE;
+					}, 1500);
+				}, 500);
+			} else if (liftLevel == 2) { // SUBMERSIBLE_HIGH
+				Constants.LIFT_OFFSET = 250;
+				setTimeout(() -> {
+					scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+					setTimeout(() -> {
+						scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 						setTimeout(() -> {
-							lift.setTargetPosition(Constants.liftLoading);
-
-							scoreClawState = Utilities.State.IDLE;
+							lift.setTargetPosition(Constants.LIFT_IDLE);
 							liftState = Utilities.State.IDLE;
-						}, 1500);
-					}, 500);
-				} else if (liftLevel == 1) {
-					Constants.liftOffset = 250;
-					setTimeout(() -> {
-						scoreClaw.setPosition(Constants.scoreClawIdle);
-						setTimeout(() -> {
-							scoreTumbler.setPosition(Constants.scoreTumblerIdle);
-							setTimeout(() -> {
-								lift.setTargetPosition(Constants.liftLoading);
-								scoreClawState = Utilities.State.IDLE;
-								liftState = Utilities.State.IDLE;
-								Constants.liftOffset = 0;
-							}, 500);
+							Constants.LIFT_OFFSET = 0;
 						}, 500);
-					}, 200);
-				}
-				scoreSafe = true;
-			} else scoreSafe = armInput.wasPressedThisFrame("a");
+					}, 500);
+				}, 200);
+			}
 		}
 	}
 
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-//		telemetry.addData("Arm        State: ", armState.name());
-//		telemetry.addData("Rotator    State: ", rotatorState);
-//		telemetry.addData("Claw       State: ", clawState.name());
-//		telemetry.addData("Score Claw State: ", clawState.name());
-//
-//		telemetry.addData("Lift Pow:         ", lift.getPower());
-//		telemetry.addData("Lift Level:       ", liftLevel);
-//
-//		telemetry.update();
+		telemetry.addLine("[SYSTEM] Op mode running...");
+		if(suspendState == Utilities.State.BUSY) {
+			telemetry.addLine("[INFO] In Suspend Mode");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CANCEL_SUSPEND_KEY + " to cancel");
+		} else {
+			telemetry.addLine("[INFO] Welcome Drivers!");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY, " to enter Suspend Mode");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY, " to move to Basket Low");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY, " to move to Basket High");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY, " to move to Submersible High");
+			telemetry.addData("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY, " to score");
+		}
 	}
 }
