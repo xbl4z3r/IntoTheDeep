@@ -115,6 +115,8 @@ public abstract class BaseOpMode extends LinearOpMode
 	 */
 	protected void OnTelemetry(Telemetry telemetry)
 	{
+		telemetry.addLine("[SYSTEM] Op Mode running...");
+		telemetry.addData("[SYSTEM] Loop Time", internal_LoopTime.milliseconds());
 	}
 
 	/**

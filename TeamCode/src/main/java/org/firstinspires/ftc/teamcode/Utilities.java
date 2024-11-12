@@ -21,13 +21,10 @@ public class Utilities
 	public static void setTimeout(Runnable runnable, long delay)
 	{
 		new Thread(() -> {
-			try
-			{
+			try {
 				Thread.sleep(delay);
 				runnable.run();
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}).start();
@@ -35,14 +32,10 @@ public class Utilities
 
 	public static void WaitToFinish(DcMotorEx motor)
 	{
-		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > motor.getTargetPositionTolerance())
-		{
-			try
-			{
+		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > motor.getTargetPositionTolerance()) {
+			try {
 				Thread.sleep(10);
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -121,33 +114,22 @@ public class Utilities
 		double gPrime = 0;
 		double bPrime = 0;
 
-		if (0 <= hPrimeDivided && hPrimeDivided < 1)
-		{
+		if (0 <= hPrimeDivided && hPrimeDivided < 1) {
 			rPrime = c;
 			gPrime = x;
-		}
-		else if (1 <= hPrimeDivided && hPrimeDivided < 2)
-		{
+		} else if (1 <= hPrimeDivided && hPrimeDivided < 2) {
 			rPrime = x;
 			gPrime = c;
-		}
-		else if (2 <= hPrimeDivided && hPrimeDivided < 3)
-		{
+		} else if (2 <= hPrimeDivided && hPrimeDivided < 3) {
 			gPrime = c;
 			bPrime = x;
-		}
-		else if (3 <= hPrimeDivided && hPrimeDivided < 4)
-		{
+		} else if (3 <= hPrimeDivided && hPrimeDivided < 4) {
 			gPrime = x;
 			bPrime = c;
-		}
-		else if (4 <= hPrimeDivided && hPrimeDivided < 5)
-		{
+		} else if (4 <= hPrimeDivided && hPrimeDivided < 5) {
 			rPrime = x;
 			bPrime = c;
-		}
-		else if (5 <= hPrimeDivided && hPrimeDivided < 6)
-		{
+		} else if (5 <= hPrimeDivided && hPrimeDivided < 6) {
 			rPrime = c;
 			bPrime = x;
 		}
@@ -161,7 +143,8 @@ public class Utilities
 		return new Scalar(r, g, b);
 	}
 
-	public static String toDisplayString(String input) {
+	public static String toDisplayString(String input)
+	{
 		StringBuilder displayString = new StringBuilder();
 		for (char c : input.toCharArray()) {
 			if (Character.isUpperCase(c) && displayString.length() > 0)
@@ -175,8 +158,7 @@ public class Utilities
 
 	public static void CutPower(DcMotorEx... devices)
 	{
-		for (DcMotorEx device : devices)
-		{
+		for (DcMotorEx device : devices) {
 			device.setPower(0);
 			device.setMotorDisable();
 		}
@@ -219,6 +201,7 @@ public class Utilities
 
 	public enum Alliance
 	{
-		BLUE, RED
+		BLUE,
+		RED
 	}
 }

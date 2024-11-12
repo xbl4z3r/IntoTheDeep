@@ -30,20 +30,21 @@ public final class DemoOp extends BaseOpMode
 
 		public static float TUMBLER_IDLE = 0.9f;
 		public static float TUMBLER_BUSY = 0.25f;
-		public static float TUMBLER_OFFSET = 0.15f; // The amount of position to subtract to obtain the grabbing position
-		public static float SMALL_TUMBLER_IDLE = 0.1f;
+		public static float TUMBLER_OFFSET = 0.15f; // The amount of ticks to subtract to obtain the grabbing position
+		public static float SMALL_TUMBLER_IDLE = 0.15f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_IDLE = 0.9f;
-		public static float CLAW_BUSY = 0.5f;
+		public static float CLAW_IDLE = 0.5f;
+		public static float CLAW_BUSY = 0f;
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 1400;
 
 		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
 		public static int[] LIFT_LEVELS = {900, 2300, 760};
+		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
 		public static float SCORE_TUMBLER_IDLE = 1;
 		public static float SCORE_TUMBLER_BUSY = 0f;
@@ -80,8 +81,8 @@ public final class DemoOp extends BaseOpMode
 	@Override
 	protected void OnInitialize()
 	{
-		driveInput = new InputSystem(gamepad1);
-		armInput = new InputSystem(gamepad2);
+		driveInput = input1;
+		armInput = input2;
 
 		mecanumDrive = new MecanumDrive(hardwareMap);
 
@@ -120,8 +121,7 @@ public final class DemoOp extends BaseOpMode
 	{
 		Suspender();
 		Drive();
-		if(suspendState == Utilities.State.BUSY) return;
-		Lift();
+		if (suspendState == Utilities.State.BUSY) return;
 		Extendo();
 		Scorer();
 	}
@@ -139,37 +139,69 @@ public final class DemoOp extends BaseOpMode
 		);
 	}
 
-	private boolean armReady = false;
+	private Utilities.State extendoState = Utilities.State.IDLE;
+	private Utilities.State scorerState = Utilities.State.IDLE;
+	private boolean loaded = false;
+	private boolean rotatorLocked = true;
 
-	private Utilities.State armState = Utilities.State.IDLE;
-	private Utilities.State clawState = Utilities.State.IDLE;
 	private float rotatorValue = Constants.ROTATOR_BASE;
+	private int liftLevel = 0;
 
+	/*
+	 *                                         ┌──────────────────┐
+	 *                                         │scorerState: IDLE │
+	 *                                         │                  │
+	 *         ┌───────┐                       │extendoState: IDLE│
+	 *         │STATE  │                  ┌────┤                  │
+	 *         │MACHINE│                  │    │rotator: LOCKED   │
+	 *         └───────┘                  │    │                  │
+	 *                                    │    │loaded: FALSE     │
+	 *                                    │    └──────────────────┘   ┌──────────────────┐
+	 *                                    │                           │scorerState: IDLE │
+	 *                                 ┌──┴─┐        A                │                  │
+	 *                            ┌───►│Idle├─────────────────┐       │extendoState: BUSY│
+	 *                            │    └────┘                 │       │                  │
+	 *                            │       ▲                   ▼       │rotator: UNLOCKED │
+	 *                            │       │               ┌────────┐  │                  │
+	 *             A (Arm Gamepad)│       │               │Extended├──┤loaded: FALSE     │
+	 *                            │       │               └───┬────┘  └──────────────────┘
+	 *                            │       │                   │
+	 * ┌──────────────────┐       │       │                   │A      ┌──────────────────┐
+	 * │scorerState: BUSY │       │       │       FAIL        │       │scorerState: IDLE │
+	 * │                  │       │       └───────────────────┤       │                  │
+	 * │extendoState: IDLE│       │                           │SUCCESS│extendoState: IDLE│
+	 * │                  │       │                           │       │                  │
+	 * │rotator: LOCKED   │       │                           ▼       │rotator: LOCKED   │
+	 * │                  │   ┌───┴───┐    A (Arm Gamepad) ┌──────┐   │                  │
+	 * │loaded: TRUE      ├───┤Scoring│◄───────────────────┤Loaded├───┤loaded: TRUE      │
+	 * └──────────────────┘   └───────┘                    └──────┘   └──────────────────┘
+	 *
+	 */
 	private void Extendo()
 	{
-		if (clawState == Utilities.State.IDLE) {
-			rotatorValue += driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 10f;
+		if (!rotatorLocked) {
+			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 100f);
 			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			rotatorServo.setPosition(rotatorValue);
 		}
 
-		// Grab
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
-		if (armState == Utilities.State.IDLE) {
-			armState = Utilities.State.BUSY;
-			clawState = Utilities.State.IDLE;
+		if (extendoState == Utilities.State.IDLE) {
+			extendoState = Utilities.State.BUSY;
+			rotatorLocked = false;
 
-			clawServo.setPosition(Constants.CLAW_IDLE);
-			setTimeout(() -> {
-				extendoServo.setPosition(Constants.EXTENDO_EXTENDED);
-				tumblerServo.setPosition(Constants.TUMBLER_BUSY);
-				smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
-			}, 500);
-		} else if (armState == Utilities.State.BUSY) {
-			armState = Utilities.State.IDLE;
+			if (scorerState == Utilities.State.IDLE)
+				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
+
+			extendoServo.setPosition(Constants.EXTENDO_EXTENDED);
+			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+		} else if (extendoState == Utilities.State.BUSY) {
+			rotatorLocked = true;
+
+			scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE); // In case the claw is closed
 			tumblerServo.setPosition(Constants.TUMBLER_BUSY - Constants.TUMBLER_OFFSET);
 			setTimeout(() -> {
-				clawState = Utilities.State.BUSY;
 				clawServo.setPosition(Constants.CLAW_BUSY);
 				setTimeout(() -> {
 					extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
@@ -183,7 +215,9 @@ public final class DemoOp extends BaseOpMode
 							scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
 							setTimeout(() -> {
 								clawServo.setPosition(Constants.CLAW_IDLE);
-								armReady = true;
+
+								extendoState = Utilities.State.IDLE;
+								loaded = true; // If the extendo is idle, the claw should be loaded
 							}, 600);
 						}, 500);
 					}, 500);
@@ -192,25 +226,54 @@ public final class DemoOp extends BaseOpMode
 		}
 	}
 
-	private Utilities.State liftState = Utilities.State.IDLE;
-	private int liftLevel = 0;
-
-	private void Lift()
+	private void Scorer()
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.SUBMERSIBLE_HIGH_KEY)) liftLevel = 2;
 
-		if (liftState == Utilities.State.IDLE) {
-			if (lift1.getTargetPosition() != Constants.LIFT_IDLE)
-				lift1.setTargetPosition(Constants.LIFT_IDLE);
-			if (lift2.getTargetPosition() != Constants.LIFT_IDLE)
-				lift2.setTargetPosition(Constants.LIFT_IDLE);
-		} else if (liftState == Utilities.State.BUSY) {
+		if (!loaded) return;
+		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
+		if (scorerState == Utilities.State.IDLE) {
+			scorerState = Utilities.State.BUSY;
+
 			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
+			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BUSY), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
+		} else if (scorerState == Utilities.State.BUSY) {
+			if (liftLevel < 2) {
+				scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+				setTimeout(() -> {
+					scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+					setTimeout(() -> {
+						lift1.setTargetPosition(Constants.LIFT_IDLE);
+						lift2.setTargetPosition(Constants.LIFT_IDLE);
+
+						scorerState = Utilities.State.IDLE;
+						loaded = false; // Once the scoring is done, the claw is no longer loaded
+					}, 1000);
+				}, 500);
+			} else {
+				lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				setTimeout(() -> {
+					scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+					setTimeout(() -> {
+						scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+						setTimeout(() -> {
+							lift1.setTargetPosition(Constants.LIFT_IDLE);
+							lift2.setTargetPosition(Constants.LIFT_IDLE);
+
+							scorerState = Utilities.State.IDLE;
+							loaded = false; // Once the scoring is done, the claw is no longer loaded
+						}, 500);
+					}, 500);
+				}, 200);
+			}
 		}
 	}
+
 
 	private Utilities.State suspendState = Utilities.State.IDLE;
 
@@ -225,7 +288,7 @@ public final class DemoOp extends BaseOpMode
 
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.SUSPEND_KEY)) return;
 
-		if(suspendState == Utilities.State.IDLE) {
+		if (suspendState == Utilities.State.IDLE) {
 			lift1.setTargetPosition(Constants.LIFT_SUSPEND);
 			lift2.setTargetPosition(Constants.LIFT_SUSPEND);
 			suspendState = Utilities.State.BUSY;
@@ -235,44 +298,21 @@ public final class DemoOp extends BaseOpMode
 		}
 	}
 
-	private void Scorer()
-	{
-		if (!armReady) return;
-		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
-		if (liftState == Utilities.State.IDLE) {
-			liftState = Utilities.State.BUSY;
-			scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
-			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BUSY), 2000);
-		} else if (liftState == Utilities.State.BUSY) {
-			scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
-			setTimeout(() -> {
-				scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
-				setTimeout(() -> {
-					lift1.setTargetPosition(Constants.LIFT_IDLE);
-					lift2.setTargetPosition(Constants.LIFT_IDLE);
-
-					liftState = Utilities.State.IDLE;
-					armReady = false;
-				}, 200);
-			}, 500);
-		}
-	}
-
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-		telemetry.addLine("[SYSTEM] Op mode running...");
-		if(suspendState == Utilities.State.BUSY) {
+		if (suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CANCEL_SUSPEND_KEY + " to cancel");
 		} else {
 			telemetry.addLine("[INFO] Welcome Drivers!");
-			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY, " to enter Suspend Mode");
-			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY, " to move to Basket Low");
-			telemetry.addData("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY, " to move to Basket High");
-			telemetry.addData("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY, " to move to Submersible High");
-			telemetry.addData("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY, " to score");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " to enter Suspend Mode");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY + " to move to Basket Low");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY + " to move to Basket High");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY + " to move to Submersible High");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY + " to score");
+			telemetry.addLine("[INFO] Press " + Keybindings.Drive.PRIMARY_KEY + " to grab");
 		}
 	}
 }
