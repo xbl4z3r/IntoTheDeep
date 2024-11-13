@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.InputSystem;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
 
-@TeleOp(name = "Fane Op", group = "TeleOp")
+@TeleOp(name = " \uD83D\uDC79Fane\uD83D\uDC79 Op ", group = "TeleOp")
 public final class FaneOp extends BaseOpMode
 {
 	private InputSystem driveInput, armInput;

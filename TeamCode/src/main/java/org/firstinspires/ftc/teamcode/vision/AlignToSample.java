@@ -24,6 +24,7 @@ public class AlignToSample extends LinearOpMode
 	VisionPortal portal;
 
 	Servo servo;
+	double servoPos = 0.5;
 
 	@Override
 	public void runOpMode() throws InterruptedException
@@ -41,11 +42,9 @@ public class AlignToSample extends LinearOpMode
 
 		while (alliance == null && !isStopRequested())
 		{
-			alliance = Utilities.Alliance.RED;
-
-			if (gamepad1.x)
+			if (gamepad1.x || gamepad2.x)
 				alliance = Utilities.Alliance.BLUE;
-			else if (gamepad1.b)
+			else if (gamepad1.b || gamepad2.b)
 				alliance = Utilities.Alliance.RED;
 		}
 
@@ -67,7 +66,7 @@ public class AlignToSample extends LinearOpMode
 
 
 		servo = hardwareMap.get(Servo.class, "rotator");
-		servo.setPosition(0.5);
+		servo.setPosition(servoPos);
 	}
 
 	private void Run()
@@ -100,7 +99,12 @@ public class AlignToSample extends LinearOpMode
 				angle += 90.0;
 
 			// Command servo
-			servo.setPosition(1.0 - (angle / 180.0));
+			if (angle > 100)
+				servoPos -= 0.0008; // slow but not overshooting*
+			else if (angle < 80)
+				servoPos += 0.0008;
+
+			servo.setPosition(servoPos);
 
 			// Telemetry
 			telemetry.addData("Width:       ", size.width);

@@ -31,7 +31,7 @@ public final class DemoOp extends BaseOpMode
 		public static float TUMBLER_IDLE = 0.9f;
 		public static float TUMBLER_BUSY = 0.25f;
 		public static float TUMBLER_OFFSET = 0.15f; // The amount of ticks to subtract to obtain the grabbing position
-		public static float SMALL_TUMBLER_IDLE = 0.15f;
+		public static float SMALL_TUMBLER_IDLE = 0.1f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
 		public static float ROTATOR_BASE = 0.5f;
