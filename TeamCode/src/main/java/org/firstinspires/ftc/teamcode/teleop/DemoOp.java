@@ -36,8 +36,8 @@ public final class DemoOp extends BaseOpMode
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_IDLE = 0.5f;
-		public static float CLAW_BUSY = 0f;
+		public static float CLAW_IDLE = 1f;
+		public static float CLAW_BUSY = 0.5f;
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 1400;
@@ -218,9 +218,9 @@ public final class DemoOp extends BaseOpMode
 
 								extendoState = Utilities.State.IDLE;
 								loaded = true; // If the extendo is idle, the claw should be loaded
-							}, 600);
+							}, 500);
 						}, 500);
-					}, 500);
+					}, 100);
 				}, 500);
 			}, 400);
 		}
