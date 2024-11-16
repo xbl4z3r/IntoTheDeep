@@ -180,7 +180,7 @@ public final class DemoOp extends BaseOpMode
 	private void Extendo()
 	{
 		if (!rotatorLocked) {
-			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 100f);
+			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 1000f);
 			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			rotatorServo.setPosition(rotatorValue);
 		}
@@ -231,6 +231,11 @@ public final class DemoOp extends BaseOpMode
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.SUBMERSIBLE_HIGH_KEY)) liftLevel = 2;
+
+		if(scorerState == Utilities.State.BUSY) {
+			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+		}
 
 		if (!loaded) return;
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
