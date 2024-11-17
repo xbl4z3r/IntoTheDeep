@@ -62,7 +62,7 @@ public final class FaneOp extends BaseOpMode
 		{
 			public static final InputSystem.Key BASKET_LOW_KEY = new InputSystem.Key("dpad_down");
 			public static final InputSystem.Key BASKET_HIGH_KEY = new InputSystem.Key("dpad_up");
-			public static final InputSystem.Key SUBMERSIBLE_HIGH_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key CHAMBER_HIGH_KEY = new InputSystem.Key("dpad_left");
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
@@ -70,6 +70,9 @@ public final class FaneOp extends BaseOpMode
 
 		public static class Drive
 		{
+			public static final InputSystem.Key EXTENDO_FULL_KEY = new InputSystem.Key("dpad_down");
+			public static final InputSystem.Key EXTENDO_HALF_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key EXTENDO_ZERO_KEY = new InputSystem.Key("dpad_up");
 			public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
 			public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
 			public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
@@ -146,6 +149,8 @@ public final class FaneOp extends BaseOpMode
 	private boolean autoRotator = false;
 
 	private float rotatorValue = Constants.ROTATOR_BASE;
+	private float extendo1Value = Constants.EXTENDO1_RETRACTED;
+	private float extendo2Value = Constants.EXTENDO2_RETRACTED;
 	private int liftLevel = 0;
 
 	/*
@@ -193,6 +198,24 @@ public final class FaneOp extends BaseOpMode
 			rotatorServo.setPosition(rotatorValue);
 		}
 
+		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY)) {
+			extendo1Value = Constants.EXTENDO1_EXTENDED;
+			extendo2Value = Constants.EXTENDO2_EXTENDED;
+		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
+			extendo1Value = Constants.EXTENDO1_EXTENDED / 2f;
+			extendo2Value = Constants.EXTENDO2_EXTENDED / 2f;
+		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
+			extendo1Value = Constants.EXTENDO1_RETRACTED;
+			extendo2Value = Constants.EXTENDO2_RETRACTED;
+		}
+
+		if (extendoState == Utilities.State.BUSY &&
+				extendo1Value != extendoServo1.getPosition() &&
+				extendo2Value != extendoServo2.getPosition()) {
+			extendoServo1.setPosition(extendo1Value);
+			extendoServo2.setPosition(extendo2Value);
+		}
+
 		// Grab
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
 		if (extendoState == Utilities.State.IDLE) {
@@ -202,8 +225,8 @@ public final class FaneOp extends BaseOpMode
 			if (scorerState == Utilities.State.IDLE)
 				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
 
-			extendoServo1.setPosition(Constants.EXTENDO1_EXTENDED);
-			extendoServo2.setPosition(Constants.EXTENDO2_EXTENDED);
+			extendoServo1.setPosition(extendo1Value);
+			extendoServo2.setPosition(extendo2Value);
 			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 		} else if (extendoState == Utilities.State.BUSY) {
@@ -241,7 +264,7 @@ public final class FaneOp extends BaseOpMode
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
-		else if (armInput.wasPressedThisFrame(Keybindings.Arm.SUBMERSIBLE_HIGH_KEY)) liftLevel = 2;
+		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
 
 		if (!loaded) return;
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
@@ -315,7 +338,7 @@ public final class FaneOp extends BaseOpMode
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " to enter Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY + " to move to Basket Low");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY + " to move to Basket High");
-			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY + " to move to Submersible High");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CHAMBER_HIGH_KEY + " to move to Submersible High");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY + " to score");
 			telemetry.addLine("[INFO] Press " + Keybindings.Drive.PRIMARY_KEY + " to grab");
 			telemetry.addLine("[INFO] Press " + Keybindings.Drive.AUTO_ROTATOR_KEY + " to toggle auto-rotator");

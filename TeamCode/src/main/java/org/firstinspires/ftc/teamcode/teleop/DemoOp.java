@@ -59,7 +59,7 @@ public final class DemoOp extends BaseOpMode
 		{
 			public static final InputSystem.Key BASKET_LOW_KEY = new InputSystem.Key("dpad_down");
 			public static final InputSystem.Key BASKET_HIGH_KEY = new InputSystem.Key("dpad_up");
-			public static final InputSystem.Key SUBMERSIBLE_HIGH_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key CHAMBER_HIGH_KEY = new InputSystem.Key("dpad_left");
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
@@ -67,6 +67,9 @@ public final class DemoOp extends BaseOpMode
 
 		public static class Drive
 		{
+			public static final InputSystem.Key EXTENDO_FULL_KEY = new InputSystem.Key("dpad_down");
+			public static final InputSystem.Key EXTENDO_HALF_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key EXTENDO_ZERO_KEY = new InputSystem.Key("dpad_up");
 			public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
 			public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
 			public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
@@ -145,6 +148,7 @@ public final class DemoOp extends BaseOpMode
 	private boolean rotatorLocked = true;
 
 	private float rotatorValue = Constants.ROTATOR_BASE;
+	private float extendoValue = Constants.EXTENDO_RETRACTED;
 	private int liftLevel = 0;
 
 	/*
@@ -185,6 +189,16 @@ public final class DemoOp extends BaseOpMode
 			rotatorServo.setPosition(rotatorValue);
 		}
 
+		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY))
+			extendoValue = Constants.EXTENDO_EXTENDED;
+		else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY))
+			extendoValue = Constants.EXTENDO_EXTENDED / 2f;
+		else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY))
+			extendoValue = Constants.EXTENDO_RETRACTED;
+
+		if (extendoState == Utilities.State.BUSY && extendoValue != extendoServo.getPosition())
+			extendoServo.setPosition(extendoValue);
+
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
 		if (extendoState == Utilities.State.IDLE) {
 			extendoState = Utilities.State.BUSY;
@@ -193,7 +207,7 @@ public final class DemoOp extends BaseOpMode
 			if (scorerState == Utilities.State.IDLE)
 				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
 
-			extendoServo.setPosition(Constants.EXTENDO_EXTENDED);
+			extendoServo.setPosition(extendoValue);
 			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 		} else if (extendoState == Utilities.State.BUSY) {
@@ -230,9 +244,9 @@ public final class DemoOp extends BaseOpMode
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
-		else if (armInput.wasPressedThisFrame(Keybindings.Arm.SUBMERSIBLE_HIGH_KEY)) liftLevel = 2;
+		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
 
-		if(scorerState == Utilities.State.BUSY) {
+		if (scorerState == Utilities.State.BUSY) {
 			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 		}
@@ -315,7 +329,7 @@ public final class DemoOp extends BaseOpMode
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " to enter Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY + " to move to Basket Low");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_HIGH_KEY + " to move to Basket High");
-			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUBMERSIBLE_HIGH_KEY + " to move to Submersible High");
+			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CHAMBER_HIGH_KEY + " to move to Submersible High");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.PRIMARY_KEY + " to score");
 			telemetry.addLine("[INFO] Press " + Keybindings.Drive.PRIMARY_KEY + " to grab");
 		}
