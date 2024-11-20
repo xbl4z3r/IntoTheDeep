@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
@@ -14,6 +16,7 @@ import org.firstinspires.ftc.vision.opencv.ColorRange;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @TeleOp(name = "Align To Sample Test", group = "Vision")
 public class AlignToSample extends LinearOpMode
@@ -42,10 +45,12 @@ public class AlignToSample extends LinearOpMode
 
 		while (alliance == null && !isStopRequested())
 		{
+			alliance = Utilities.Alliance.RED;
 			if (gamepad1.x || gamepad2.x)
 				alliance = Utilities.Alliance.BLUE;
 			else if (gamepad1.b || gamepad2.b)
 				alliance = Utilities.Alliance.RED;
+			sleep(5);
 		}
 
 		telemetry.clear();
@@ -64,6 +69,11 @@ public class AlignToSample extends LinearOpMode
 				.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
 				.build();
 
+		while (portal.getCameraState() != VisionPortal.CameraState.STREAMING)
+			sleep(10);
+
+		portal.getCameraControl(GainControl.class).setGain(255);
+		portal.getCameraControl(ExposureControl.class).setExposure(20, TimeUnit.MILLISECONDS);
 
 		servo = hardwareMap.get(Servo.class, "rotator");
 		servo.setPosition(servoPos);
@@ -78,7 +88,7 @@ public class AlignToSample extends LinearOpMode
 
 			telemetry.update();
 			telemetry.addData("FPS:         ", portal.getFps());
-			telemetry.addData("Servo Angle: ", servo.getPosition());
+			telemetry.addData("Servo Angle: ", servoPos);
 
 			if (blobs.isEmpty())
 				continue;
@@ -100,9 +110,18 @@ public class AlignToSample extends LinearOpMode
 
 			// Command servo
 			if (angle > 100)
-				servoPos -= 0.0008; // slow but not overshooting*
+				servoPos -= 0.00005 * (Math.abs(angle - 90));
 			else if (angle < 80)
-				servoPos += 0.0008;
+				servoPos += 0.00005 * (Math.abs(angle - 90));
+
+			servoPos = Utilities.Clamp(servoPos, 0.0, 1.0);
+
+			if ((servoPos == 0 && angle > 100) || (servoPos == 1 && angle < 80))
+			{
+				servoPos = 0.5;
+				servo.setPosition(servoPos);
+				sleep(300);
+			}
 
 			servo.setPosition(servoPos);
 
