@@ -14,6 +14,12 @@ import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.InputSystem;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorRange;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+
+import java.util.List;
 
 @TeleOp(name = " \uD83D\uDC79Fane\uD83D\uDC79 Op ", group = "TeleOp")
 public final class FaneOp extends BaseOpMode
@@ -23,6 +29,11 @@ public final class FaneOp extends BaseOpMode
 	private DcMotorEx lift;
 	private Servo extendoServo1, extendoServo2, tumblerServo, smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw;
 
+	Utilities.Alliance alliance;
+
+	ColorBlobLocatorProcessor processor;
+	VisionPortal portal;
+
 	private static class Constants
 	{
 		public static float EXTENDO1_RETRACTED = 0;
@@ -30,24 +41,26 @@ public final class FaneOp extends BaseOpMode
 		public static float EXTENDO1_EXTENDED = 1;
 		public static float EXTENDO2_EXTENDED = 0;
 
-		public static float TUMBLER_IDLE = 0.17f;
-		public static float TUMBLER_BUSY = 0.7f;
-		public static float TUMBLER_OFFSET = 0.15f;  // The amount of position to add to obtain the grabbing position and subtract to obtain the load position
+		public static float TUMBLER_DELIVER = 0f;
+		public static float TUMBLER_IDLE = 0.3f;
+		public static float TUMBLER_DETECT = 0.715f;
+		public static float TUMBLER_PICKUP = 0.99f;
 
-		public static float SMALL_TUMBLER_IDLE = 1;
-		public static float SMALL_TUMBLER_BUSY = 0.5f;
+		public static float SMALL_TUMBLER_DELIVER = 1f;
+		public static float SMALL_TUMBLER_DETECT = 0f;
+		public static float SMALL_TUMBLER_PICKUP = 0.25f;
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_IDLE = 0.6f;
-		public static float CLAW_BUSY = 0.2f;
+		public static float CLAW_OPEN = 0.8f;
+		public static float CLAW_CLOSED = 0.48f;
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 0;
 		public static int LIFT_OFFSET = 250;
 
 		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
-		public static int[] LIFT_LEVELS = {330, 550, 1100};
+		public static int[] LIFT_LEVELS = { 330, 550, 1100 };
 
 		public static float SCORE_TUMBLER_IDLE = 0;
 		public static float SCORE_TUMBLER_BUSY = 0.75f;
@@ -70,9 +83,9 @@ public final class FaneOp extends BaseOpMode
 
 		public static class Drive
 		{
-			public static final InputSystem.Key EXTENDO_FULL_KEY = new InputSystem.Key("dpad_down");
+			public static final InputSystem.Key EXTENDO_FULL_KEY = new InputSystem.Key("dpad_up");
 			public static final InputSystem.Key EXTENDO_HALF_KEY = new InputSystem.Key("dpad_left");
-			public static final InputSystem.Key EXTENDO_ZERO_KEY = new InputSystem.Key("dpad_up");
+			public static final InputSystem.Key EXTENDO_ZERO_KEY = new InputSystem.Key("dpad_down");
 			public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
 			public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
 			public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
@@ -112,11 +125,46 @@ public final class FaneOp extends BaseOpMode
 		extendoServo1.setPosition(Constants.EXTENDO1_RETRACTED);
 		extendoServo2.setPosition(Constants.EXTENDO2_RETRACTED);
 		tumblerServo.setPosition(Constants.TUMBLER_IDLE);
-		smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+		smallTumbler.setPosition(Constants.SMALL_TUMBLER_DELIVER);
 		rotatorServo.setPosition(Constants.ROTATOR_BASE);
-		clawServo.setPosition(Constants.CLAW_IDLE);
+		clawServo.setPosition(Constants.CLAW_OPEN);
 		scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 		scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+
+		telemetry.addLine("Select alliance (X - Blue, B - Red)");
+		telemetry.update();
+
+		while (!isStopRequested() && opModeInInit() && alliance == null)
+		{
+			if (driveInput.isPressed(new InputSystem.Key("x")) || armInput.isPressed(new InputSystem.Key("x")))
+				alliance = Utilities.Alliance.BLUE;
+			else if (driveInput.isPressed(new InputSystem.Key("b")) || armInput.isPressed(new InputSystem.Key("b")))
+				alliance = Utilities.Alliance.RED;
+			sleep(5);
+		}
+
+		telemetry.clear();
+		telemetry.update();
+
+		processor = new ColorBlobLocatorProcessor.Builder()
+				.setTargetColorRange(alliance == Utilities.Alliance.RED ? ColorRange.RED : ColorRange.BLUE)
+				.setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+				.setRoi(ImageRegion.entireFrame())
+				.setDrawContours(true)
+				.setDilateSize(50)
+				.setErodeSize(50)
+				.build();
+//		portal = new VisionPortal.Builder()
+//				.addProcessor(processor)
+	//			.setCameraResolution(new Size(640, 480))
+	//			.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+	//			.build();
+
+	//	while (portal.getCameraState() != VisionPortal.CameraState.STREAMING)
+	//		sleep(10);
+
+	//	portal.getCameraControl(GainControl.class).setGain(255);
+	//	portal.getCameraControl(ExposureControl.class).setExposure(20, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -147,10 +195,11 @@ public final class FaneOp extends BaseOpMode
 	private boolean loaded = false;
 	private boolean rotatorLocked = false;
 	private boolean autoRotator = false;
+	private boolean manualRotatorOverride = false;
 
-	private float rotatorValue = Constants.ROTATOR_BASE;
-	private float extendo1Value = Constants.EXTENDO1_RETRACTED;
-	private float extendo2Value = Constants.EXTENDO2_RETRACTED;
+	private double rotatorValue = Constants.ROTATOR_BASE;
+	private double extendo1Value = Constants.EXTENDO1_RETRACTED;
+	private double extendo2Value = Constants.EXTENDO2_RETRACTED;
 	private int liftLevel = 0;
 
 	/*
@@ -191,10 +240,9 @@ public final class FaneOp extends BaseOpMode
 			if(!autoRotator) {
 				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 10f);
 				rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
-			} else {
-				// TODO: Implement auto-rotator after testing
-				rotatorValue = Constants.ROTATOR_BASE;
 			}
+	//		else
+	//			SampleDetection();
 			rotatorServo.setPosition(rotatorValue);
 		}
 
@@ -202,8 +250,8 @@ public final class FaneOp extends BaseOpMode
 			extendo1Value = Constants.EXTENDO1_EXTENDED;
 			extendo2Value = Constants.EXTENDO2_EXTENDED;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
-			extendo1Value = Constants.EXTENDO1_EXTENDED / 2f;
-			extendo2Value = Constants.EXTENDO2_EXTENDED / 2f;
+			extendo1Value = Math.abs(Constants.EXTENDO1_EXTENDED - Constants.EXTENDO1_RETRACTED) / 2f;
+			extendo2Value = Math.abs(Constants.EXTENDO2_EXTENDED - Constants.EXTENDO2_RETRACTED) / 2f;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendo1Value = Constants.EXTENDO1_RETRACTED;
 			extendo2Value = Constants.EXTENDO2_RETRACTED;
@@ -227,33 +275,35 @@ public final class FaneOp extends BaseOpMode
 
 			extendoServo1.setPosition(extendo1Value);
 			extendoServo2.setPosition(extendo2Value);
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			tumblerServo.setPosition(Constants.TUMBLER_DETECT);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_DETECT);
 		} else if (extendoState == Utilities.State.BUSY) {
 			rotatorLocked = true;
 
 			scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE); // In case the claw is closed
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY + Constants.TUMBLER_OFFSET);
+			tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_PICKUP);
 			setTimeout(() -> {
-				clawServo.setPosition(Constants.CLAW_BUSY);
+				clawServo.setPosition(Constants.CLAW_CLOSED);
 				setTimeout(() -> {
 					extendoServo1.setPosition(Constants.EXTENDO1_RETRACTED);
 					extendoServo2.setPosition(Constants.EXTENDO2_RETRACTED);
-					tumblerServo.setPosition(Constants.TUMBLER_BUSY - Constants.TUMBLER_OFFSET);
-					smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+					extendo1Value = Constants.EXTENDO1_RETRACTED;
+					extendo2Value = Constants.EXTENDO2_RETRACTED;
+					tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
+					smallTumbler.setPosition(Constants.SMALL_TUMBLER_DELIVER);
 					rotatorServo.setPosition(Constants.ROTATOR_BASE);
 					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
-						tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+						scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
 						setTimeout(() -> {
-							scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
-							setTimeout(() -> {
-								clawServo.setPosition(Constants.CLAW_IDLE);
+							clawServo.setPosition(Constants.CLAW_OPEN);
 
-								extendoState = Utilities.State.IDLE;
-								loaded = true; // If the extendo is idle, the claw should be loaded
-							}, 600);
-						}, 500);
+							setTimeout(() -> tumblerServo.setPosition(Constants.TUMBLER_IDLE), 200);
+
+							extendoState = Utilities.State.IDLE;
+							loaded = true; // If the extendo is idle, the claw should be loaded
+						}, 300);
 					}, 500);
 				}, 500);
 			}, 400);
@@ -325,9 +375,60 @@ public final class FaneOp extends BaseOpMode
 		}
 	}
 
+	private void SampleDetection() // Compute rotator angle
+	{
+		if (rotatorLocked || !autoRotator)
+			return;
+
+		List<ColorBlobLocatorProcessor.Blob> blobs = processor.getBlobs();
+		ColorBlobLocatorProcessor.Util.filterByArea(1500, 200000, blobs);
+
+		if (blobs.isEmpty())
+			return;
+
+		// Find biggest blob
+		ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
+		for (ColorBlobLocatorProcessor.Blob b : blobs)
+		{
+			if (b.getContourArea() > blob.getContourArea())
+				blob = b;
+		}
+
+		double angle = blob.getBoxFit().angle;
+		org.opencv.core.Size size = blob.getBoxFit().size;
+
+		// Math the angle
+		if (size.width > size.height)
+			angle += 90.0;
+
+		// Command servo
+		if (angle > 100)
+			rotatorValue -= 0.00005 * (Math.abs(angle - 90));
+		else if (angle < 80)
+			rotatorValue += 0.00005 * (Math.abs(angle - 90));
+
+		rotatorValue = Utilities.Clamp(rotatorValue, 0.0, 1.0);
+
+	//	if ((servoPos == 0 && angle > 100) || (servoPos == 1 && angle < 80))
+	//	{
+	//		servoPos = 0.5;
+	//		servo.setPosition(servoPos);
+	//		sleep(300);
+	//	}
+
+	//	telemetry.addData("Width:       ", size.width);
+	//	telemetry.addData("Height:      ", size.height);
+	//	telemetry.addData("Angle:       ", angle);
+	//	telemetry.addData("Area:        ", blob.getContourArea());
+	}
+
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
+		telemetry.addData("Alliance: ", alliance.name());
+	//	telemetry.addData("FPS:  ", portal.getFps());
+		telemetry.addData("Rotator Pos: ", rotatorValue);
+
 		if (suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
