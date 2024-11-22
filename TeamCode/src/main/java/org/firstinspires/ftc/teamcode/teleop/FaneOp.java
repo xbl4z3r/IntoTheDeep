@@ -316,6 +316,9 @@ public final class FaneOp extends BaseOpMode
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
 
+		if (scorerState == Utilities.State.BUSY)
+			lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+
 		if (!loaded) return;
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
 		if (scorerState == Utilities.State.IDLE) {
