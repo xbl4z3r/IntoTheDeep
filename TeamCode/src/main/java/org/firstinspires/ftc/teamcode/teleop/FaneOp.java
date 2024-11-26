@@ -52,8 +52,8 @@ public final class FaneOp extends BaseOpMode
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_OPEN = 0.8f;
-		public static float CLAW_CLOSED = 0.48f;
+		public static float CLAW_OPEN = 0.5f;
+		public static float CLAW_CLOSED = 0f;
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 0;
