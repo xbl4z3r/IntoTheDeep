@@ -43,11 +43,11 @@ public final class FaneOp extends BaseOpMode
 
 		public static float TUMBLER_DELIVER = 0f;
 		public static float TUMBLER_IDLE = 0.3f;
-		public static float TUMBLER_DETECT = 0.715f;
+		public static float TUMBLER_DETECT = 0.84f;
 		public static float TUMBLER_PICKUP = 0.99f;
 
 		public static float SMALL_TUMBLER_DELIVER = 1f;
-		public static float SMALL_TUMBLER_DETECT = 0f;
+		public static float SMALL_TUMBLER_DETECT = 0.1f;
 		public static float SMALL_TUMBLER_PICKUP = 0.25f;
 
 		public static float ROTATOR_BASE = 0.5f;
@@ -57,10 +57,10 @@ public final class FaneOp extends BaseOpMode
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 0;
-		public static int LIFT_OFFSET = 250;
+		public static int LIFT_OFFSET = 450;
 
 		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
-		public static int[] LIFT_LEVELS = { 330, 550, 1100 };
+		public static int[] LIFT_LEVELS = { 1000, 2200, 570 };
 
 		public static float SCORE_TUMBLER_IDLE = 0;
 		public static float SCORE_TUMBLER_BUSY = 0.75f;
@@ -195,7 +195,6 @@ public final class FaneOp extends BaseOpMode
 	private boolean loaded = false;
 	private boolean rotatorLocked = false;
 	private boolean autoRotator = false;
-	private boolean manualRotatorOverride = false;
 
 	private double rotatorValue = Constants.ROTATOR_BASE;
 	private double extendo1Value = Constants.EXTENDO1_RETRACTED;
@@ -238,7 +237,7 @@ public final class FaneOp extends BaseOpMode
 
 		if (!rotatorLocked) {
 			if(!autoRotator) {
-				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 10f);
+				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 50f);
 				rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			}
 	//		else
@@ -318,6 +317,8 @@ public final class FaneOp extends BaseOpMode
 
 		if (scorerState == Utilities.State.BUSY)
 			lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+		else
+			lift.setTargetPosition(Constants.LIFT_IDLE);
 
 		if (!loaded) return;
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
@@ -429,6 +430,7 @@ public final class FaneOp extends BaseOpMode
 	protected void OnTelemetry(Telemetry telemetry)
 	{
 		telemetry.addData("Alliance: ", alliance.name());
+		telemetry.addData("rotator", driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE));
 	//	telemetry.addData("FPS:  ", portal.getFps());
 		telemetry.addData("Rotator Pos: ", rotatorValue);
 

@@ -26,7 +26,7 @@ public final class TwoMotorTest extends BaseOpMode
 		motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 		motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		//motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+		motor1.setDirection(DcMotorSimple.Direction.REVERSE);
 	}
 
 	@Override
@@ -42,5 +42,7 @@ public final class TwoMotorTest extends BaseOpMode
 		telemetry.addData("[INFO] Power", input1.getValue(powerAxis));
 		telemetry.addData("[INFO] Motor 1 Current", motor1.getCurrent(CurrentUnit.AMPS));
 		telemetry.addData("[INFO] Motor 2 Current", motor2.getCurrent(CurrentUnit.AMPS));
+		telemetry.addData("[INFO] Motor 1 Pos", motor1.getCurrentPosition());
+		telemetry.addData("[INFO] Motor 2 Pos", motor2.getCurrentPosition());
 	}
 }
