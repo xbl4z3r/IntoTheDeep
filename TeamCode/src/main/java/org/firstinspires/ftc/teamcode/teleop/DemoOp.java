@@ -31,8 +31,10 @@ public final class DemoOp extends BaseOpMode
 
 		public static float TUMBLER_IDLE = 0.25f;
 		public static float TUMBLER_BUSY = 0.85f;
-		public static float TUMBLER_OFFSET = 0.15f; // The amount of ticks to subtract to obtain the grabbing position
+		public static float TUMBLER_PICKUP = 1f;
+		public static float TUMBLER_WALL = 0.737f;
 		public static float SMALL_TUMBLER_IDLE = 0.1f;
+		public static float SMALL_TUMBLER_WALL = 0.8f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
 		public static float ROTATOR_BASE = 0.5f;
@@ -71,6 +73,7 @@ public final class DemoOp extends BaseOpMode
 			public static final InputSystem.Key EXTENDO_FULL_KEY = new InputSystem.Key("dpad_down");
 			public static final InputSystem.Key EXTENDO_HALF_KEY = new InputSystem.Key("dpad_left");
 			public static final InputSystem.Key EXTENDO_ZERO_KEY = new InputSystem.Key("dpad_up");
+			public static final InputSystem.Key EXTENDO_WALL_PICKUP = new InputSystem.Key("dpad_right");
 			public static final InputSystem.Key TURBO_KEY = new InputSystem.Key("right_bumper");
 			public static final InputSystem.Key SUPPRESS_KEY = new InputSystem.Key("left_bumper");
 			public static final InputSystem.Axis DRIVE_X = new InputSystem.Axis("left_stick_x");
@@ -155,6 +158,7 @@ public final class DemoOp extends BaseOpMode
 	private Utilities.State scorerState = Utilities.State.IDLE;
 	private boolean loaded = false;
 	private boolean rotatorLocked = true;
+	private boolean wallPicking = false;
 
 	private float rotatorValue = Constants.ROTATOR_BASE;
 	private float extendoValue = Constants.EXTENDO_EXTENDED;
@@ -201,12 +205,27 @@ public final class DemoOp extends BaseOpMode
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY)) {
 			extendoValue = Constants.EXTENDO_EXTENDED;
 			extendoServo.setPosition(extendoValue);
+			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
 			extendoValue = (Constants.EXTENDO_RETRACTED + Constants.EXTENDO_EXTENDED) / 2f;
 			extendoServo.setPosition(extendoValue);
+			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendoValue = Constants.EXTENDO_RETRACTED;
 			extendoServo.setPosition(extendoValue);
+			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			wallPicking = false;
+		} else if (driveInput.isPressed(Keybindings.Drive.EXTENDO_WALL_PICKUP)) {
+			wallPicking = true;
+			extendoValue = Constants.EXTENDO_RETRACTED;
+			extendoServo.setPosition(extendoValue);
+			tumblerServo.setPosition(Constants.TUMBLER_WALL);
+			smallTumbler.setPosition(Constants.SMALL_TUMBLER_WALL);
 		}
 
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
@@ -224,7 +243,8 @@ public final class DemoOp extends BaseOpMode
 			rotatorLocked = true;
 
 			scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE); // In case the claw is closed
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY + Constants.TUMBLER_OFFSET);
+			if (!wallPicking)
+				tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
 			setTimeout(() -> {
 				clawServo.setPosition(Constants.CLAW_BUSY);
 				setTimeout(() -> {
