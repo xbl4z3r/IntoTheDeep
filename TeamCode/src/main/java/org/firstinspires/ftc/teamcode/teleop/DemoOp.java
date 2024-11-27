@@ -95,7 +95,7 @@ public final class DemoOp extends BaseOpMode
 		lift3 = hardwareMap.get(DcMotorEx.class, "lift3");
 		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -108,7 +108,7 @@ public final class DemoOp extends BaseOpMode
 		lift1.setDirection(DcMotorSimple.Direction.REVERSE);
 		lift1.setPower(1);
 		lift2.setPower(1);
-		lift3.setPower(1);
+		lift3.setPower(0);
 
 		extendoServo = hardwareMap.get(Servo.class, "extendo");
 		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
