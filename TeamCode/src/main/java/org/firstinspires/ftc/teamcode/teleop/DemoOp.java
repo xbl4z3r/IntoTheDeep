@@ -45,7 +45,7 @@ public final class DemoOp extends BaseOpMode
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 600;
 
-		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
+		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
 		public static int[] LIFT_LEVELS = {400, 1000, 140};
 		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
@@ -197,7 +197,7 @@ public final class DemoOp extends BaseOpMode
 	private void Extendo()
 	{
 		if (!rotatorLocked) {
-			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 1000f);
+			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
 			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			rotatorServo.setPosition(rotatorValue);
 		}
@@ -313,6 +313,7 @@ public final class DemoOp extends BaseOpMode
 			} else {
 				lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				lift3.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
 					scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
 					setTimeout(() -> {
