@@ -29,12 +29,13 @@ public final class DemoOp extends BaseOpMode
 		public static float EXTENDO_RETRACTED = 0.25f;
 		public static float EXTENDO_EXTENDED = 0.75f;
 
-		public static float TUMBLER_IDLE = 0.25f;
-		public static float TUMBLER_BUSY = 0.85f;
+		public static float TUMBLER_DELIVER = 0.25f;
+		public static float TUMBLER_IDLE = 0.35f;
+		public static float TUMBLER_READY = 0.85f;
 		public static float TUMBLER_PICKUP = 1f;
 		public static float TUMBLER_WALL = 0.737f;
-		public static float SMALL_TUMBLER_IDLE = 0.1f;
-		public static float SMALL_TUMBLER_WALL = 0.8f;
+		public static float SMALL_TUMBLER_IDLE = 0f;
+		public static float SMALL_TUMBLER_WALL = 0.6f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
 		public static float ROTATOR_BASE = 0.5f;
@@ -46,7 +47,7 @@ public final class DemoOp extends BaseOpMode
 		public static int LIFT_SUSPEND = 600;
 
 		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
-		public static int[] LIFT_LEVELS = {400, 1000, 140};
+		public static int[] LIFT_LEVELS = {400, 1000, 140, 0};
 		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
 		public static float SCORE_TUMBLER_IDLE = 0f;
@@ -63,6 +64,7 @@ public final class DemoOp extends BaseOpMode
 			public static final InputSystem.Key BASKET_LOW_KEY = new InputSystem.Key("dpad_down");
 			public static final InputSystem.Key BASKET_HIGH_KEY = new InputSystem.Key("dpad_up");
 			public static final InputSystem.Key CHAMBER_HIGH_KEY = new InputSystem.Key("dpad_left");
+			public static final InputSystem.Key CHAMBER_ZERO_KEY = new InputSystem.Key("dpad_right");
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
@@ -98,7 +100,7 @@ public final class DemoOp extends BaseOpMode
 		lift3 = hardwareMap.get(DcMotorEx.class, "lift3");
 		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+		lift3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -111,7 +113,7 @@ public final class DemoOp extends BaseOpMode
 		lift1.setDirection(DcMotorSimple.Direction.REVERSE);
 		lift1.setPower(1);
 		lift2.setPower(1);
-		lift3.setPower(0);
+		lift3.setPower(1);
 
 		extendoServo = hardwareMap.get(Servo.class, "extendo");
 		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
@@ -205,19 +207,19 @@ public final class DemoOp extends BaseOpMode
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY)) {
 			extendoValue = Constants.EXTENDO_EXTENDED;
 			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			tumblerServo.setPosition(Constants.TUMBLER_READY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
 			extendoValue = (Constants.EXTENDO_RETRACTED + Constants.EXTENDO_EXTENDED) / 2f;
 			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			tumblerServo.setPosition(Constants.TUMBLER_READY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendoValue = Constants.EXTENDO_RETRACTED;
 			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			tumblerServo.setPosition(Constants.TUMBLER_READY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.isPressed(Keybindings.Drive.EXTENDO_WALL_PICKUP)) {
@@ -237,7 +239,7 @@ public final class DemoOp extends BaseOpMode
 				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
 
 			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+			tumblerServo.setPosition(Constants.TUMBLER_READY);
 			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 		} else if (extendoState == Utilities.State.BUSY) {
 			rotatorLocked = true;
@@ -249,16 +251,17 @@ public final class DemoOp extends BaseOpMode
 				clawServo.setPosition(Constants.CLAW_BUSY);
 				setTimeout(() -> {
 					extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
-					tumblerServo.setPosition(Constants.TUMBLER_BUSY);
+					tumblerServo.setPosition(Constants.TUMBLER_READY);
 					smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
 					rotatorServo.setPosition(Constants.ROTATOR_BASE);
 					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
-						tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+						tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
 						setTimeout(() -> {
 							scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
+							clawServo.setPosition(Constants.CLAW_IDLE);
 							setTimeout(() -> {
-								clawServo.setPosition(Constants.CLAW_IDLE);
+								tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 
 								extendoState = Utilities.State.IDLE;
 								loaded = true; // If the extendo is idle, the claw should be loaded
@@ -275,6 +278,7 @@ public final class DemoOp extends BaseOpMode
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
+		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_ZERO_KEY)) liftLevel = 3;
 
 		if (scorerState == Utilities.State.BUSY) {
 			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
@@ -286,8 +290,10 @@ public final class DemoOp extends BaseOpMode
 			lift3.setTargetPosition(Constants.LIFT_IDLE);
 		}
 
-		if (!loaded) return;
-		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
+		if (!loaded
+			|| !armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)
+			|| liftLevel == 3)
+			return;
 		if (scorerState == Utilities.State.IDLE) {
 			scorerState = Utilities.State.BUSY;
 
@@ -327,7 +333,7 @@ public final class DemoOp extends BaseOpMode
 							loaded = false; // Once the scoring is done, the claw is no longer loaded
 						}, 500);
 					}, 500);
-				}, 200);
+				}, 500);
 			}
 		}
 	}
