@@ -56,11 +56,11 @@ public final class FaneOp extends BaseOpMode
 		public static float CLAW_CLOSED = 0f;
 
 		public static int LIFT_IDLE = 0;
-		public static int LIFT_SUSPEND = 0;
+		public static int LIFT_SUSPEND = 800;
 		public static int LIFT_OFFSET = 450;
 
 		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
-		public static int[] LIFT_LEVELS = { 1000, 2200, 570 };
+		public static int[] LIFT_LEVELS = { 1000, 1700, 570 };
 
 		public static float SCORE_TUMBLER_IDLE = 0;
 		public static float SCORE_TUMBLER_BUSY = 0.75f;
@@ -146,14 +146,14 @@ public final class FaneOp extends BaseOpMode
 		telemetry.clear();
 		telemetry.update();
 
-		processor = new ColorBlobLocatorProcessor.Builder()
-				.setTargetColorRange(alliance == Utilities.Alliance.RED ? ColorRange.RED : ColorRange.BLUE)
-				.setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
-				.setRoi(ImageRegion.entireFrame())
-				.setDrawContours(true)
-				.setDilateSize(50)
-				.setErodeSize(50)
-				.build();
+	//	processor = new ColorBlobLocatorProcessor.Builder()
+	//			.setTargetColorRange(alliance == Utilities.Alliance.RED ? ColorRange.RED : ColorRange.BLUE)
+	//			.setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+	//			.setRoi(ImageRegion.entireFrame())
+	//			.setDrawContours(true)
+	//			.setDilateSize(50)
+	//			.setErodeSize(50)
+	//			.build();
 //		portal = new VisionPortal.Builder()
 //				.addProcessor(processor)
 	//			.setCameraResolution(new Size(640, 480))
@@ -237,7 +237,7 @@ public final class FaneOp extends BaseOpMode
 
 		if (!rotatorLocked) {
 			if(!autoRotator) {
-				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 50f);
+				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
 				rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			}
 	//		else
@@ -249,8 +249,8 @@ public final class FaneOp extends BaseOpMode
 			extendo1Value = Constants.EXTENDO1_EXTENDED;
 			extendo2Value = Constants.EXTENDO2_EXTENDED;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
-			extendo1Value = Math.abs(Constants.EXTENDO1_EXTENDED - Constants.EXTENDO1_RETRACTED) / 2f;
-			extendo2Value = Math.abs(Constants.EXTENDO2_EXTENDED - Constants.EXTENDO2_RETRACTED) / 2f;
+			extendo1Value = Math.abs(Constants.EXTENDO1_EXTENDED + Constants.EXTENDO1_RETRACTED) / 2f;
+			extendo2Value = Math.abs(Constants.EXTENDO2_EXTENDED + Constants.EXTENDO2_RETRACTED) / 2f;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendo1Value = Constants.EXTENDO1_RETRACTED;
 			extendo2Value = Constants.EXTENDO2_RETRACTED;
@@ -320,8 +320,10 @@ public final class FaneOp extends BaseOpMode
 		else
 			lift.setTargetPosition(Constants.LIFT_IDLE);
 
-		if (!loaded) return;
-		if (!armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) return;
+		if (!loaded
+			|| !armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY))
+			return;
+
 		if (scorerState == Utilities.State.IDLE) {
 			scorerState = Utilities.State.BUSY;
 
@@ -340,16 +342,17 @@ public final class FaneOp extends BaseOpMode
 						loaded = false;
 					}, 1000);
 				}, 500);
-			} else { // SUBMERSIBLE_HIGH
+			} else { // CHAMBER_HIGH
 				lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
 					scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
 					setTimeout(() -> {
 						scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 						setTimeout(() -> {
+							scorerState = Utilities.State.IDLE;
+
 							lift.setTargetPosition(Constants.LIFT_IDLE);
 
-							scorerState = Utilities.State.IDLE;
 							loaded = false;
 						}, 500);
 					}, 500);

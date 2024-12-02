@@ -50,11 +50,11 @@ public final class DemoOp extends BaseOpMode
 		public static int[] LIFT_LEVELS = {400, 1000, 140, 0};
 		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
-		public static float SCORE_TUMBLER_IDLE = 0f;
+		public static float SCORE_TUMBLER_IDLE = 0.01f;
 		public static float SCORE_TUMBLER_BUSY = 1f;
 
-		public static float SCORE_CLAW_IDLE = 0.3f;
-		public static float SCORE_CLAW_BUSY = 0;
+		public static float SCORE_CLAW_IDLE = 0f;
+		public static float SCORE_CLAW_BUSY = 0.3f;
 	}
 
 	private static class Keybindings
