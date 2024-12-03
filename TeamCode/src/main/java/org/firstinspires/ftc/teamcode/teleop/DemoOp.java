@@ -47,7 +47,7 @@ public final class DemoOp extends BaseOpMode
 		public static int LIFT_SUSPEND = 600;
 
 		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
-		public static int[] LIFT_LEVELS = {400, 1000, 140, 0};
+		public static int[] LIFT_LEVELS = {400, 1300, 140, 0};
 		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
 		public static float SCORE_TUMBLER_IDLE = 0.01f;
@@ -150,8 +150,8 @@ public final class DemoOp extends BaseOpMode
 		else if (driveInput.isPressed(Keybindings.Drive.SUPPRESS_KEY)) speed = 0.4f;
 		mecanumDrive.setDrivePowers(
 				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
-						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(speed),
-						-driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) + driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)
+						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(-speed),
+						driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)
 				)
 		);
 	}
@@ -199,7 +199,7 @@ public final class DemoOp extends BaseOpMode
 	private void Extendo()
 	{
 		if (!rotatorLocked) {
-			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
+			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 300f);
 			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
 			rotatorServo.setPosition(rotatorValue);
 		}
