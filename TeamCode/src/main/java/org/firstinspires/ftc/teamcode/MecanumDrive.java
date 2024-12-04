@@ -64,13 +64,13 @@ public final class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = 0.002939924579024007766;
-        public double lateralInPerTick = 0.0022532667547660347;
-        public double trackWidthTicks = 3812.0728186077986;
+        public double lateralInPerTick = 0.0021033677930777385;
+        public double trackWidthTicks = 3627.6431606314363;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.9533764889911516;
-        public double kV = 0.0005621889245649846;
-        public double kA = 0;
+        public double kS = 0.8861683635547526;
+        public double kV = 0.0005899019158346014;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -82,9 +82,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 5.0;
+        public double lateralGain = 5.0;
+        public double headingGain = 5.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -204,6 +204,11 @@ public final class MecanumDrive {
                     DualNum.cons(headingDelta, twist.angle.drop(1))
             );
         }
+    }
+
+    public void setStartPose(Pose2d pose)
+    {
+        this.pose = pose;
     }
 
     public MecanumDrive(HardwareMap hardwareMap)

@@ -34,7 +34,7 @@ public final class FaneOp extends BaseOpMode
 	ColorBlobLocatorProcessor processor;
 	VisionPortal portal;
 
-	private static class Constants
+	public static class Constants
 	{
 		public static float EXTENDO1_RETRACTED = 0;
 		public static float EXTENDO2_RETRACTED = 1;
