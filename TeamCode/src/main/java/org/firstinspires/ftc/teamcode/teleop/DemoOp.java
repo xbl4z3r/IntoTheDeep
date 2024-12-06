@@ -21,10 +21,10 @@ public final class DemoOp extends BaseOpMode
 {
 	private InputSystem driveInput, armInput;
 	private MecanumDrive mecanumDrive;
-	private DcMotorEx lift1, lift2, lift3;
+	private DcMotorEx lift1, lift2;
 	private Servo extendoServo, tumblerServo, smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw;
 
-	private static class Constants
+	public static class Constants
 	{
 		public static float EXTENDO_RETRACTED = 0.25f;
 		public static float EXTENDO_EXTENDED = 0.75f;
@@ -40,21 +40,22 @@ public final class DemoOp extends BaseOpMode
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_IDLE = 1f;
-		public static float CLAW_BUSY = 0f;
+		public static float CLAW_OPEN = 1f;
+		public static float CLAW_CLOSED = 0f;
 
 		public static int LIFT_IDLE = 0;
 		public static int LIFT_SUSPEND = 600;
 
 		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
-		public static int[] LIFT_LEVELS = {400, 1300, 140, 0};
+		public static int[] LIFT_LEVELS = {550, 1350, 250, 0};
 		public static int LIFT_OFFSET = 200; // The amount of ticks to subtract to hang the specimen on the submersible
 
 		public static float SCORE_TUMBLER_IDLE = 0.01f;
-		public static float SCORE_TUMBLER_BUSY = 1f;
+		public static float SCORE_TUMBLER_CHAMBER = 0.95f;
+		public static float SCORE_TUMBLER_BASKET = 1f;
 
-		public static float SCORE_CLAW_IDLE = 0f;
-		public static float SCORE_CLAW_BUSY = 0.3f;
+		public static float SCORE_CLAW_OPEN = 0f;
+		public static float SCORE_CLAW_CLOSED = 0.3f;
 	}
 
 	private static class Keybindings
@@ -97,23 +98,17 @@ public final class DemoOp extends BaseOpMode
 
 		lift1 = hardwareMap.get(DcMotorEx.class, "lift1");
 		lift2 = hardwareMap.get(DcMotorEx.class, "lift2");
-		lift3 = hardwareMap.get(DcMotorEx.class, "lift3");
 		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift1.setTargetPosition(0);
 		lift2.setTargetPosition(0);
-		lift3.setTargetPosition(0);
 		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		lift3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift1.setDirection(DcMotorSimple.Direction.REVERSE);
 		lift1.setPower(1);
 		lift2.setPower(1);
-		lift3.setPower(1);
 
 		extendoServo = hardwareMap.get(Servo.class, "extendo");
 		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
@@ -128,9 +123,9 @@ public final class DemoOp extends BaseOpMode
 		tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 		smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
 		rotatorServo.setPosition(Constants.ROTATOR_BASE);
-		clawServo.setPosition(Constants.CLAW_IDLE);
+		clawServo.setPosition(Constants.CLAW_OPEN);
 		scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
-		scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+		scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 	}
 
 	@Override
@@ -244,11 +239,11 @@ public final class DemoOp extends BaseOpMode
 		} else if (extendoState == Utilities.State.BUSY) {
 			rotatorLocked = true;
 
-			scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE); // In case the claw is closed
+			scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN); // In case the claw is closed
 			if (!wallPicking)
 				tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
 			setTimeout(() -> {
-				clawServo.setPosition(Constants.CLAW_BUSY);
+				clawServo.setPosition(Constants.CLAW_CLOSED);
 				setTimeout(() -> {
 					extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
 					tumblerServo.setPosition(Constants.TUMBLER_READY);
@@ -258,8 +253,8 @@ public final class DemoOp extends BaseOpMode
 					setTimeout(() -> {
 						tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
 						setTimeout(() -> {
-							scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
-							clawServo.setPosition(Constants.CLAW_IDLE);
+							scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
+							clawServo.setPosition(Constants.CLAW_OPEN);
 							setTimeout(() -> {
 								tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 
@@ -283,11 +278,9 @@ public final class DemoOp extends BaseOpMode
 		if (scorerState == Utilities.State.BUSY) {
 			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			lift3.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 		} else {
 			lift1.setTargetPosition(Constants.LIFT_IDLE);
 			lift2.setTargetPosition(Constants.LIFT_IDLE);
-			lift3.setTargetPosition(Constants.LIFT_IDLE);
 		}
 
 		if (!loaded
@@ -299,18 +292,16 @@ public final class DemoOp extends BaseOpMode
 
 			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			lift3.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			scoreClaw.setPosition(Constants.SCORE_CLAW_BUSY);
-			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BUSY), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
+			scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
+			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
 		} else if (scorerState == Utilities.State.BUSY) {
 			if (liftLevel < 2) {
-				scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+				scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 				setTimeout(() -> {
 					scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 					setTimeout(() -> {
 						lift1.setTargetPosition(Constants.LIFT_IDLE);
 						lift2.setTargetPosition(Constants.LIFT_IDLE);
-						lift3.setTargetPosition(Constants.LIFT_IDLE);
 
 						scorerState = Utilities.State.IDLE;
 						loaded = false; // Once the scoring is done, the claw is no longer loaded
@@ -319,15 +310,13 @@ public final class DemoOp extends BaseOpMode
 			} else {
 				lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
-				lift3.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
-					scoreClaw.setPosition(Constants.SCORE_CLAW_IDLE);
+					scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 					setTimeout(() -> {
 						scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 						setTimeout(() -> {
 							lift1.setTargetPosition(Constants.LIFT_IDLE);
 							lift2.setTargetPosition(Constants.LIFT_IDLE);
-							lift3.setTargetPosition(Constants.LIFT_IDLE);
 
 							scorerState = Utilities.State.IDLE;
 							loaded = false; // Once the scoring is done, the claw is no longer loaded
@@ -346,7 +335,6 @@ public final class DemoOp extends BaseOpMode
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.CANCEL_SUSPEND_KEY) && suspendState == Utilities.State.BUSY) {
 			lift1.setTargetPosition(Constants.LIFT_IDLE);
 			lift2.setTargetPosition(Constants.LIFT_IDLE);
-			lift3.setTargetPosition(Constants.LIFT_IDLE);
 			suspendState = Utilities.State.IDLE;
 			return;
 		}
@@ -356,12 +344,10 @@ public final class DemoOp extends BaseOpMode
 		if (suspendState == Utilities.State.IDLE) {
 			lift1.setTargetPosition(Constants.LIFT_SUSPEND);
 			lift2.setTargetPosition(Constants.LIFT_SUSPEND);
-			lift3.setTargetPosition(Constants.LIFT_SUSPEND);
 			suspendState = Utilities.State.BUSY;
 		} else {
 			lift1.setTargetPosition(Constants.LIFT_IDLE);
 			lift2.setTargetPosition(Constants.LIFT_IDLE);
-			lift3.setTargetPosition(Constants.LIFT_IDLE);
 		}
 	}
 

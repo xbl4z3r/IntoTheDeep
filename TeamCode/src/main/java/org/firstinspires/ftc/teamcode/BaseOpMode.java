@@ -27,7 +27,7 @@ public abstract class BaseOpMode extends LinearOpMode
 
 	protected InputSystem input1, input2;
 	private final InputSystem.Key debugKey = new InputSystem.Key("left_stick_button");
-	private final InputSystem.Key dummyKey = new InputSystem.Key("start");
+	private final InputSystem.Key dummyKey = new InputSystem.Key("back");
 
 	private ElapsedTime internal_ElapsedTimeSinceInit;
 	private ElapsedTime internal_ElapsedTimeSinceStart;
