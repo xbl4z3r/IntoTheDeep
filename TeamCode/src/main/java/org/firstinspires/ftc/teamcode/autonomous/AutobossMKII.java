@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.WaitFor;
 import static org.firstinspires.ftc.teamcode.Utilities.centimetersToInches;
 import static org.firstinspires.ftc.teamcode.Utilities.setTimeout;
 
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -32,6 +33,12 @@ public final class AutobossMKII extends BaseOpMode
 	{
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
+
+		// Prevent preload from getting stuck
+		robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_WALL / 4 * 3);
+
+		// Catch the preload
+		robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_CLOSED);
 	}
 
 	@Override
@@ -65,14 +72,134 @@ public final class AutobossMKII extends BaseOpMode
 								new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_BASKET))
 						),
 						new InstantAction(() -> {
-							robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[3]);
-							robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[3]);
+							robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
+							robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
 						}),
-						WaitFor(1),
+						WaitFor(0.4),
 						new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_OPEN)),
-						WaitFor(0.3f),
-						new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE))
+						WaitFor(0.3),
+						new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE)),
+						WaitFor(0.3)
 				)
+		);
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.splineToLinearHeading(new Pose2d(robot.drivetrain.pose.position.x, centimetersToInches(80), Math.PI / 6 * 5), -Math.PI / 2)
+								.build(),
+						new InstantAction(() -> {
+							robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_READY);
+							robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_BUSY);
+							robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN);
+							robot.rotatorServo.setPosition(DemoOp.Constants.ROTATOR_BASE / 2);
+						})
+				),
+				WaitFor(0.2),
+				PickupSample()
+		));
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.turnTo(Math.PI / 6)
+								.build(),
+						RunSequentially(
+								new InstantAction(() -> robot.rotatorServo.setPosition(DemoOp.Constants.ROTATOR_BASE)),
+								WaitFor(0.5),
+								new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED))
+						)
+				),
+				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN)),
+				WaitFor(0.2),
+				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED))
+		));
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.splineToLinearHeading(new Pose2d(robot.drivetrain.pose.position.x - centimetersToInches(5), centimetersToInches(105), Math.PI / 6 * 5), -Math.PI / 2)
+								.build(),
+						new InstantAction(() -> robot.rotatorServo.setPosition(DemoOp.Constants.ROTATOR_BASE / 2))
+				),
+				WaitFor(0.2),
+				PickupSample()
+		));
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.turnTo(Math.PI / 6)
+								.build(),
+						RunSequentially(
+								new InstantAction(() -> robot.rotatorServo.setPosition(DemoOp.Constants.ROTATOR_BASE)),
+								WaitFor(0.75),
+								new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED))
+						)
+				),
+				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN)),
+				WaitFor(0.2),
+				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED))
+		));
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.turnTo(Math.PI / 6)
+								.build(),
+						RunSequentially(
+								new InstantAction(() -> robot.rotatorServo.setPosition(DemoOp.Constants.ROTATOR_BASE)),
+								WaitFor(0.75),
+								new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED))
+						)
+				),
+				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN)),
+				WaitFor(0.2),
+				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED))
+		));
+
+		Actions.runBlocking(RunSequentially(
+				RunInParallel(
+						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+								.setTangent(Math.PI)
+								.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), 0)
+								.build()
+				),
+				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED)),
+				WaitFor(0.5),
+				new InstantAction(() -> robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_PICKUP)),
+				WaitFor(0.3),
+				new InstantAction(() -> {
+					robot.clawServo.setPosition(DemoOp.Constants.CLAW_CLOSED);
+				}),
+				WaitFor(0.5),
+				new InstantAction(() -> {
+					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED);
+					robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_DELIVER);
+					robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_IDLE);
+				}),
+				WaitFor(0.3),
+				new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_CLOSED)),
+				WaitFor(0.3),
+				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN)),
+				WaitFor(0.3),
+				new InstantAction(() -> {
+					robot.scoreTumbler.setPosition(DemoOp.Constants.TUMBLER_IDLE);
+					robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_WALL / 4 * 3);
+				}),
+				WaitFor(30000)
+		));
+	}
+
+	private Action PickupSample()
+	{
+		return RunSequentially(
+				new InstantAction(() -> robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_PICKUP)),
+				WaitFor(0.3),
+				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_CLOSED)),
+				WaitFor(0.3),
+				new InstantAction(() -> robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_READY)),
+				WaitFor(0.1)
 		);
 	}
 }

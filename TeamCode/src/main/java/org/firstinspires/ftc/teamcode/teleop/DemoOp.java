@@ -21,8 +21,8 @@ public final class DemoOp extends BaseOpMode
 
 	public static class Constants
 	{
-		public static float EXTENDO_RETRACTED = 0.25f;
-		public static float EXTENDO_EXTENDED = 0.75f;
+		public static float EXTENDO_RETRACTED = 0.34f;
+		public static float EXTENDO_EXTENDED = 0f;
 
 		public static float TUMBLER_DELIVER = 0.25f;
 		public static float TUMBLER_IDLE = 0.35f;

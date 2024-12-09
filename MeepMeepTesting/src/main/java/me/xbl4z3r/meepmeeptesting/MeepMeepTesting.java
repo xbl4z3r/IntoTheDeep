@@ -18,9 +18,9 @@ public class MeepMeepTesting
 				.setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
 				.followTrajectorySequence(drive -> {
 					// Create a trajectory for the bot to follow
-					return drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
+					return drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.PI / 6))
 							.setTangent(Math.PI)
-							.splineToConstantHeading(new Vector2d(10, 15), Math.PI)
+							.splineToLinearHeading(new Pose2d(5, -15, Math.PI / 2), 0)
 							.build();
 				});
 
