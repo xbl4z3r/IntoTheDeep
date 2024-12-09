@@ -2,27 +2,22 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.Utilities.setTimeout;
 
+import com.acmerobotics.roadrunner.Math;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.InputSystem;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities;
 
 @TeleOp(name = "Demo Op", group = "TeleOp")
 public final class DemoOp extends BaseOpMode
 {
 	private InputSystem driveInput, armInput;
-	private MecanumDrive mecanumDrive;
-	private DcMotorEx lift1, lift2;
-	private Servo extendoServo, tumblerServo, smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw;
+	private RobotHardware robot;
 
 	public static class Constants
 	{
@@ -94,38 +89,8 @@ public final class DemoOp extends BaseOpMode
 		driveInput = input1;
 		armInput = input2;
 
-		mecanumDrive = new MecanumDrive(hardwareMap);
-
-		lift1 = hardwareMap.get(DcMotorEx.class, "lift1");
-		lift2 = hardwareMap.get(DcMotorEx.class, "lift2");
-		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift1.setTargetPosition(0);
-		lift2.setTargetPosition(0);
-		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		lift1.setDirection(DcMotorSimple.Direction.REVERSE);
-		lift1.setPower(1);
-		lift2.setPower(1);
-
-		extendoServo = hardwareMap.get(Servo.class, "extendo");
-		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
-		smallTumbler = hardwareMap.get(Servo.class, "sTumbler");
-		rotatorServo = hardwareMap.get(Servo.class, "rotator");
-		clawServo = hardwareMap.get(Servo.class, "claw");
-		scoreTumbler = hardwareMap.get(Servo.class, "scoreTumbler");
-		scoreClaw = hardwareMap.get(Servo.class, "scoreClaw");
-		smallTumbler.setDirection(Servo.Direction.REVERSE);
-
-		extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
-		tumblerServo.setPosition(Constants.TUMBLER_IDLE);
-		smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
-		rotatorServo.setPosition(Constants.ROTATOR_BASE);
-		clawServo.setPosition(Constants.CLAW_OPEN);
-		scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
-		scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
+		robot = new RobotHardware(hardwareMap);
+		robot.init();
 	}
 
 	@Override
@@ -143,7 +108,7 @@ public final class DemoOp extends BaseOpMode
 		float speed = 0.7f;
 		if (driveInput.isPressed(Keybindings.Drive.TURBO_KEY)) speed = 1.0f;
 		else if (driveInput.isPressed(Keybindings.Drive.SUPPRESS_KEY)) speed = 0.4f;
-		mecanumDrive.setDrivePowers(
+		robot.drivetrain.setDrivePowers(
 				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
 						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(-speed),
 						driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)
@@ -195,34 +160,34 @@ public final class DemoOp extends BaseOpMode
 	{
 		if (!rotatorLocked) {
 			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 300f);
-			rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
-			rotatorServo.setPosition(rotatorValue);
+			rotatorValue = (float) Math.clamp(rotatorValue, 0, 1);
+			robot.rotatorServo.setPosition(rotatorValue);
 		}
 
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY)) {
 			extendoValue = Constants.EXTENDO_EXTENDED;
-			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_READY);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			robot.extendoServo.setPosition(extendoValue);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
 			extendoValue = (Constants.EXTENDO_RETRACTED + Constants.EXTENDO_EXTENDED) / 2f;
-			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_READY);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			robot.extendoServo.setPosition(extendoValue);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendoValue = Constants.EXTENDO_RETRACTED;
-			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_READY);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			robot.extendoServo.setPosition(extendoValue);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.isPressed(Keybindings.Drive.EXTENDO_WALL_PICKUP)) {
 			wallPicking = true;
 			extendoValue = Constants.EXTENDO_RETRACTED;
-			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_WALL);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_WALL);
+			robot.extendoServo.setPosition(extendoValue);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_WALL);
+			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_WALL);
 		}
 
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
@@ -233,30 +198,30 @@ public final class DemoOp extends BaseOpMode
 			if (scorerState == Utilities.State.IDLE)
 				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
 
-			extendoServo.setPosition(extendoValue);
-			tumblerServo.setPosition(Constants.TUMBLER_READY);
-			smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
+			robot.extendoServo.setPosition(extendoValue);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 		} else if (extendoState == Utilities.State.BUSY) {
 			rotatorLocked = true;
 
-			scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN); // In case the claw is closed
+			robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN); // In case the claw is closed
 			if (!wallPicking)
-				tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
+				robot.tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
 			setTimeout(() -> {
-				clawServo.setPosition(Constants.CLAW_CLOSED);
+				robot.clawServo.setPosition(Constants.CLAW_CLOSED);
 				setTimeout(() -> {
-					extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
-					tumblerServo.setPosition(Constants.TUMBLER_READY);
-					smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
-					rotatorServo.setPosition(Constants.ROTATOR_BASE);
+					robot.extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
+					robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+					robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+					robot.rotatorServo.setPosition(Constants.ROTATOR_BASE);
 					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
-						tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
+						robot.tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
 						setTimeout(() -> {
-							scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
-							clawServo.setPosition(Constants.CLAW_OPEN);
+							robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
+							robot.clawServo.setPosition(Constants.CLAW_OPEN);
 							setTimeout(() -> {
-								tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+								robot.tumblerServo.setPosition(Constants.TUMBLER_IDLE);
 
 								extendoState = Utilities.State.IDLE;
 								loaded = true; // If the extendo is idle, the claw should be loaded
@@ -276,11 +241,11 @@ public final class DemoOp extends BaseOpMode
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_ZERO_KEY)) liftLevel = 3;
 
 		if (scorerState == Utilities.State.BUSY) {
-			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 		} else {
-			lift1.setTargetPosition(Constants.LIFT_IDLE);
-			lift2.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 		}
 
 		if (!loaded
@@ -290,33 +255,33 @@ public final class DemoOp extends BaseOpMode
 		if (scorerState == Utilities.State.IDLE) {
 			scorerState = Utilities.State.BUSY;
 
-			lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-			scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
-			setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
+			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+			robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
+			setTimeout(() -> robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
 		} else if (scorerState == Utilities.State.BUSY) {
 			if (liftLevel < 2) {
-				scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
+				robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 				setTimeout(() -> {
-					scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+					robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 					setTimeout(() -> {
-						lift1.setTargetPosition(Constants.LIFT_IDLE);
-						lift2.setTargetPosition(Constants.LIFT_IDLE);
+						robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+						robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 
 						scorerState = Utilities.State.IDLE;
 						loaded = false; // Once the scoring is done, the claw is no longer loaded
 					}, 1000);
 				}, 500);
 			} else {
-				lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
-				lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
-					scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
+					robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 					setTimeout(() -> {
-						scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+						robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 						setTimeout(() -> {
-							lift1.setTargetPosition(Constants.LIFT_IDLE);
-							lift2.setTargetPosition(Constants.LIFT_IDLE);
+							robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+							robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 
 							scorerState = Utilities.State.IDLE;
 							loaded = false; // Once the scoring is done, the claw is no longer loaded
@@ -333,8 +298,8 @@ public final class DemoOp extends BaseOpMode
 	private void Suspender()
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.CANCEL_SUSPEND_KEY) && suspendState == Utilities.State.BUSY) {
-			lift1.setTargetPosition(Constants.LIFT_IDLE);
-			lift2.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 			suspendState = Utilities.State.IDLE;
 			return;
 		}
@@ -342,12 +307,12 @@ public final class DemoOp extends BaseOpMode
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.SUSPEND_KEY)) return;
 
 		if (suspendState == Utilities.State.IDLE) {
-			lift1.setTargetPosition(Constants.LIFT_SUSPEND);
-			lift2.setTargetPosition(Constants.LIFT_SUSPEND);
+			robot.lift1.setTargetPosition(Constants.LIFT_SUSPEND);
+			robot.lift2.setTargetPosition(Constants.LIFT_SUSPEND);
 			suspendState = Utilities.State.BUSY;
 		} else {
-			lift1.setTargetPosition(Constants.LIFT_IDLE);
-			lift2.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 		}
 	}
 

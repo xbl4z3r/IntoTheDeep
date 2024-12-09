@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.testing;
 
 import static org.firstinspires.ftc.teamcode.Utilities.centimetersToInches;
 
@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name = "One Meter Test", group = "Testing")
-public class OneMeter extends BaseOpMode
+@Autonomous(name = "One Meter Auto Test", group = "Testing")
+public final class OneMeter extends BaseOpMode
 {
-	MecanumDrive mecanumDrive;
+	private MecanumDrive mecanumDrive;
 
 	@Override
 	protected void OnInitialize()

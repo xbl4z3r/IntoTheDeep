@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.InputSystem;
 import java.util.List;
 
 @TeleOp(name = "All Motor Test", group = "Testing")
-public class AllMotorTest extends BaseOpMode
+public final class AllMotorTest extends BaseOpMode
 {
 	private List<DcMotorEx> motors;
 	private final InputSystem.Axis motorAxis = new InputSystem.Axis("left_stick_y");

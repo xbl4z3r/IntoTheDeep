@@ -114,7 +114,7 @@ public class AlignToSample extends LinearOpMode
 			else if (angle < 80)
 				servoPos += 0.00005 * (Math.abs(angle - 90));
 
-			servoPos = Utilities.Clamp(servoPos, 0.0, 1.0);
+			servoPos = com.acmerobotics.roadrunner.Math.clamp(servoPos, 0.0, 1.0);
 
 			if ((servoPos == 0 && angle > 100) || (servoPos == 1 && angle < 80))
 			{

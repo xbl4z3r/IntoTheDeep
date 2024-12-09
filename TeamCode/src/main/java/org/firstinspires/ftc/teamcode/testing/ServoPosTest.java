@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.acmerobotics.roadrunner.Math;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -7,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Utilities;
 
 @TeleOp(name = "Servo Pos Test", group = "Testing")
-public class ServoPosTest extends LinearOpMode
+public final class ServoPosTest extends LinearOpMode
 {
 	Servo servo;
 
@@ -25,7 +26,7 @@ public class ServoPosTest extends LinearOpMode
 		while (!isStopRequested())
 		{
 			pos += gamepad1.right_stick_x * 0.0005;
-			pos = Utilities.Clamp(pos, 0.0, 1.0);
+			pos = Math.clamp(pos, 0.0, 1.0);
 
 			servo.setPosition(pos);
 

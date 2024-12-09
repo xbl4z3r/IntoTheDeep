@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Base class for all OpModes. This class provides a simple way to create OpModes with a consistent
@@ -127,7 +129,21 @@ public abstract class BaseOpMode extends LinearOpMode
 		telemetry.addLine("[DEBUG] Debug mode is enabled");
 		telemetry.addData("[DEBUG] Dummy Mode", internal_DummyMode);
 		Class<?> clazz = this.getClass();
-		Field[] fields = clazz.getDeclaredFields();
+		List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+		// check if any of the fields is a RobotHardware object
+		for (Field field : fields) {
+			field.setAccessible(true);
+			try {
+				Object value = field.get(this);
+				if (value instanceof RobotHardware) {
+					fields.addAll(Arrays.asList(value.getClass().getDeclaredFields()));
+					break;
+				}
+			} catch (Exception e) {
+				telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
+			}
+		}
 
 		for (Field field : fields) {
 			field.setAccessible(true);
@@ -170,7 +186,21 @@ public abstract class BaseOpMode extends LinearOpMode
 			internal_DummyMode = true;
 
 			Class<?> clazz = this.getClass();
-			Field[] fields = clazz.getDeclaredFields();
+			List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+
+			// check if any of the fields is a RobotHardware object
+			for (Field field : fields) {
+				field.setAccessible(true);
+				try {
+					Object value = field.get(this);
+					if (value instanceof RobotHardware) {
+						fields.addAll(Arrays.asList(value.getClass().getDeclaredFields()));
+						break;
+					}
+				} catch (Exception e) {
+					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
+				}
+			}
 
 			for (Field field : fields) {
 				field.setAccessible(true);

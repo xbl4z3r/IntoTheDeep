@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.os.Environment;
-
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -9,14 +7,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.opencv.core.Scalar;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-public class Utilities
+public final class Utilities
 {
 	public static void setTimeout(Runnable runnable, long delay)
 	{
@@ -28,17 +19,6 @@ public class Utilities
 				e.printStackTrace();
 			}
 		}).start();
-	}
-
-	public static void WaitToFinish(DcMotorEx motor)
-	{
-		while (Math.abs(motor.getTargetPosition() - motor.getCurrentPosition()) > motor.getTargetPositionTolerance()) {
-			try {
-				Thread.sleep(10);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static double centimetersToInches(double centimeters)
@@ -74,16 +54,6 @@ public class Utilities
 		return angleToServoPosition(angle, 180);
 	}
 
-	public static double Clamp(double value, double lower, double higher)
-	{
-		return value <= lower ? lower : Math.min(value, higher);
-	}
-
-	public static float Clamp(float value, float lower, float higher)
-	{
-		return value <= lower ? lower : Math.min(value, higher);
-	}
-
 	public static Action WaitFor(double delay)
 	{
 		return new SleepAction(delay);
@@ -97,50 +67,6 @@ public class Utilities
 	public static Action RunSequentially(Action... actions)
 	{
 		return new SequentialAction(actions);
-	}
-
-	public static Scalar hsvToRgb(double h, double s, double v)
-	{
-		// Normalize to 0..1
-		double hPrime = h / 179.0 * 360.0;
-		double sPrime = s / 255.0;
-		double vPrime = v / 255.0;
-
-		double c = vPrime * sPrime;
-		double hPrimeDivided = hPrime / 60.0;
-		double x = c * (1 - Math.abs(hPrimeDivided % 2 - 1));
-
-		double rPrime = 0;
-		double gPrime = 0;
-		double bPrime = 0;
-
-		if (0 <= hPrimeDivided && hPrimeDivided < 1) {
-			rPrime = c;
-			gPrime = x;
-		} else if (1 <= hPrimeDivided && hPrimeDivided < 2) {
-			rPrime = x;
-			gPrime = c;
-		} else if (2 <= hPrimeDivided && hPrimeDivided < 3) {
-			gPrime = c;
-			bPrime = x;
-		} else if (3 <= hPrimeDivided && hPrimeDivided < 4) {
-			gPrime = x;
-			bPrime = c;
-		} else if (4 <= hPrimeDivided && hPrimeDivided < 5) {
-			rPrime = x;
-			bPrime = c;
-		} else if (5 <= hPrimeDivided && hPrimeDivided < 6) {
-			rPrime = c;
-			bPrime = x;
-		}
-
-		double m = vPrime - c;
-
-		int r = (int) ((rPrime + m) * 255.0);
-		int g = (int) ((gPrime + m) * 255.0);
-		int b = (int) ((bPrime + m) * 255.0);
-
-		return new Scalar(r, g, b);
 	}
 
 	public static String toDisplayString(String input)
@@ -177,20 +103,6 @@ public class Utilities
 	public static void RestorePower(Servo... devices)
 	{
 		for (Servo device : devices) device.getController().pwmEnable();
-	}
-
-	public static File MakeVideoFile(String subFolder)
-	{
-		SimpleDateFormat ddMMyyyy = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-		SimpleDateFormat hhmmss = new SimpleDateFormat("HH-mm-ss", Locale.getDefault());
-
-		File recordings = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordings");
-		if (!recordings.exists()) recordings.mkdir();
-		File subfolder = new File(recordings.getAbsolutePath() + "/" + subFolder);
-		if (!subfolder.exists()) subfolder.mkdir();
-		File dateFolder = new File(subfolder.getAbsolutePath() + "/" + ddMMyyyy.format(new Date()));
-		if (!dateFolder.exists()) dateFolder.mkdir();
-		return new File(dateFolder.getAbsolutePath() + "/" + hhmmss.format(new Date()) + ".mp4");
 	}
 
 	public enum State

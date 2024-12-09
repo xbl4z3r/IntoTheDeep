@@ -16,8 +16,6 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
-import org.firstinspires.ftc.vision.opencv.ColorRange;
-import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
 import java.util.List;
 
@@ -238,7 +236,7 @@ public final class FaneOp extends BaseOpMode
 		if (!rotatorLocked) {
 			if(!autoRotator) {
 				rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
-				rotatorValue = Utilities.Clamp(rotatorValue, 0, 1);
+				rotatorValue = com.acmerobotics.roadrunner.Math.clamp(rotatorValue, 0, 1);
 			}
 	//		else
 	//			SampleDetection();
@@ -414,29 +412,12 @@ public final class FaneOp extends BaseOpMode
 		else if (angle < 80)
 			rotatorValue += 0.00005 * (Math.abs(angle - 90));
 
-		rotatorValue = Utilities.Clamp(rotatorValue, 0.0, 1.0);
-
-	//	if ((servoPos == 0 && angle > 100) || (servoPos == 1 && angle < 80))
-	//	{
-	//		servoPos = 0.5;
-	//		servo.setPosition(servoPos);
-	//		sleep(300);
-	//	}
-
-	//	telemetry.addData("Width:       ", size.width);
-	//	telemetry.addData("Height:      ", size.height);
-	//	telemetry.addData("Angle:       ", angle);
-	//	telemetry.addData("Area:        ", blob.getContourArea());
+		rotatorValue = com.acmerobotics.roadrunner.Math.clamp(rotatorValue, 0.0, 1.0);
 	}
 
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-		telemetry.addData("Alliance: ", alliance.name());
-		telemetry.addData("rotator", driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE));
-	//	telemetry.addData("FPS:  ", portal.getFps());
-		telemetry.addData("Rotator Pos: ", rotatorValue);
-
 		if (suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
