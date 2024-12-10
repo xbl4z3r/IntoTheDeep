@@ -88,7 +88,7 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-								.splineToLinearHeading(new Pose2d(robot.drivetrain.pose.position.x, centimetersToInches(80), Math.PI / 6 * 5), Math.PI / 2)
+								.splineToLinearHeading(new Pose2d(robot.drivetrain.pose.position.x, centimetersToInches(82), Math.PI / 6 * 5), Math.PI / 2)
 								.build(),
 						new InstantAction(() -> {
 							robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_READY);
@@ -151,7 +151,7 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(2 * Math.PI)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), 0)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(40), Math.PI / 2), 0)
 						.build(),
 				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED)),
 				WaitFor(1),

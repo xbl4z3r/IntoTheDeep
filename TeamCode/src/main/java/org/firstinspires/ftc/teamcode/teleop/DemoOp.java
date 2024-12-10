@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.InputSystem;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities;
 
+import java.util.Timer;
+
 @TeleOp(name = "Demo Op", group = "TeleOp")
 public final class DemoOp extends BaseOpMode
 {
@@ -39,7 +41,7 @@ public final class DemoOp extends BaseOpMode
 		public static float CLAW_CLOSED = 0f;
 
 		public static int LIFT_IDLE = 0;
-		public static int LIFT_SUSPEND = 600;
+		public static int LIFT_SUSPEND = 900;
 
 		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
 		public static int[] LIFT_LEVELS = {550, 1350, 250, 0};
@@ -97,8 +99,8 @@ public final class DemoOp extends BaseOpMode
 	protected void OnRun()
 	{
 		Suspender();
-		Drive();
 		if (suspendState == Utilities.State.BUSY) return;
+		Drive();
 		Extendo();
 		Scorer();
 	}
@@ -313,6 +315,7 @@ public final class DemoOp extends BaseOpMode
 		} else {
 			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
+			// TODO: Use drive motors to help push up the robot
 		}
 	}
 
