@@ -172,7 +172,7 @@ public final class AutobossMKII extends BaseOpMode
 								new InstantAction(() -> {
 									robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED);
 									robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_DELIVER);
-									robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_BUSY);
+									robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_IDLE);
 								}),
 								WaitFor(0.5),
 								new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_CLOSED)),

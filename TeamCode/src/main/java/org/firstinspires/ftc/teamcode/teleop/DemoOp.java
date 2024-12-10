@@ -50,7 +50,7 @@ public final class DemoOp extends BaseOpMode
 		public static float SCORE_TUMBLER_BASKET = 1f;
 
 		public static float SCORE_CLAW_OPEN = 0f;
-		public static float SCORE_CLAW_CLOSED = 0.3f;
+		public static float SCORE_CLAW_CLOSED = 0.5f;
 	}
 
 	private static class Keybindings
