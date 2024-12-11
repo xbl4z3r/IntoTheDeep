@@ -19,7 +19,7 @@ public class MeepMeepTesting
 				.followTrajectorySequence(drive -> {
 					// Create a trajectory for the bot to follow
 					return drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.PI / 6))
-							.setTangent(Math.PI)
+							.setTangent(0)
 							.splineToLinearHeading(new Pose2d(5, -15, Math.PI / 2), 0)
 							.build();
 				});

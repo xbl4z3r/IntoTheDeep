@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.teleop.DemoOp;
+import org.opencv.core.Mat;
 
 @Autonomous(name = "Autoboss MKII", group = "Auto")
 public final class AutobossMKII extends BaseOpMode
@@ -76,7 +78,7 @@ public final class AutobossMKII extends BaseOpMode
 							robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
 							robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
 						}),
-						WaitFor(0.5),
+						WaitFor(0.6),
 						new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_OPEN)),
 						WaitFor(0.3),
 						new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE)),
@@ -84,6 +86,7 @@ public final class AutobossMKII extends BaseOpMode
 				)
 		);
 
+		/*
 		// Pick first sample
 		Actions.runBlocking(RunSequentially(
 				RunInParallel(
@@ -99,8 +102,36 @@ public final class AutobossMKII extends BaseOpMode
 				),
 				WaitFor(0.2),
 				PickupSample()
+		));//*/
+
+		// Deliver samples
+		Actions.runBlocking(RunSequentially(
+				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+						// First
+						.setTangent(Math.PI / 4)
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-69, 70)), Math.PI)
+						.setTangent(Math.PI)
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-125, 70)), Math.PI)
+						.setTangent(Math.PI / 2)
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 100)), 0)
+
+						// Second
+						.setTangent(0)
+						.lineToXConstantHeading(centimetersToInches(-100))
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-125, 120)), Math.PI / 2)
+						.setTangent(0)
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 120)), 0)
+
+						// Third
+						.setTangent(0)
+						.lineToXConstantHeading(centimetersToInches(-100))
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-125, 138)), Math.PI / 2)
+						.setTangent(0)
+						.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 138)), 0)
+						.build()
 		));
 
+		/*
 		// Deliver first sample
 		Actions.runBlocking(RunSequentially(
 				RunInParallel(
@@ -145,18 +176,22 @@ public final class AutobossMKII extends BaseOpMode
 				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_OPEN)),
 				WaitFor(0.2),
 				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_RETRACTED))
-		));
+		));//*/
 
 		// Pick first specimen
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.setTangent(2 * Math.PI)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(40), Math.PI / 2), 0)
+						.setTangent(Math.PI)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(32), Math.PI / 2), 0)
 						.build(),
-				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED)),
+				new InstantAction(() -> {
+					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
+					robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_READY);
+					robot.smallTumbler.setPosition(DemoOp.Constants.SMALL_TUMBLER_BUSY);
+				}),
 				WaitFor(1),
 				new InstantAction(() -> robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_PICKUP)),
-				WaitFor(0.5),
+				WaitFor(0.4),
 				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_CLOSED)),
 				WaitFor(0.3)
 		));
@@ -166,7 +201,7 @@ public final class AutobossMKII extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(Math.PI)
-								.splineToLinearHeading(new Pose2d(centimetersToInches(-76), 4, 0), Math.PI)
+								.splineToLinearHeading(new Pose2d(centimetersToInches(-69), 0, 0), Math.PI)
 								.build(),
 						RunSequentially(
 								new InstantAction(() -> {
@@ -199,18 +234,17 @@ public final class AutobossMKII extends BaseOpMode
 				new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE))
 		));
 
-		// Pick second specimen
+		// Park
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(-Math.PI)
 						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), 0)
 						.build(),
-				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED)),
-				WaitFor(1),
-				new InstantAction(() -> robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_PICKUP)),
-				WaitFor(0.5),
-				new InstantAction(() -> robot.clawServo.setPosition(DemoOp.Constants.CLAW_CLOSED)),
-				WaitFor(0.3)
+				new InstantAction(() -> {
+					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
+					robot.tumblerServo.setPosition(DemoOp.Constants.TUMBLER_PICKUP);
+				}),
+				WaitFor(1)
 		));
 	}
 

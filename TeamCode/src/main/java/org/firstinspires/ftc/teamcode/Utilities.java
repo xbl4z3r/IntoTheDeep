@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -25,6 +26,7 @@ public final class Utilities
 	{
 		return centimeters / 2.54;
 	}
+	public static Vector2d centimetersToInches(Vector2d pose) { return pose.times(1 / 2.54); }
 
 	public static double inchesToCentimeters(double inches)
 	{
