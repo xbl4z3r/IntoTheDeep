@@ -65,7 +65,7 @@ public final class AutobossMKII extends BaseOpMode
 						RunInParallel(
 								robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 										.setTangent(0)
-										.lineToXConstantHeading(centimetersToInches(-69))
+										.splineToConstantHeading(centimetersToInches(new Vector2d(-67, -5)), 0)
 										.build(),
 								new InstantAction(() -> {
 									robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2]);
@@ -123,11 +123,12 @@ public final class AutobossMKII extends BaseOpMode
 						.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 120)), 0)
 
 						// Third
-						.setTangent(0)
-						.lineToXConstantHeading(centimetersToInches(-100))
-						.splineToConstantHeading(centimetersToInches(new Vector2d(-125, 138)), Math.PI / 2)
-						.setTangent(0)
-						.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 138)), 0)
+					//	.setTangent(0)
+					//	.lineToXConstantHeading(centimetersToInches(-100))
+					//	.splineToConstantHeading(centimetersToInches(new Vector2d(-125, 138)), Math.PI / 2)
+					//	.setTangent(0)
+					//	.splineToConstantHeading(centimetersToInches(new Vector2d(-25, 138)), 0)
+
 						.build()
 		));
 
@@ -182,7 +183,7 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(Math.PI)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(32), Math.PI / 2), 0)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-14), centimetersToInches(35), Math.PI / 2), 0)
 						.build(),
 				new InstantAction(() -> {
 					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
@@ -201,7 +202,7 @@ public final class AutobossMKII extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(Math.PI)
-								.splineToLinearHeading(new Pose2d(centimetersToInches(-69), 0, 0), Math.PI)
+								.splineToLinearHeading(new Pose2d(centimetersToInches(-67), 3, 0), Math.PI)
 								.build(),
 						RunSequentially(
 								new InstantAction(() -> {
@@ -237,8 +238,8 @@ public final class AutobossMKII extends BaseOpMode
 		// Park
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.setTangent(-Math.PI)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), 0)
+						.setTangent(Math.PI / 2)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), Math.PI / 2)
 						.build(),
 				new InstantAction(() -> {
 					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
