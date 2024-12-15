@@ -26,7 +26,7 @@ public final class DemoOp extends BaseOpMode
 		public static float EXTENDO_RETRACTED = 0.34f;
 		public static float EXTENDO_EXTENDED = 0f;
 
-		public static float TUMBLER_DELIVER = 0.22f;
+		public static float TUMBLER_DELIVER = 0.17f;
 		public static float TUMBLER_IDLE = 0.35f;
 		public static float TUMBLER_READY = 0.85f;
 		public static float TUMBLER_PICKUP = 1f;
@@ -44,15 +44,15 @@ public final class DemoOp extends BaseOpMode
 		public static int LIFT_SUSPEND = 900;
 
 		// BASKET_LOW, BASKET_HIGH, CHAMBER_HIGH
-		public static int[] LIFT_LEVELS = {550, 1350, 280, 0};
+		public static int[] LIFT_LEVELS = {650, 1550, 250, 0};
 		public static int LIFT_OFFSET = 250; // The amount of ticks to subtract to hang the specimen on the submersible
 
-		public static float SCORE_TUMBLER_IDLE = 0.01f;
-		public static float SCORE_TUMBLER_CHAMBER = 0.95f;
-		public static float SCORE_TUMBLER_BASKET = 0.95f;
+		public static float SCORE_TUMBLER_IDLE = 0.05f;
+		public static float SCORE_TUMBLER_CHAMBER = 0.85f;
+		public static float SCORE_TUMBLER_BASKET = 0.92f;
 
 		public static float SCORE_CLAW_OPEN = 0f;
-		public static float SCORE_CLAW_CLOSED = 0.463f;
+		public static float SCORE_CLAW_CLOSED = 0.5f;
 	}
 
 	private static class Keybindings
@@ -266,6 +266,7 @@ public final class DemoOp extends BaseOpMode
 		}
 	}
 
+	private boolean skibidy = false;
 	private void Scorer()
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
@@ -273,10 +274,12 @@ public final class DemoOp extends BaseOpMode
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_ZERO_KEY)) liftLevel = 3;
 
-		if (scorerState == Utilities.State.BUSY) {
+		if (scorerState == Utilities.State.BUSY && !skibidy) {
+			if (robot.scoreTumbler.getPosition() != Constants.SCORE_TUMBLER_IDLE)
+				robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET);
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
-		} else {
+		} else if (scorerState == Utilities.State.IDLE) {
 			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 		}
@@ -291,7 +294,7 @@ public final class DemoOp extends BaseOpMode
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
-			setTimeout(() -> robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500 + 250 * (liftLevel >= 1 ? 1 : 0));
+			setTimeout(() -> robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET), 400);
 		} else if (scorerState == Utilities.State.BUSY) {
 			if (liftLevel < 2) {
 				robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
@@ -306,17 +309,23 @@ public final class DemoOp extends BaseOpMode
 					}, 1000);
 				}, 500);
 			} else {
-				robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
+				skibidy = true;
+				robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
+				robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
-					robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+					robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 					setTimeout(() -> {
-						robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
-						robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
+						robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+						setTimeout(() -> {
+							robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
+							robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
+							skibidy = false;
 
-						scorerState = Utilities.State.IDLE;
-						loaded = false; // Once the scoring is done, the claw is no longer loaded
+							scorerState = Utilities.State.IDLE;
+							loaded = false; // Once the scoring is done, the claw is no longer loaded
+						}, 400);
 					}, 400);
-				}, 400);
+				}, 500);
 			}
 		}
 	}
@@ -349,6 +358,9 @@ public final class DemoOp extends BaseOpMode
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
+		telemetry.addData("lift1 pos", robot.lift1.getCurrentPosition());
+		telemetry.addData("lift2 pos", robot.lift2.getCurrentPosition());
+
 		if (suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");

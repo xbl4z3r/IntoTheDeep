@@ -64,8 +64,8 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 						RunInParallel(
 								robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-										.setTangent(0)
-										.splineToConstantHeading(centimetersToInches(new Vector2d(-67, -5)), 0)
+										.setTangent(Math.PI)
+										.splineToConstantHeading(centimetersToInches(new Vector2d(-78, -5)), Math.PI)
 										.build(),
 								new InstantAction(() -> {
 									robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2]);
@@ -75,10 +75,10 @@ public final class AutobossMKII extends BaseOpMode
 								new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_CHAMBER))
 						),
 						new InstantAction(() -> {
-							robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
-							robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
+							robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - DemoOp.Constants.LIFT_OFFSET);
+							robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - DemoOp.Constants.LIFT_OFFSET);
 						}),
-						WaitFor(0.6),
+						WaitFor(0.8),
 						new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_OPEN)),
 						WaitFor(0.3),
 						new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE)),
@@ -183,7 +183,7 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(Math.PI)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-14), centimetersToInches(35), Math.PI / 2), 0)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-14), centimetersToInches(28), Math.PI / 2), 0)
 						.build(),
 				new InstantAction(() -> {
 					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
@@ -202,7 +202,7 @@ public final class AutobossMKII extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(Math.PI)
-								.splineToLinearHeading(new Pose2d(centimetersToInches(-67), 3, 0), Math.PI)
+								.splineToLinearHeading(new Pose2d(centimetersToInches(-75), 3, 0), Math.PI)
 								.build(),
 						RunSequentially(
 								new InstantAction(() -> {
@@ -226,10 +226,10 @@ public final class AutobossMKII extends BaseOpMode
 						)
 				),
 				new InstantAction(() -> {
-					robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
-					robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_IDLE);
+					robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - DemoOp.Constants.LIFT_OFFSET);
+					robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - DemoOp.Constants.LIFT_OFFSET);
 				}),
-				WaitFor(0.5),
+				WaitFor(0.8),
 				new InstantAction(() -> robot.scoreClaw.setPosition(DemoOp.Constants.SCORE_CLAW_OPEN)),
 				WaitFor(0.3),
 				new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_IDLE))
@@ -239,7 +239,7 @@ public final class AutobossMKII extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(Math.PI / 2)
-						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(35), Math.PI / 2), Math.PI / 2)
+						.splineToLinearHeading(new Pose2d(centimetersToInches(-19), centimetersToInches(26), Math.PI / 2), Math.PI / 2)
 						.build(),
 				new InstantAction(() -> {
 					robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED);
