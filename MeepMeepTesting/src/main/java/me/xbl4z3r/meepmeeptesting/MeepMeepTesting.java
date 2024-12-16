@@ -18,9 +18,11 @@ public class MeepMeepTesting
 				.setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
 				.followTrajectorySequence(drive -> {
 					// Create a trajectory for the bot to follow
-					return drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.PI / 6))
+					return drive.trajectorySequenceBuilder(new Pose2d(0, 0, 0))
+							.setTangent(Math.PI)
+							.splineToConstantHeading(centimetersToInches(new Vector2d(-78, 20)), Math.PI)
 							.setTangent(0)
-							.splineToLinearHeading(new Pose2d(5, -15, Math.PI / 2), 0)
+							.splineToLinearHeading(centimetersToInches(new Pose2d(-5, -40)), Math.PI * 3 / 4)
 							.build();
 				});
 
@@ -29,4 +31,7 @@ public class MeepMeepTesting
 				.addEntity(robot)
 				.start();
 	}
+
+	private static Vector2d centimetersToInches(Vector2d pose) { return pose.times(1 / 2.54); }
+	private static Pose2d centimetersToInches(Pose2d pose) { return new Pose2d(centimetersToInches(pose.vec()), pose.getHeading()); }
 }

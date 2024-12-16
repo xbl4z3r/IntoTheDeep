@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -27,6 +28,7 @@ public final class Utilities
 		return centimeters / 2.54;
 	}
 	public static Vector2d centimetersToInches(Vector2d pose) { return pose.times(1 / 2.54); }
+	public static Pose2d centimetersToInches(Pose2d pose) { return new Pose2d(centimetersToInches(pose.position), pose.heading); }
 
 	public static double inchesToCentimeters(double inches)
 	{
