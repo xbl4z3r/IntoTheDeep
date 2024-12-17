@@ -161,7 +161,7 @@ public final class DemoOp extends BaseOpMode
 	private void Extendo()
 	{
 		if (!rotatorLocked) {
-			rotatorValue -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 300f);
+			rotatorValue += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 100f);
 			rotatorValue = (float) Math.clamp(rotatorValue, 0, 1);
 			robot.rotatorServo.setPosition(rotatorValue);
 		}
@@ -277,16 +277,17 @@ public final class DemoOp extends BaseOpMode
 		if (scorerState == Utilities.State.BUSY && !skibidy) {
 			if (robot.scoreTumbler.getPosition() != Constants.SCORE_TUMBLER_IDLE)
 				robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET);
+
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 		} else if (scorerState == Utilities.State.IDLE) {
 			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
+			robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 		}
 
 		if (!loaded
-			|| !armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)
-			|| liftLevel == 3)
+			|| !armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY))
 			return;
 		if (scorerState == Utilities.State.IDLE) {
 			scorerState = Utilities.State.BUSY;
@@ -319,9 +320,10 @@ public final class DemoOp extends BaseOpMode
 						setTimeout(() -> {
 							robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 							robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
-							skibidy = false;
 
 							scorerState = Utilities.State.IDLE;
+							setTimeout(() -> skibidy = false, 10);
+
 							loaded = false; // Once the scoring is done, the claw is no longer loaded
 						}, 400);
 					}, 400);
