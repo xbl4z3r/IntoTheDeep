@@ -28,7 +28,7 @@ public final class DemoOp extends BaseOpMode
 
 		public static float TUMBLER_DELIVER = 0.17f;
 		public static float TUMBLER_IDLE = 0.35f;
-		public static float TUMBLER_READY = 0.85f;
+		public static float TUMBLER_READY = 0.75f;
 		public static float TUMBLER_PICKUP = 1f;
 		public static float TUMBLER_WALL = 0.737f;
 		public static float SMALL_TUMBLER_IDLE = 0f;

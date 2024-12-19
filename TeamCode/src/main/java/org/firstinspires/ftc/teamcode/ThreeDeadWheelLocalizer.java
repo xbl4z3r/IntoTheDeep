@@ -95,7 +95,15 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
 				(par0PosVel.velocity - par1PosVel.velocity) / (PARAMS.par0YTicks - PARAMS.par1YTicks),
 		});
 
-
+		if(imu!=null) {
+			headingRot = Rotation2d.exp(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+			double headingDelta = headingRot.minus(lastHeading);
+			double headingVel = getHeadingVelocity();
+			heading = new DualNum<>(new double[]{
+					headingDelta,
+					headingVel,
+			});
+		}
 
 		Twist2dDual<Time> twist = new Twist2dDual<>(
 				new Vector2dDual<>(
