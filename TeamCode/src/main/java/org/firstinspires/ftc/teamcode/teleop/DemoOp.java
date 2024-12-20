@@ -13,8 +13,6 @@ import org.firstinspires.ftc.teamcode.InputSystem;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.Utilities;
 
-import java.util.Timer;
-
 @TeleOp(name = "Demo Op", group = "TeleOp")
 public final class DemoOp extends BaseOpMode
 {
@@ -29,7 +27,7 @@ public final class DemoOp extends BaseOpMode
 		public static float TUMBLER_DELIVER = 0.17f;
 		public static float TUMBLER_IDLE = 0.35f;
 		public static float TUMBLER_READY = 0.75f;
-		public static float TUMBLER_PICKUP = 1f;
+		public static float TUMBLER_PICKUP = 0.86f;
 		public static float TUMBLER_WALL = 0.737f;
 		public static float SMALL_TUMBLER_IDLE = 0f;
 		public static float SMALL_TUMBLER_WALL = 0.6f;
@@ -99,8 +97,9 @@ public final class DemoOp extends BaseOpMode
 	protected void OnRun()
 	{
 		Suspender();
-		if (suspendState == Utilities.State.BUSY) return;
+		if (suspending) return;
 		Drive();
+		if (suspendState == Utilities.State.BUSY) return;
 		Extendo();
 		Scorer();
 	}
@@ -266,7 +265,8 @@ public final class DemoOp extends BaseOpMode
 		}
 	}
 
-	private boolean skibidy = false;
+	private boolean liftSkibidy = false;
+	private boolean tumblerSkibidy = false;
 	private void Scorer()
 	{
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
@@ -274,8 +274,8 @@ public final class DemoOp extends BaseOpMode
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_ZERO_KEY)) liftLevel = 3;
 
-		if (scorerState == Utilities.State.BUSY && !skibidy) {
-			if (robot.scoreTumbler.getPosition() != Constants.SCORE_TUMBLER_IDLE)
+		if (scorerState == Utilities.State.BUSY && !liftSkibidy) {
+			if (robot.scoreTumbler.getPosition() != Constants.SCORE_TUMBLER_IDLE && tumblerSkibidy)
 				robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET);
 
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
@@ -295,11 +295,13 @@ public final class DemoOp extends BaseOpMode
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
+			tumblerSkibidy = true;
 			setTimeout(() -> robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET), 400);
 		} else if (scorerState == Utilities.State.BUSY) {
 			if (liftLevel < 2) {
 				robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 				setTimeout(() -> {
+					tumblerSkibidy = false;
 					robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 					setTimeout(() -> {
 						robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
@@ -310,19 +312,20 @@ public final class DemoOp extends BaseOpMode
 					}, 1000);
 				}, 500);
 			} else {
-				skibidy = true;
+				liftSkibidy = true;
 				robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
 				setTimeout(() -> {
 					robot.scoreClaw.setPosition(Constants.SCORE_CLAW_OPEN);
 					setTimeout(() -> {
+						tumblerSkibidy = false;
 						robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
 						setTimeout(() -> {
 							robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 							robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
 
 							scorerState = Utilities.State.IDLE;
-							setTimeout(() -> skibidy = false, 10);
+							setTimeout(() -> liftSkibidy = false, 10);
 
 							loaded = false; // Once the scoring is done, the claw is no longer loaded
 						}, 400);
@@ -334,6 +337,7 @@ public final class DemoOp extends BaseOpMode
 
 
 	private Utilities.State suspendState = Utilities.State.IDLE;
+	private boolean suspending = false;
 
 	private void Suspender()
 	{
@@ -351,9 +355,13 @@ public final class DemoOp extends BaseOpMode
 			robot.lift2.setTargetPosition(Constants.LIFT_SUSPEND);
 			suspendState = Utilities.State.BUSY;
 		} else {
+			suspending = true;
 			robot.lift1.setTargetPosition(Constants.LIFT_IDLE);
 			robot.lift2.setTargetPosition(Constants.LIFT_IDLE);
-			// TODO: Use drive motors to help push up the robot
+
+			robot.drivetrain.setDrivePowers(new PoseVelocity2d(new Vector2d(-0.4, 0), 0));
+
+			setTimeout(() -> robot.drivetrain.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0)), 5000);
 		}
 	}
 
