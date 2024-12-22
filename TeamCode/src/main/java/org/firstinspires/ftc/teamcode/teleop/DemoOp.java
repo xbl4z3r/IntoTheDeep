@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.BaseOpMode;
 import org.firstinspires.ftc.teamcode.InputSystem;
@@ -26,8 +27,8 @@ public final class DemoOp extends BaseOpMode
 
 		public static float TUMBLER_DELIVER = 0.17f;
 		public static float TUMBLER_IDLE = 0.35f;
-		public static float TUMBLER_READY = 0.75f;
-		public static float TUMBLER_PICKUP = 0.86f;
+		public static float TUMBLER_READY = 0.8f;
+		public static float TUMBLER_PICKUP = 0.9f;
 		public static float TUMBLER_WALL = 0.737f;
 		public static float SMALL_TUMBLER_IDLE = 0f;
 		public static float SMALL_TUMBLER_WALL = 0.6f;
@@ -48,6 +49,7 @@ public final class DemoOp extends BaseOpMode
 		public static float SCORE_TUMBLER_IDLE = 0.05f;
 		public static float SCORE_TUMBLER_CHAMBER = 0.85f;
 		public static float SCORE_TUMBLER_BASKET = 0.92f;
+		public static float SCORE_TUMBLER_DROP = 1f;
 
 		public static float SCORE_CLAW_OPEN = 0f;
 		public static float SCORE_CLAW_CLOSED = 0.5f;
@@ -64,6 +66,7 @@ public final class DemoOp extends BaseOpMode
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
+			public static final InputSystem.Key DROP_KEY = new InputSystem.Key("b");
 		}
 
 		public static class Drive
@@ -269,6 +272,7 @@ public final class DemoOp extends BaseOpMode
 	private boolean tumblerSkibidy = false;
 	private void Scorer()
 	{
+
 		if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) liftLevel = 0;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) liftLevel = 1;
 		else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) liftLevel = 2;
@@ -294,6 +298,7 @@ public final class DemoOp extends BaseOpMode
 
 			robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 			robot.lift2.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
+
 			robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
 			tumblerSkibidy = true;
 			setTimeout(() -> robot.scoreTumbler.setPosition(liftLevel == 2 ? Constants.SCORE_TUMBLER_CHAMBER : Constants.SCORE_TUMBLER_BASKET), 400);
@@ -311,6 +316,7 @@ public final class DemoOp extends BaseOpMode
 						loaded = false; // Once the scoring is done, the claw is no longer loaded
 					}, 1000);
 				}, 500);
+
 			} else {
 				liftSkibidy = true;
 				robot.lift1.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);

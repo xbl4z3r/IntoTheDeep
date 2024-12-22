@@ -69,8 +69,8 @@ public class Yellow extends BaseOpMode
 		// Pick first yellow
 		Actions.runBlocking(RunSequentially(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-								.splineToConstantHeading(centimetersToInches(new Vector2d(-55, -80)), -Math.PI / 2)
-								.turn(Math.PI + 0.05)
+								.splineToConstantHeading(centimetersToInches(new Vector2d(-52, -80)), - Math.PI / 2)
+								.turnTo(Math.PI + 0.01)
 								.build(),
 						WaitFor(0.3),
 						new InstantAction(() -> {
@@ -100,7 +100,7 @@ public class Yellow extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.setTangent(0)
-						.splineToLinearHeading(centimetersToInches(new Pose2d(-5, -92, 3 * Math.PI / 4)), 0)
+						.splineToLinearHeading(centimetersToInches(new Pose2d(-7, -96, 3 * Math.PI / 4)), 0)
 						.build(),
 				new InstantAction(() -> {
 					robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[1]);
@@ -122,7 +122,7 @@ public class Yellow extends BaseOpMode
 		// Pickup second yellow
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.splineToLinearHeading(centimetersToInches(new Pose2d(-20
+						.splineToLinearHeading(centimetersToInches(new Pose2d(-17
 								, -105, Math.PI)), 0)
 						.build(),
 				new InstantAction(() -> robot.extendoServo.setPosition(DemoOp.Constants.EXTENDO_EXTENDED)),
@@ -152,7 +152,8 @@ public class Yellow extends BaseOpMode
 		// Deliver second yellow
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.turn(-Math.PI / 18 * 4)
+						.setTangent(0)
+						.splineToLinearHeading(centimetersToInches(new Pose2d(-8, -94, 3 * Math.PI / 18 * 3.75f)), 0)
 						.build(),
 				new InstantAction(() -> {
 					robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[1]);
