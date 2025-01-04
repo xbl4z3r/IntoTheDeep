@@ -29,9 +29,9 @@ public final class DemoOp extends BaseOpMode
 		public static float TUMBLER_IDLE = 0.36f;
 		public static float TUMBLER_READY = 0.8f;
 		public static float TUMBLER_PICKUP = 0.9f;
-		public static float TUMBLER_WALL = 0.737f;
+		public static float TUMBLER_WALL = 0.7f;
 		public static float SMALL_TUMBLER_IDLE = 0f;
-		public static float SMALL_TUMBLER_WALL = 0.6f;
+		public static float SMALL_TUMBLER_WALL = 0.5f;
 		public static float SMALL_TUMBLER_BUSY = 1f;
 
 		public static float ROTATOR_BASE = 0.5f;
