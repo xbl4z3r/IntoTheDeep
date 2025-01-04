@@ -25,8 +25,8 @@ public final class DemoOp extends BaseOpMode
 		public static float EXTENDO_RETRACTED = 0.34f;
 		public static float EXTENDO_EXTENDED = 0f;
 
-		public static float TUMBLER_DELIVER = 0.17f;
-		public static float TUMBLER_IDLE = 0.35f;
+		public static float TUMBLER_DELIVER = 0.16f;
+		public static float TUMBLER_IDLE = 0.36f;
 		public static float TUMBLER_READY = 0.8f;
 		public static float TUMBLER_PICKUP = 0.9f;
 		public static float TUMBLER_WALL = 0.737f;
@@ -48,8 +48,7 @@ public final class DemoOp extends BaseOpMode
 
 		public static float SCORE_TUMBLER_IDLE = 0.05f;
 		public static float SCORE_TUMBLER_CHAMBER = 0.85f;
-		public static float SCORE_TUMBLER_BASKET = 0.92f;
-		public static float SCORE_TUMBLER_DROP = 1f;
+		public static float SCORE_TUMBLER_BASKET = 1f;
 
 		public static float SCORE_CLAW_OPEN = 0f;
 		public static float SCORE_CLAW_CLOSED = 0.5f;
@@ -66,7 +65,6 @@ public final class DemoOp extends BaseOpMode
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
-			public static final InputSystem.Key DROP_KEY = new InputSystem.Key("b");
 		}
 
 		public static class Drive
@@ -83,6 +81,7 @@ public final class DemoOp extends BaseOpMode
 			public static final InputSystem.Axis DRIVE_ROT_R = new InputSystem.Axis("right_trigger");
 			public static final InputSystem.Axis ROTATOR_ANGLE = new InputSystem.Axis("right_stick_x");
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
+			public static final InputSystem.Key DROP_KEY = new InputSystem.Key("b");
 		}
 	}
 
@@ -125,6 +124,7 @@ public final class DemoOp extends BaseOpMode
 	private boolean loaded = false;
 	private boolean rotatorLocked = true;
 	private boolean wallPicking = false;
+	private boolean waitingToDrop = false;
 
 	private float rotatorValue = Constants.ROTATOR_BASE;
 	private float extendoValue = Constants.EXTENDO_EXTENDED;
@@ -171,19 +171,19 @@ public final class DemoOp extends BaseOpMode
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY)) {
 			extendoValue = Constants.EXTENDO_EXTENDED;
 			robot.extendoServo.setPosition(extendoValue);
-			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY - (waitingToDrop ? 0.1 : 0));
 			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY)) {
 			extendoValue = (Constants.EXTENDO_RETRACTED + Constants.EXTENDO_EXTENDED) / 2f;
 			robot.extendoServo.setPosition(extendoValue);
-			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY - (waitingToDrop ? 0.1 : 0));
 			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_ZERO_KEY)) {
 			extendoValue = Constants.EXTENDO_RETRACTED;
 			robot.extendoServo.setPosition(extendoValue);
-			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			robot.tumblerServo.setPosition(Constants.TUMBLER_READY - (waitingToDrop ? 0.1 : 0));
 			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 			wallPicking = false;
 		} else if (driveInput.isPressed(Keybindings.Drive.EXTENDO_WALL_PICKUP)) {
@@ -192,6 +192,35 @@ public final class DemoOp extends BaseOpMode
 			robot.extendoServo.setPosition(extendoValue);
 			robot.tumblerServo.setPosition(Constants.TUMBLER_WALL);
 			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_WALL);
+		}
+
+		if (driveInput.wasPressedThisFrame(Keybindings.Drive.DROP_KEY))
+		{
+			if (waitingToDrop) {
+				robot.clawServo.setPosition(Constants.CLAW_OPEN);
+				setTimeout(() -> {
+					robot.extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
+					robot.tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+					robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+					robot.rotatorServo.setPosition(Constants.ROTATOR_BASE);
+					rotatorValue = Constants.ROTATOR_BASE;
+					extendoState = Utilities.State.IDLE;
+				}, 300);
+				waitingToDrop = false;
+			} else if (extendoState == Utilities.State.BUSY) {
+				rotatorLocked = true;
+				if (!wallPicking)
+					robot.tumblerServo.setPosition(Constants.TUMBLER_PICKUP);
+				setTimeout(() -> {
+					robot.clawServo.setPosition(Constants.CLAW_CLOSED);
+					setTimeout(() -> {
+						if (!wallPicking)
+							robot.tumblerServo.setPosition(Constants.TUMBLER_READY - 0.1f);
+						rotatorValue = Constants.ROTATOR_BASE;
+						waitingToDrop = true;
+					}, 500);
+				}, 500);
+			}
 		}
 
 		if (!driveInput.wasPressedThisFrame(Keybindings.Drive.PRIMARY_KEY)) return;
@@ -226,7 +255,7 @@ public final class DemoOp extends BaseOpMode
 			return;
 		}
 
-		if (extendoState == Utilities.State.IDLE) {
+		if (extendoState == Utilities.State.IDLE && !waitingToDrop) {
 			extendoState = Utilities.State.BUSY;
 			rotatorLocked = false;
 
@@ -234,7 +263,8 @@ public final class DemoOp extends BaseOpMode
 				loaded = false; // If the scorer is not busy and the extendo is busy, the claw is not loaded
 
 			robot.extendoServo.setPosition(extendoValue);
-			robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
+			if (!wallPicking)
+				robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
 			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_BUSY);
 		} else if (extendoState == Utilities.State.BUSY) {
 			rotatorLocked = true;
@@ -246,25 +276,30 @@ public final class DemoOp extends BaseOpMode
 				robot.clawServo.setPosition(Constants.CLAW_CLOSED);
 				setTimeout(() -> {
 					robot.extendoServo.setPosition(Constants.EXTENDO_RETRACTED);
-					robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
-					robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
+					if (!wallPicking)
+						robot.tumblerServo.setPosition(Constants.TUMBLER_READY);
 					robot.rotatorServo.setPosition(Constants.ROTATOR_BASE);
 					rotatorValue = Constants.ROTATOR_BASE;
 					setTimeout(() -> {
+						robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_IDLE);
 						robot.tumblerServo.setPosition(Constants.TUMBLER_DELIVER);
 						setTimeout(() -> {
 							robot.scoreClaw.setPosition(Constants.SCORE_CLAW_CLOSED);
-							robot.clawServo.setPosition(Constants.CLAW_OPEN);
 							setTimeout(() -> {
-								robot.tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+								robot.clawServo.setPosition(Constants.CLAW_OPEN);
+								setTimeout(() -> {
 
-								extendoState = Utilities.State.IDLE;
-								loaded = true; // If the extendo is idle, the claw should be loaded
-							}, 500);
-						}, 500);
+									robot.tumblerServo.setPosition(Constants.TUMBLER_IDLE);
+
+									extendoState = Utilities.State.IDLE;
+									loaded = true; // If the extendo is idle, the claw should be loaded
+									wallPicking = false;
+								}, 500);
+							}, 350);
+						}, 350);
 					}, 100);
 				}, 500);
-			}, 400);
+			}, 500);
 		}
 	}
 
@@ -374,9 +409,6 @@ public final class DemoOp extends BaseOpMode
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-		telemetry.addData("lift1 pos", robot.lift1.getCurrentPosition());
-		telemetry.addData("lift2 pos", robot.lift2.getCurrentPosition());
-
 		if (suspendState == Utilities.State.BUSY) {
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
