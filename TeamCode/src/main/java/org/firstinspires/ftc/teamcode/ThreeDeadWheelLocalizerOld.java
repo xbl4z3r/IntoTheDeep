@@ -21,11 +21,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
 
 @Config
-public final class ThreeDeadWheelLocalizer implements Localizer {
+public final class ThreeDeadWheelLocalizerOld implements Localizer {
 	public static class Params {
 		public double par0YTicks = 1880.285322798813; // y position of the first parallel encoder (in tick units)
-		public double par1YTicks = -2074.7901435778053; // y position of the second parallel encoder (in tick units)
-		public double perpXTicks = 1222.8629402485578; // x position of the perpendicular encoder (in tick units)
+		public double par1YTicks = -2374.7901435778053; // y position of the second parallel encoder (in tick units)
+		public double perpXTicks = 1422.8629402485578; // x position of the perpendicular encoder (in tick units)
 	}
 
 	public static Params PARAMS = new Params();
@@ -41,7 +41,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
 	private int lastPar0Pos, lastPar1Pos, lastPerpPos;
 	private boolean initialized;
 
-	public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, IMU imu, double inPerTick) {
+	public ThreeDeadWheelLocalizerOld(HardwareMap hardwareMap, IMU imu, double inPerTick) {
 		// TODO: make sure your config has **motors** with these names (or change them)
 		//   the encoders should be plugged into the slot matching the named motor
 		//   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -59,7 +59,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
 		FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
 	}
 
-	public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, double inPerTick) {
+	public ThreeDeadWheelLocalizerOld(HardwareMap hardwareMap, double inPerTick) {
 		this(hardwareMap, null, inPerTick);
 	}
 
