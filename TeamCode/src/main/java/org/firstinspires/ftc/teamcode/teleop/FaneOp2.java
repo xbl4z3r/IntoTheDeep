@@ -40,40 +40,39 @@ public final class FaneOp2 extends BaseOpMode
 		public static float EXTENDO2_EXTENDED = 0;
 
 		public static float TUMBLER_DELIVER = 0f;
-		public static float TUMBLER_IDLE = 0.3f;
-		public static float TUMBLER_DETECT = 0.84f;
-		public static float TUMBLER_PICKUP = 0.99f;
+		public static float TUMBLER_IDLE = 0.145f;
+		public static float TUMBLER_DETECT = 0.74f;
+		public static float TUMBLER_PICKUP = 0.82f;
 
-		public static float SMALL_TUMBLER_DELIVER = 1f;
-		public static float SMALL_TUMBLER_DETECT = 0.1f;
-		public static float SMALL_TUMBLER_PICKUP = 0.25f;
+		public static float SMALL_TUMBLER_DELIVER = 0.32f;
+		public static float SMALL_TUMBLER_DETECT = 1f;
+		public static float SMALL_TUMBLER_PICKUP = 0.88f;
 
 		public static float ROTATOR_BASE = 0.5f;
 
-		public static float CLAW_OPEN = 0.5f;
-		public static float CLAW_CLOSED = 0f;
+		public static float CLAW_OPEN = 0.45f;
+		public static float CLAW_CLOSED = 0.1f;
 
 		public static int LIFT_IDLE = 0;
-		public static int LIFT_SUSPEND = 800;
-		public static int LIFT_OFFSET = 250;
+		public static int LIFT_SUSPEND = 770;
+		public static int LIFT_OFFSET = 270;
 
 		// BASKET_LOW, BASKET_HIGH, SUBMERSIBLE_HIGH
-		public static int[] LIFT_LEVELS = { 1000, 1700, 570 };
+		public static int[] LIFT_LEVELS = { 670, 1800, 950 };
 
-		public static float SCORE_TUMBLER_IDLE = 0;
-		public static float SCORE_TUMBLER_BASKET = 0.75f;
-		public static float SCORE_TUMBLER_CHAMBER = 0.75f;
+		public static float SCORE_TUMBLER_IDLE = 0.09f;
+		public static float SCORE_TUMBLER_BASKET = 0.8f;
 
-		public static float SCORE_CLAW_OPEN = 1;
-		public static float SCORE_CLAW_CLOSED = 0;
+		public static float SCORE_CLAW_OPEN = 0.8f;
+		public static float SCORE_CLAW_CLOSED = 0.6f;
 
-		public static float FIXED_CLAW_OPEN = 0;
-		public static float FIXED_CLAW_CLOSED = 0;
+		public static float FIXED_CLAW_OPEN = 0.75f;
+		public static float FIXED_CLAW_CLOSED = 0.45f;
 
-		public static float SUS_SERVO1_UNLOCKED = 0;
-		public static float SUS_SERVO1_LOCKED = 0;
-		public static float SUS_SERVO2_UNLOCKED = 0;
-		public static float SUS_SERVO2_LOCKED = 0;
+		public static float SUS_SERVO1_UNLOCKED = 0.5f;
+		public static float SUS_SERVO1_LOCKED = 0.39f;
+		public static float SUS_SERVO2_UNLOCKED = 0.325f;
+		public static float SUS_SERVO2_LOCKED = 0.39f;
 	}
 
 	private static class Keybindings
@@ -262,6 +261,7 @@ public final class FaneOp2 extends BaseOpMode
 			{
 				fixedClaw.setPosition(Constants.FIXED_CLAW_CLOSED);
 				setTimeout(() -> {
+					liftOverride = true;
 					liftLevel = 3;
 					lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel]);
 					grabbedWall = true;
@@ -399,6 +399,7 @@ public final class FaneOp2 extends BaseOpMode
 			if (scorerState == Utilities.State.IDLE)
 			{
 				scorerState = Utilities.State.BUSY;
+				if (grabbedWall) liftOverride = false;
 				setTimeout(() -> scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500);
 			}
 			else
@@ -415,13 +416,15 @@ public final class FaneOp2 extends BaseOpMode
 				{
 					liftOverride = true;
 					lift.setTargetPosition(Constants.LIFT_LEVELS[liftLevel] - Constants.LIFT_OFFSET);
-					while (Math.abs(lift.getCurrentPosition() - lift.getTargetPosition()) > lift.getTargetPositionTolerance())
-						sleep(15);
-					fixedClaw.setPosition(Constants.FIXED_CLAW_OPEN);
 					setTimeout(() -> {
-						scorerState = Utilities.State.IDLE;
-						liftOverride = false;
-					}, 300);
+						while (Math.abs(lift.getCurrentPosition() - lift.getTargetPosition()) > lift.getTargetPositionTolerance())
+							sleep(15);
+						fixedClaw.setPosition(Constants.FIXED_CLAW_OPEN);
+						setTimeout(() -> {
+							scorerState = Utilities.State.IDLE;
+							liftOverride = false;
+						}, 300);
+					}, 500);
 				}
 			}
 		}
@@ -441,8 +444,8 @@ public final class FaneOp2 extends BaseOpMode
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.SUSPEND_KEY)) return;
 
 		if (suspendState == Utilities.State.IDLE) {
-			lift.setTargetPosition(Constants.LIFT_SUSPEND);
 			suspendState = Utilities.State.BUSY;
+			lift.setTargetPosition(Constants.LIFT_SUSPEND);
 		} else {
 			suspending = true;
 			lift.setTargetPosition(Constants.LIFT_IDLE);
@@ -450,10 +453,12 @@ public final class FaneOp2 extends BaseOpMode
 			susServo1.setPosition(Constants.SUS_SERVO1_LOCKED);
 			susServo2.setPosition(Constants.SUS_SERVO2_LOCKED);
 
+			sleep(300);
+
 			mecanumDrive.leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 			mecanumDrive.rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 			mecanumDrive.leftBack.setPower(1);
-			mecanumDrive.leftBack.setPower(-1);
+			mecanumDrive.rightBack.setPower(1);
 		}
 	}
 

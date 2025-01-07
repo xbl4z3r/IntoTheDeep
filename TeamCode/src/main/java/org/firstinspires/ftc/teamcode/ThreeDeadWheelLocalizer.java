@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
 
 @Config
-public final class ThreeDeadWheelLocalizerOld implements Localizer {
+public final class ThreeDeadWheelLocalizer implements Localizer {
 	public static class Params {
 		public double par0YTicks = 1880.285322798813; // y position of the first parallel encoder (in tick units)
 		public double par1YTicks = -2374.7901435778053; // y position of the second parallel encoder (in tick units)
@@ -41,16 +41,15 @@ public final class ThreeDeadWheelLocalizerOld implements Localizer {
 	private int lastPar0Pos, lastPar1Pos, lastPerpPos;
 	private boolean initialized;
 
-	public ThreeDeadWheelLocalizerOld(HardwareMap hardwareMap, IMU imu, double inPerTick) {
+	public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, IMU imu, double inPerTick) {
 		// TODO: make sure your config has **motors** with these names (or change them)
 		//   the encoders should be plugged into the slot matching the named motor
 		//   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-		par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "par0")));
-		par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "rightFront")));
-		perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "leftFront")));
+		par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "leftFront")));
+		par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "leftBack")));
+		perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "rightBack")));
 
 		// TODO: reverse encoder directions if needed
-		par0.setDirection(DcMotorSimple.Direction.REVERSE);
 		par1.setDirection(DcMotorSimple.Direction.REVERSE);
 
 		this.inPerTick = inPerTick;
@@ -59,7 +58,7 @@ public final class ThreeDeadWheelLocalizerOld implements Localizer {
 		FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
 	}
 
-	public ThreeDeadWheelLocalizerOld(HardwareMap hardwareMap, double inPerTick) {
+	public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, double inPerTick) {
 		this(hardwareMap, null, inPerTick);
 	}
 
