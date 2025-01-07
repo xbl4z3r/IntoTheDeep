@@ -56,7 +56,7 @@ public final class AutobossMKIII extends BaseOpMode
 						RunInParallel(
 								robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 										.setTangent(Math.PI)
-										.splineToConstantHeading(centimetersToInches(new Vector2d(-80, -5)), Math.PI)
+										.splineToConstantHeading(centimetersToInches(new Vector2d(-80, -9)), Math.PI)
 										.build(),
 								new InstantAction(() -> {
 									robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2]);
@@ -149,8 +149,8 @@ public final class AutobossMKIII extends BaseOpMode
 								new InstantAction(() -> robot.scoreTumbler.setPosition(DemoOp.Constants.SCORE_TUMBLER_CHAMBER)),
 								WaitFor(1.5),
 								new InstantAction(() -> {
-									robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2]);
-									robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2]);
+									robot.lift1.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - 25);
+									robot.lift2.setTargetPosition(DemoOp.Constants.LIFT_LEVELS[2] - 25);
 								})
 						)
 				)

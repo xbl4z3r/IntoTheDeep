@@ -90,7 +90,11 @@ public final class DemoOp extends BaseOpMode
 	{
 		driveInput = input1;
 		armInput = input2;
+	}
 
+	@Override
+	protected void OnStart()
+	{
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
 	}
