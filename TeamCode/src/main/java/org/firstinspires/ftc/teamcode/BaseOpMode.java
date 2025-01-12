@@ -13,7 +13,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,7 +73,6 @@ public abstract class BaseOpMode extends LinearOpMode
 			internal_LoopTime.reset();
 			if (IsDebugRequested()) internal_DebugMode = !internal_DebugMode;
 			OnRun();
-			telemetry.clear();
 			OnTelemetry(telemetry);
 			if (internal_DebugMode) OnDebug();
 			telemetry.update();
@@ -129,7 +130,8 @@ public abstract class BaseOpMode extends LinearOpMode
 		telemetry.addLine("[DEBUG] Debug mode is enabled");
 		telemetry.addData("[DEBUG] Dummy Mode", internal_DummyMode);
 		Class<?> clazz = this.getClass();
-		List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+		ArrayList<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
+		RobotHardware robotHardware = null;
 
 		// check if any of the fields is a RobotHardware object
 		for (Field field : fields) {
@@ -137,18 +139,25 @@ public abstract class BaseOpMode extends LinearOpMode
 			try {
 				Object value = field.get(this);
 				if (value instanceof RobotHardware) {
-					fields.addAll(Arrays.asList(value.getClass().getDeclaredFields()));
+					robotHardware = (RobotHardware) value;
+					Collections.addAll(fields, value.getClass().getDeclaredFields());
 					break;
 				}
 			} catch (Exception e) {
 				telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 
 		for (Field field : fields) {
 			field.setAccessible(true);
 			try {
-				Object value = field.get(this);
+				Object value = null;
+				try {
+					value = field.get(this);
+				} catch (Exception e1) {
+					if(robotHardware != null) value = field.get(robotHardware);
+				}
 				if (value instanceof DcMotorEx) {
 					DcMotorEx motor = (DcMotorEx) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Power", motor.getPower());
@@ -165,6 +174,7 @@ public abstract class BaseOpMode extends LinearOpMode
 				}
 			} catch (Exception e) {
 				telemetry.addData("[!] " + Utilities.toDisplayString(field.getName()), "Error: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 		telemetry.addData("[DEBUG] Elapsed Time Since Init", getElapsedTimeSinceInit());
