@@ -174,7 +174,7 @@ public final class FaneOp extends BaseOpMode
 						grabbedWall = false;
 						liftedSpecimen = false;
 					}, 150);
-				}, 400);
+				}, 600);
 			}
 		}
 		if (extendoState == Utilities.State.IDLE

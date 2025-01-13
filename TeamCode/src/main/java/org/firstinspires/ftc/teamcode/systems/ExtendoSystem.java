@@ -9,6 +9,7 @@ public class ExtendoSystem extends AbstractSystem
 {
 	private final float RETRACTED = 0;
 	private final float HALF = 0.5f;
+	private final float SAMPLE = 0.78f;
 	private final float EXTENDED = 1;
 
 	private ExtendoLevel _level = ExtendoLevel.RETRACTED;
@@ -44,6 +45,10 @@ public class ExtendoSystem extends AbstractSystem
 				extendo1.setPosition(HALF);
 				extendo2.setPosition(HALF);
 				break;
+			case SAMPLE:
+				extendo1.setPosition(SAMPLE);
+				extendo2.setPosition(SAMPLE);
+				break;
 			case EXTENDED:
 				extendo1.setPosition(EXTENDED);
 				extendo2.setPosition(EXTENDED);
@@ -65,6 +70,7 @@ public class ExtendoSystem extends AbstractSystem
 	{
 		RETRACTED,
 		HALF,
+		SAMPLE,
 		EXTENDED
 	}
 }

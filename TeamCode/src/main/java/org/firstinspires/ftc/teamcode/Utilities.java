@@ -54,6 +54,11 @@ public final class Utilities
 		return new Pose2d(inchesToCentimeters(pose.position), pose.heading);
 	}
 
+	public static double DegToRad(double deg)
+	{
+		return Math.toRadians(deg);
+	}
+
 	/**
 	 * Convert an angle to a servo position
 	 *
@@ -77,9 +82,9 @@ public final class Utilities
 		return angleToServoPosition(angle, 180);
 	}
 
-	public static Action WaitFor(double delay)
+	public static Action WaitFor(double delaySec)
 	{
-		return new SleepAction(delay);
+		return new SleepAction(delaySec);
 	}
 
 	public static Action RunInParallel(Action... actions)
