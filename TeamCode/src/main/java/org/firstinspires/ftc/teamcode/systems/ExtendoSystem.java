@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ExtendoSystem extends AbstractSystem
@@ -12,21 +12,22 @@ public class ExtendoSystem extends AbstractSystem
 
 	private ExtendoLevel _level = ExtendoLevel.RETRACTED;
 
-	private final Servo extendoServo1, extendoServo2;
+	@Expose
+	private final Servo extendo1, extendo2;
 
-	public ExtendoSystem(HardwareMap hardwareMap)
+	public ExtendoSystem(Servo extendo1, Servo extendo2)
 	{
-		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
-		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
-		extendoServo2.setDirection(Servo.Direction.REVERSE);
+		this.extendo1 = extendo1;
+		this.extendo2 = extendo2;
+		extendo2.setDirection(Servo.Direction.REVERSE);
 	}
 
 	@Override
 	public void init()
 	{
 		_level = ExtendoLevel.RETRACTED;
-		extendoServo1.setPosition(EXTENDO_RETRACTED);
-		extendoServo2.setPosition(EXTENDO_RETRACTED);
+		extendo1.setPosition(EXTENDO_RETRACTED);
+		extendo2.setPosition(EXTENDO_RETRACTED);
 	}
 
 	public void extend(ExtendoLevel level)
@@ -35,16 +36,16 @@ public class ExtendoSystem extends AbstractSystem
 		switch (level)
 		{
 			case RETRACTED:
-				extendoServo1.setPosition(EXTENDO_RETRACTED);
-				extendoServo2.setPosition(EXTENDO_RETRACTED);
+				extendo1.setPosition(EXTENDO_RETRACTED);
+				extendo2.setPosition(EXTENDO_RETRACTED);
 				break;
 			case HALF:
-				extendoServo1.setPosition(EXTENDO_EXTENDED / 2);
-				extendoServo2.setPosition(EXTENDO_EXTENDED / 2);
+				extendo1.setPosition(EXTENDO_EXTENDED / 2);
+				extendo2.setPosition(EXTENDO_EXTENDED / 2);
 				break;
 			case EXTENDED:
-				extendoServo1.setPosition(EXTENDO_EXTENDED);
-				extendoServo2.setPosition(EXTENDO_EXTENDED);
+				extendo1.setPosition(EXTENDO_EXTENDED);
+				extendo2.setPosition(EXTENDO_EXTENDED);
 				break;
 		}
 	}

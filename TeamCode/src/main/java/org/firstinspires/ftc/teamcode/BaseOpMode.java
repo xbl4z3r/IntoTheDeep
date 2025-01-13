@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.CutPower;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -148,6 +149,7 @@ public abstract class BaseOpMode extends LinearOpMode
 							Object declaredValue = declaredField.get(value);
 							if (declaredValue instanceof AbstractSystem) {
 								for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
+									if(!field.isAnnotationPresent(Expose.class)) continue;
 									fields.add(systemField);
 									fieldParents.put(systemField, declaredValue);
 								}
@@ -229,6 +231,7 @@ public abstract class BaseOpMode extends LinearOpMode
 								Object declaredValue = declaredField.get(value);
 								if (declaredValue instanceof AbstractSystem) {
 									for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
+										if(!field.isAnnotationPresent(Expose.class)) continue;
 										fields.add(systemField);
 										fieldParents.put(systemField, declaredValue);
 									}

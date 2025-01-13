@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -14,18 +15,19 @@ public class TumblerSystem extends AbstractSystem
 
 	private TumblerDestination _destination = TumblerDestination.IDLE;
 
-	private final Servo tumblerServo;
+	@Expose
+	private final Servo tumbler;
 
-	public TumblerSystem(HardwareMap hardwareMap)
+	public TumblerSystem(Servo tumbler)
 	{
-		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
+		this.tumbler = tumbler;
 	}
 
 	@Override
 	public void init()
 	{
 		_destination = TumblerDestination.IDLE;
-		tumblerServo.setPosition(TUMBLER_IDLE);
+		tumbler.setPosition(TUMBLER_IDLE);
 	}
 
 	public void setDestination(TumblerDestination destination)
@@ -34,16 +36,16 @@ public class TumblerSystem extends AbstractSystem
 		switch (destination)
 		{
 			case TRANSFER:
-				tumblerServo.setPosition(TUMBLER_TRANSFER);
+				tumbler.setPosition(TUMBLER_TRANSFER);
 				break;
 			case IDLE:
-				tumblerServo.setPosition(TUMBLER_IDLE);
+				tumbler.setPosition(TUMBLER_IDLE);
 				break;
 			case HOVER:
-				tumblerServo.setPosition(TUMBLER_HOVER);
+				tumbler.setPosition(TUMBLER_HOVER);
 				break;
 			case PICKUP:
-				tumblerServo.setPosition(TUMBLER_PICKUP);
+				tumbler.setPosition(TUMBLER_PICKUP);
 				break;
 		}
 	}
