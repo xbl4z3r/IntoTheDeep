@@ -17,7 +17,8 @@ public final class Utilities
 			try {
 				Thread.sleep(delay);
 				runnable.run();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}).start();
@@ -27,12 +28,30 @@ public final class Utilities
 	{
 		return centimeters / 2.54;
 	}
-	public static Vector2d centimetersToInches(Vector2d pose) { return pose.times(1 / 2.54); }
-	public static Pose2d centimetersToInches(Pose2d pose) { return new Pose2d(centimetersToInches(pose.position), pose.heading); }
+
+	public static Vector2d centimetersToInches(Vector2d pose)
+	{
+		return pose.times(1 / 2.54);
+	}
+
+	public static Pose2d centimetersToInches(Pose2d pose)
+	{
+		return new Pose2d(centimetersToInches(pose.position), pose.heading);
+	}
 
 	public static double inchesToCentimeters(double inches)
 	{
 		return inches * 2.54;
+	}
+
+	public static Vector2d inchesToCentimeters(Vector2d pose)
+	{
+		return pose.times(2.54);
+	}
+
+	public static Pose2d inchesToCentimeters(Pose2d pose)
+	{
+		return new Pose2d(inchesToCentimeters(pose.position), pose.heading);
 	}
 
 	/**

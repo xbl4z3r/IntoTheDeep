@@ -6,22 +6,27 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.systems.ExtendoSystem;
+import org.firstinspires.ftc.teamcode.systems.TumblerSystem;
 import org.firstinspires.ftc.teamcode.teleop.FaneOp;
 
 public final class RobotHardware
 {
 	public final MecanumDrive drivetrain;
 	public final DcMotorEx lift;
-	public Servo extendoServo1, extendoServo2, tumblerServo, smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw, fixedClaw, axleServo1, axleServo2;
+	public Servo smallTumbler, rotatorServo, clawServo, scoreTumbler, scoreClaw, fixedClaw, axleServo1, axleServo2;
+
+	public ExtendoSystem extendo;
+	public TumblerSystem tumbler;
 
 	public RobotHardware(HardwareMap hardwareMap)
 	{
 		drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+		extendo = new ExtendoSystem(hardwareMap);
+		tumbler = new TumblerSystem(hardwareMap);
 
 		lift = hardwareMap.get(DcMotorEx.class, "lift");
-		extendoServo1 = hardwareMap.get(Servo.class, "extendo1");
-		extendoServo2 = hardwareMap.get(Servo.class, "extendo2");
-		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
+
 		smallTumbler = hardwareMap.get(Servo.class, "sTumbler");
 		rotatorServo = hardwareMap.get(Servo.class, "rotator");
 		clawServo = hardwareMap.get(Servo.class, "claw");
@@ -43,9 +48,7 @@ public final class RobotHardware
 		lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift.setPower(1);
 
-		extendoServo1.setPosition(FaneOp.Constants.EXTENDO1_RETRACTED);
-		extendoServo2.setPosition(FaneOp.Constants.EXTENDO2_RETRACTED);
-		tumblerServo.setPosition(FaneOp.Constants.TUMBLER_IDLE);
+
 		smallTumbler.setPosition(FaneOp.Constants.SMALL_TUMBLER_DELIVER);
 		rotatorServo.setPosition(FaneOp.Constants.ROTATOR_BASE);
 		clawServo.setPosition(FaneOp.Constants.CLAW_OPEN);

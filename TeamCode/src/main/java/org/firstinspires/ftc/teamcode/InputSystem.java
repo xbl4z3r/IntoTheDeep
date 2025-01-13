@@ -66,12 +66,10 @@ public class InputSystem
 
 	public boolean wasPressedThisFrame(Key key)
 	{
-		try
-		{
+		try {
 			boolean currentState = gamepadClass.getField(key.getId()).getBoolean(gamepad);
 			if (!keyStates.containsKey(key)) keyStates.put(key, currentState);
-			else
-			{
+			else {
 				Boolean state = keyStates.get(key);
 				if (currentState && Boolean.FALSE.equals(state)) keyStates.put(key, true);
 				else if (currentState && Boolean.TRUE.equals(state)) return false;
@@ -79,8 +77,7 @@ public class InputSystem
 			}
 			return Boolean.TRUE.equals(keyStates.get(key));
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			print("[ERROR] Could not get key " + key.getId());
 			return false;
 		}
@@ -95,18 +92,17 @@ public class InputSystem
 	{
 		for (Binding key : keyCombo.getBindings())
 			if (key instanceof Key && !wasPressedThisFrame((Key) key)) return false;
-			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE) return false;
+			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE)
+				return false;
 		return true;
 	}
 
 	public boolean isPressed(Key key)
 	{
-		try
-		{
+		try {
 			return gamepadClass.getField(key.getId()).getBoolean(gamepad);
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			print("[ERROR] Could not get key " + key.getId());
 			return false;
 		}
@@ -121,18 +117,17 @@ public class InputSystem
 	{
 		for (Binding key : keyCombo.getBindings())
 			if (key instanceof Key && !isPressed((Key) key)) return false;
-			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE) return false;
+			else if (key instanceof Axis && Math.abs(getValue((Axis) key)) <= DEADZONE)
+				return false;
 		return true;
 	}
 
 	public double getValue(Axis key)
 	{
-		try
-		{
+		try {
 			return gamepadClass.getField(key.getId()).getDouble(gamepad);
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			print("[ERROR] Could not get key " + key.getId());
 			return 0d;
 		}
@@ -207,5 +202,14 @@ public class InputSystem
 		{
 			return bindings;
 		}
+	}
+
+	@NonNull
+	@Override
+	public String toString()
+	{
+		return "InputSystem{" +
+				"gamepad=" + gamepad +
+				"}";
 	}
 }

@@ -143,7 +143,8 @@ public abstract class BaseOpMode extends LinearOpMode
 					Collections.addAll(fields, value.getClass().getDeclaredFields());
 					break;
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -155,8 +156,9 @@ public abstract class BaseOpMode extends LinearOpMode
 				Object value = null;
 				try {
 					value = field.get(this);
-				} catch (Exception e1) {
-					if(robotHardware != null) value = field.get(robotHardware);
+				}
+				catch (Exception e1) {
+					if (robotHardware != null) value = field.get(robotHardware);
 				}
 				if (value instanceof DcMotorEx) {
 					DcMotorEx motor = (DcMotorEx) value;
@@ -170,9 +172,10 @@ public abstract class BaseOpMode extends LinearOpMode
 				} else if (value instanceof Enum) {
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), ((Enum<?>) value).name());
 				} else {
-					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), value);
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), value == null ? "NULL" : value.toString());
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				telemetry.addData("[!] " + Utilities.toDisplayString(field.getName()), "Error: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -196,7 +199,8 @@ public abstract class BaseOpMode extends LinearOpMode
 			internal_DummyMode = true;
 
 			Class<?> clazz = this.getClass();
-			List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
+			ArrayList<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
+			RobotHardware robotHardware = null;
 
 			// check if any of the fields is a RobotHardware object
 			for (Field field : fields) {
@@ -204,26 +208,36 @@ public abstract class BaseOpMode extends LinearOpMode
 				try {
 					Object value = field.get(this);
 					if (value instanceof RobotHardware) {
-						fields.addAll(Arrays.asList(value.getClass().getDeclaredFields()));
+						robotHardware = (RobotHardware) value;
+						Collections.addAll(fields, value.getClass().getDeclaredFields());
 						break;
 					}
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
+					e.printStackTrace();
 				}
 			}
 
 			for (Field field : fields) {
 				field.setAccessible(true);
 				try {
-					Object value = field.get(this);
+					Object value = null;
+					try {
+						value = field.get(this);
+					}
+					catch (Exception e1) {
+						if (robotHardware != null) value = field.get(robotHardware);
+					}
 					if (value instanceof DcMotorEx) {
 						DcMotorEx motor = (DcMotorEx) value;
 						motor.setPower(0);
 						motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-					} else if(value instanceof Servo) {
+					} else if (value instanceof Servo) {
 						CutPower((Servo) value);
 					}
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 				}
 			}
