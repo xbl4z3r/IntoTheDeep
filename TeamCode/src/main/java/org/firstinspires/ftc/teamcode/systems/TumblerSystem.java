@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class TumblerSystem extends AbstractSystem
 {
-	private static float TRANSFER;
-	private static float IDLE;
-	private static float HOVER;
-	private static float BUSY;
+	private float TRANSFER;
+	private float IDLE;
+	private float HOVER;
+	private float BUSY;
 
 	private TumblerDestination _destination = TumblerDestination.IDLE;
 

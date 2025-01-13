@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class ExtendoSystem extends AbstractSystem
 {
-	private static final float RETRACTED = 0;
-	private static final float EXTENDED = 1;
+	private final float RETRACTED = 0;
+	private final float HALF = 0.5f;
+	private final float EXTENDED = 1;
 
 	private ExtendoLevel _level = ExtendoLevel.RETRACTED;
 
@@ -40,8 +41,8 @@ public class ExtendoSystem extends AbstractSystem
 				extendo2.setPosition(RETRACTED);
 				break;
 			case HALF:
-				extendo1.setPosition(EXTENDED / 2);
-				extendo2.setPosition(EXTENDED / 2);
+				extendo1.setPosition(HALF);
+				extendo2.setPosition(HALF);
 				break;
 			case EXTENDED:
 				extendo1.setPosition(EXTENDED);

@@ -5,15 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Utilities;
-
 @TeleOp(name = "Servo Pos Test", group = "Testing")
 public final class ServoPosTest extends LinearOpMode
 {
 	Servo servo;
 
 	@Override
-	public void runOpMode() throws InterruptedException
+	public void runOpMode()
 	{
 		double pos = 0.5;
 		servo = hardwareMap.get(Servo.class, "servo");

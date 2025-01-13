@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class RotatorSystem extends AbstractSystem
 {
-	public final static float ROTATOR_BASE = 0.5f;
+	public static final float ROTATOR_BASE = 0.476f;
 
 	@Expose
 	private final Servo rotator;

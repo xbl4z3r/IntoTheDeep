@@ -27,12 +27,6 @@ public final class FaneOp extends BaseOpMode
 
 	private RobotHardware robot;
 
-	public static class Constants
-	{
-		public static float SCORE_TUMBLER_IDLE = 0.09f;
-		public static float SCORE_TUMBLER_BASKET = 0.8f;
-	}
-
 	private static class Keybindings
 	{
 		public static class Arm
@@ -107,22 +101,25 @@ public final class FaneOp extends BaseOpMode
 	private boolean rotatorLocked = false;
 	private boolean waitingToDrop = false;
 	private boolean grabbedWall = false;
+	private boolean liftedSpecimen = false;
 
 	private double rotatorPos = RotatorSystem.ROTATOR_BASE;
-	private ExtendoSystem.ExtendoLevel extendoLevel = ExtendoSystem.ExtendoLevel.EXTENDED;
+	private ExtendoSystem.ExtendoLevel extendoLevel = ExtendoSystem.ExtendoLevel.RETRACTED;
 	private LiftSystem.LiftLevel liftLevel = LiftSystem.LiftLevel.BASKET_HIGH;
 	private boolean liftOverride = false;
 
 	private void Extendo()
 	{
 		// Rotator control
-		if (!rotatorLocked) {
+		if (!rotatorLocked)
+		{
 			rotatorPos += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
 			rotatorPos = com.acmerobotics.roadrunner.Math.clamp(rotatorPos, 0, 1);
 			robot.rotator.setPosition(rotatorPos);
 		}
 
-		if (extendoState == Utilities.State.BUSY) {
+		if (extendoState == Utilities.State.BUSY)
+		{
 			if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_FULL_KEY))
 				extendoLevel = ExtendoSystem.ExtendoLevel.EXTENDED;
 			else if (driveInput.wasPressedThisFrame(Keybindings.Drive.EXTENDO_HALF_KEY))
@@ -134,25 +131,37 @@ public final class FaneOp extends BaseOpMode
 				robot.extendo.extend(extendoLevel);
 		}
 
-		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_RESET_KEY)) {
+		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_RESET_KEY))
+		{
 			robot.extendo.extend(ExtendoSystem.ExtendoLevel.RETRACTED);
 			robot.fixedClaw.open();
+			robot.claw.open();
+			robot.tumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
+			robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.IDLE);
 			liftOverride = false;
 			grabbedWall = false;
 		}
 
 		// Grabbing logic
-		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_WALL_KEY)) {
+		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_WALL_KEY))
+		{
 			if (!grabbedWall) // Grab
 			{
 				robot.fixedClaw.close();
 				setTimeout(() -> {
 					liftOverride = true;
-					robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH);
+					robot.lift.setLiftLevel(LiftSystem.LiftLevel.CLEAR_SPECIMEN);
 					grabbedWall = true;
-				}, 300);
-			} else {
+				}, 200);
+			}
+			else if (grabbedWall && !liftedSpecimen)
+			{
+				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH);
+				liftedSpecimen = true;
+			}
+			else
+			{
 				liftOverride = true;
 				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE);
 
@@ -162,22 +171,28 @@ public final class FaneOp extends BaseOpMode
 					setTimeout(() -> {
 						scorerState = Utilities.State.IDLE;
 						liftOverride = false;
+						grabbedWall = false;
+						liftedSpecimen = false;
 					}, 300);
 				}, 500);
 			}
 		}
 		if (extendoState == Utilities.State.IDLE
 				&& !grabbedWall
-				&& driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY)
-				|| driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY)) {
+				&& (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY)
+				|| driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY)))
+		{
 			extendoState = Utilities.State.BUSY;
 			rotatorLocked = false;
 
 			robot.tumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
 			robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
-		} else if (extendoState == Utilities.State.BUSY) {
+		}
+		else if (extendoState == Utilities.State.BUSY)
+		{
 			// Grab and transfer
-			if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY)) {
+			if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY))
+			{
 				rotatorLocked = true;
 
 				robot.scoreClaw.open();
@@ -205,16 +220,18 @@ public final class FaneOp extends BaseOpMode
 									robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 
 									extendoState = Utilities.State.IDLE;
-								}, 200);
-							}, 200);
-						}, 600);
-					}, 300);
-				}, 300);
+								}, 150);
+							}, 150);
+						}, 400);
+					}, 150);
+				}, 200);
 			}
 			// Grab and hold
-			else if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY)) {
+			else if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY))
+			{
 				// Grab
-				if (!waitingToDrop) {
+				if (!waitingToDrop)
+				{
 					rotatorLocked = true;
 
 					robot.tumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
@@ -233,7 +250,8 @@ public final class FaneOp extends BaseOpMode
 							waitingToDrop = true;
 						}, 300);
 					}, 300);
-				} else // Release
+				}
+				else // Release
 				{
 					robot.claw.open();
 					setTimeout(() -> {
@@ -254,17 +272,20 @@ public final class FaneOp extends BaseOpMode
 	private void Scorer()
 	{
 		// Lift control logic
-		if (!liftOverride) {
+		if (!liftOverride)
+		{
 			// Lift level
-			if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) {
+			if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY))
+			{
 				liftLevel = LiftSystem.LiftLevel.BASKET_LOW;
-				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
-			} else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) {
+				if (scorerState == Utilities.State.BUSY)
+					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
+			}
+			else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY))
+			{
 				liftLevel = LiftSystem.LiftLevel.BASKET_HIGH;
-				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
-			} else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) {
-				liftLevel = LiftSystem.LiftLevel.CHAMBER_HIGH;
-				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
+				if (scorerState == Utilities.State.BUSY)
+					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 			}
 
 			// Lift central control
@@ -275,18 +296,22 @@ public final class FaneOp extends BaseOpMode
 		}
 
 		// Scoring logic
-		if (armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY)) {
-			if (scorerState == Utilities.State.IDLE) {
+		if (armInput.wasPressedThisFrame(Keybindings.Arm.PRIMARY_KEY))
+		{
+			if (scorerState == Utilities.State.IDLE)
+			{
 				scorerState = Utilities.State.BUSY;
 				if (grabbedWall) liftOverride = false;
 				else
 					setTimeout(() -> robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY), 500);
-			} else {
+			}
+			else
+			{
 				robot.scoreClaw.open();
 				setTimeout(() -> {
 					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 					setTimeout(() -> scorerState = Utilities.State.IDLE, 500);
-				}, 300);
+				}, 200);
 			}
 		}
 	}
@@ -296,7 +321,8 @@ public final class FaneOp extends BaseOpMode
 
 	private void Suspender()
 	{
-		if (armInput.wasPressedThisFrame(Keybindings.Arm.CANCEL_SUSPEND_KEY) && suspendState == Utilities.State.BUSY) {
+		if (armInput.wasPressedThisFrame(Keybindings.Arm.CANCEL_SUSPEND_KEY) && suspendState == Utilities.State.BUSY)
+		{
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.IDLE);
 			suspendState = Utilities.State.IDLE;
 			return;
@@ -304,10 +330,13 @@ public final class FaneOp extends BaseOpMode
 
 		if (!armInput.wasPressedThisFrame(Keybindings.Arm.SUSPEND_KEY)) return;
 
-		if (suspendState == Utilities.State.IDLE) {
+		if (suspendState == Utilities.State.IDLE)
+		{
 			suspendState = Utilities.State.BUSY;
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.SUSPEND);
-		} else {
+		}
+		else
+		{
 			suspending = true;
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.IDLE);
 
@@ -336,7 +365,8 @@ public final class FaneOp extends BaseOpMode
 
 		// Find biggest blob
 		ColorBlobLocatorProcessor.Blob blob = blobs.get(0);
-		for (ColorBlobLocatorProcessor.Blob b : blobs) {
+		for (ColorBlobLocatorProcessor.Blob b : blobs)
+		{
 			if (b.getContourArea() > blob.getContourArea())
 				blob = b;
 		}
@@ -360,11 +390,14 @@ public final class FaneOp extends BaseOpMode
 	@Override
 	protected void OnTelemetry(Telemetry telemetry)
 	{
-		if (suspendState == Utilities.State.BUSY) {
+		if (suspendState == Utilities.State.BUSY)
+		{
 			telemetry.addLine("[INFO] In Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " again to suspend");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.CANCEL_SUSPEND_KEY + " to cancel");
-		} else {
+		}
+		else
+		{
 			telemetry.addLine("[INFO] Welcome Drivers!");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.SUSPEND_KEY + " to enter Suspend Mode");
 			telemetry.addLine("[INFO] Press " + Keybindings.Arm.BASKET_LOW_KEY + " to move to Basket Low");

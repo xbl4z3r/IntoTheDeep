@@ -1,11 +1,9 @@
 
 package org.firstinspires.ftc.teamcode.testing;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -39,4 +37,3 @@ public final class OneMotorTest extends BaseOpMode
 		telemetry.addData("[INFO] Motor Current", motor.getCurrent(CurrentUnit.AMPS));
 	}
 }
-

@@ -7,20 +7,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class OpenCloseSystem extends AbstractSystem
 {
-	private static float OPEN = 0;
-	private static float CLOSED = 1;
+	private float OPEN;
+	private float CLOSED;
 
 	@Expose
-	private final Servo claw;
+	private final Servo servo;
 
-	public OpenCloseSystem(Servo claw)
+	public OpenCloseSystem(Servo servo, float open, float closed)
 	{
-		this(claw, OPEN, CLOSED);
-	}
-
-	public OpenCloseSystem(Servo claw, float open, float closed)
-	{
-		this.claw = claw;
+		this.servo = servo;
 		OPEN = open;
 		CLOSED = closed;
 	}
@@ -28,17 +23,17 @@ public class OpenCloseSystem extends AbstractSystem
 	@Override
 	public void init()
 	{
-		claw.setPosition(OPEN);
+		servo.setPosition(OPEN);
 	}
 
 	public void open()
 	{
-		claw.setPosition(OPEN);
+		servo.setPosition(OPEN);
 	}
 
 	public void close()
 	{
-		claw.setPosition(CLOSED);
+		servo.setPosition(CLOSED);
 	}
 
 	public Action openAction()
