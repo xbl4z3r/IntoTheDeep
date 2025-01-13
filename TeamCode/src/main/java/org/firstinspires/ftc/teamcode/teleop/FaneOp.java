@@ -29,17 +29,8 @@ public final class FaneOp extends BaseOpMode
 
 	public static class Constants
 	{
-		public static float SMALL_TUMBLER_DELIVER = 0.32f;
-		public static float SMALL_TUMBLER_DETECT = 1f;
-		public static float SMALL_TUMBLER_PICKUP = 0.88f;
-
 		public static float SCORE_TUMBLER_IDLE = 0.09f;
 		public static float SCORE_TUMBLER_BASKET = 0.8f;
-
-		public static float AXLE_SERVO1_UNLOCKED = 0.5f;
-		public static float AXLE_SERVO1_LOCKED = 0.39f;
-		public static float AXLE_SERVO2_UNLOCKED = 0.325f;
-		public static float AXLE_SERVO2_LOCKED = 0.39f;
 	}
 
 	private static class Keybindings
@@ -183,7 +174,7 @@ public final class FaneOp extends BaseOpMode
 			rotatorLocked = false;
 
 			robot.tumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
-			robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_DETECT);
+			robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
 		} else if (extendoState == Utilities.State.BUSY) {
 			// Grab and transfer
 			if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY)) {
@@ -191,8 +182,8 @@ public final class FaneOp extends BaseOpMode
 
 				robot.scoreClaw.open();
 
-				robot.tumbler.setDestination(TumblerSystem.TumblerDestination.PICKUP);
-				robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_PICKUP);
+				robot.tumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
+				robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 				setTimeout(() -> {
 					robot.claw.close();
 					setTimeout(() -> {
@@ -200,7 +191,7 @@ public final class FaneOp extends BaseOpMode
 						robot.extendo.extend(extendoLevel);
 
 						robot.tumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
-						robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_DELIVER);
+						robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
 
 						rotatorPos = RotatorSystem.ROTATOR_BASE;
 						robot.rotator.setPosition(rotatorPos);
@@ -211,7 +202,7 @@ public final class FaneOp extends BaseOpMode
 								robot.claw.open();
 								setTimeout(() -> {
 									robot.tumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
-									robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_DETECT);
+									robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 
 									extendoState = Utilities.State.IDLE;
 								}, 200);
@@ -226,8 +217,8 @@ public final class FaneOp extends BaseOpMode
 				if (!waitingToDrop) {
 					rotatorLocked = true;
 
-					robot.tumbler.setDestination(TumblerSystem.TumblerDestination.PICKUP);
-					robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_PICKUP);
+					robot.tumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
+					robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 					setTimeout(() -> {
 						robot.claw.close();
 						setTimeout(() -> {
@@ -247,7 +238,7 @@ public final class FaneOp extends BaseOpMode
 					robot.claw.open();
 					setTimeout(() -> {
 						robot.tumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
-						robot.smallTumbler.setPosition(Constants.SMALL_TUMBLER_DETECT);
+						robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 
 						extendoLevel = ExtendoSystem.ExtendoLevel.RETRACTED;
 						robot.extendo.extend(extendoLevel);
@@ -267,13 +258,13 @@ public final class FaneOp extends BaseOpMode
 			// Lift level
 			if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_LOW_KEY)) {
 				liftLevel = LiftSystem.LiftLevel.BASKET_LOW;
-				robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET);
+				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 			} else if (armInput.wasPressedThisFrame(Keybindings.Arm.BASKET_HIGH_KEY)) {
 				liftLevel = LiftSystem.LiftLevel.BASKET_HIGH;
-				robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET);
+				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 			} else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY)) {
 				liftLevel = LiftSystem.LiftLevel.CHAMBER_HIGH;
-				robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+				robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 			}
 
 			// Lift central control
@@ -289,11 +280,11 @@ public final class FaneOp extends BaseOpMode
 				scorerState = Utilities.State.BUSY;
 				if (grabbedWall) liftOverride = false;
 				else
-					setTimeout(() -> robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_BASKET), 500);
+					setTimeout(() -> robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY), 500);
 			} else {
 				robot.scoreClaw.open();
 				setTimeout(() -> {
-					robot.scoreTumbler.setPosition(Constants.SCORE_TUMBLER_IDLE);
+					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 					setTimeout(() -> scorerState = Utilities.State.IDLE, 500);
 				}, 300);
 			}
@@ -320,8 +311,8 @@ public final class FaneOp extends BaseOpMode
 			suspending = true;
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.IDLE);
 
-			robot.axleServo1.setPosition(Constants.AXLE_SERVO1_LOCKED);
-			robot.axleServo2.setPosition(Constants.AXLE_SERVO2_LOCKED);
+			robot.axle1.close();
+			robot.axle2.close();
 
 			sleep(300);
 

@@ -5,40 +5,40 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class ClawSystem extends AbstractSystem
+public class OpenCloseSystem extends AbstractSystem
 {
-	private static float CLAW_OPEN = 0;
-	private static float CLAW_CLOSED = 1;
+	private static float OPEN = 0;
+	private static float CLOSED = 1;
 
 	@Expose
 	private final Servo claw;
 
-	public ClawSystem(Servo claw)
+	public OpenCloseSystem(Servo claw)
 	{
-		this(claw, CLAW_OPEN, CLAW_CLOSED);
+		this(claw, OPEN, CLOSED);
 	}
 
-	public ClawSystem(Servo claw, float open, float closed)
+	public OpenCloseSystem(Servo claw, float open, float closed)
 	{
 		this.claw = claw;
-		CLAW_OPEN = open;
-		CLAW_CLOSED = closed;
+		OPEN = open;
+		CLOSED = closed;
 	}
 
 	@Override
 	public void init()
 	{
-		claw.setPosition(CLAW_OPEN);
+		claw.setPosition(OPEN);
 	}
 
 	public void open()
 	{
-		claw.setPosition(CLAW_OPEN);
+		claw.setPosition(OPEN);
 	}
 
 	public void close()
 	{
-		claw.setPosition(CLAW_CLOSED);
+		claw.setPosition(CLOSED);
 	}
 
 	public Action openAction()
