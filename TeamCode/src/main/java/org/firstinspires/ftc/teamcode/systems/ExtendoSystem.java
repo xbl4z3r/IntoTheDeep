@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class ExtendoSystem
+public class ExtendoSystem extends AbstractSystem
 {
 	private static final float EXTENDO_RETRACTED = 0;
 	private static final float EXTENDO_EXTENDED = 1;
@@ -21,6 +21,7 @@ public class ExtendoSystem
 		extendoServo2.setDirection(Servo.Direction.REVERSE);
 	}
 
+	@Override
 	public void init()
 	{
 		_level = ExtendoLevel.RETRACTED;

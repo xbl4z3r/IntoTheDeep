@@ -5,7 +5,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class TumblerSystem
+public class TumblerSystem extends AbstractSystem
 {
 	private static final float TUMBLER_TRANSFER = 0f;
 	private static final float TUMBLER_IDLE = 0.145f;
@@ -21,6 +21,7 @@ public class TumblerSystem
 		tumblerServo = hardwareMap.get(Servo.class, "tumbler");
 	}
 
+	@Override
 	public void init()
 	{
 		_destination = TumblerDestination.IDLE;

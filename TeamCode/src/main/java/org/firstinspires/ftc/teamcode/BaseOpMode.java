@@ -11,11 +11,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.systems.AbstractSystem;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -131,16 +133,34 @@ public abstract class BaseOpMode extends LinearOpMode
 		telemetry.addData("[DEBUG] Dummy Mode", internal_DummyMode);
 		Class<?> clazz = this.getClass();
 		ArrayList<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
-		RobotHardware robotHardware = null;
+		HashMap<Field, Object> fieldParents = new HashMap<>();
+		fields.forEach(field -> fieldParents.put(field, this));
 
-		// check if any of the fields is a RobotHardware object
+		// check if any of the fields is a RobotHardware object and extract all known custom classes
 		for (Field field : fields) {
 			field.setAccessible(true);
 			try {
 				Object value = field.get(this);
 				if (value instanceof RobotHardware) {
-					robotHardware = (RobotHardware) value;
-					Collections.addAll(fields, value.getClass().getDeclaredFields());
+					for (Field declaredField : value.getClass().getDeclaredFields()) {
+						declaredField.setAccessible(true);
+						try {
+							Object declaredValue = declaredField.get(value);
+							if (declaredValue instanceof AbstractSystem) {
+								for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
+									fields.add(systemField);
+									fieldParents.put(systemField, declaredValue);
+								}
+							} else {
+								fields.add(declaredField);
+								fieldParents.put(declaredField, value);
+							}
+						}
+						catch (Exception e) {
+							telemetry.addData("[!] " + declaredField.getName(), "Error: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
 					break;
 				}
 			}
@@ -153,13 +173,7 @@ public abstract class BaseOpMode extends LinearOpMode
 		for (Field field : fields) {
 			field.setAccessible(true);
 			try {
-				Object value = null;
-				try {
-					value = field.get(this);
-				}
-				catch (Exception e1) {
-					if (robotHardware != null) value = field.get(robotHardware);
-				}
+				Object value = field.get(fieldParents.get(field));
 				if (value instanceof DcMotorEx) {
 					DcMotorEx motor = (DcMotorEx) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Power", motor.getPower());
@@ -200,16 +214,34 @@ public abstract class BaseOpMode extends LinearOpMode
 
 			Class<?> clazz = this.getClass();
 			ArrayList<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
-			RobotHardware robotHardware = null;
+			HashMap<Field, Object> fieldParents = new HashMap<>();
+			fields.forEach(field -> fieldParents.put(field, this));
 
-			// check if any of the fields is a RobotHardware object
+			// check if any of the fields is a RobotHardware object and extract all known custom classes
 			for (Field field : fields) {
 				field.setAccessible(true);
 				try {
 					Object value = field.get(this);
 					if (value instanceof RobotHardware) {
-						robotHardware = (RobotHardware) value;
-						Collections.addAll(fields, value.getClass().getDeclaredFields());
+						for (Field declaredField : value.getClass().getDeclaredFields()) {
+							declaredField.setAccessible(true);
+							try {
+								Object declaredValue = declaredField.get(value);
+								if (declaredValue instanceof AbstractSystem) {
+									for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
+										fields.add(systemField);
+										fieldParents.put(systemField, declaredValue);
+									}
+								} else {
+									fields.add(declaredField);
+									fieldParents.put(declaredField, value);
+								}
+							}
+							catch (Exception e) {
+								telemetry.addData("[!] " + declaredField.getName(), "Error: " + e.getMessage());
+								e.printStackTrace();
+							}
+						}
 						break;
 					}
 				}
@@ -222,13 +254,7 @@ public abstract class BaseOpMode extends LinearOpMode
 			for (Field field : fields) {
 				field.setAccessible(true);
 				try {
-					Object value = null;
-					try {
-						value = field.get(this);
-					}
-					catch (Exception e1) {
-						if (robotHardware != null) value = field.get(robotHardware);
-					}
+					Object value = field.get(fieldParents.get(field));
 					if (value instanceof DcMotorEx) {
 						DcMotorEx motor = (DcMotorEx) value;
 						motor.setPower(0);
