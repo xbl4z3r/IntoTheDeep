@@ -153,7 +153,7 @@ public final class FaneOp extends BaseOpMode
 					liftOverride = true;
 					robot.lift.setLiftLevel(LiftSystem.LiftLevel.CLEAR_SPECIMEN);
 					grabbedWall = true;
-				}, 200);
+				}, 150);
 			}
 			else if (grabbedWall && !liftedSpecimen)
 			{
@@ -173,8 +173,8 @@ public final class FaneOp extends BaseOpMode
 						liftOverride = false;
 						grabbedWall = false;
 						liftedSpecimen = false;
-					}, 300);
-				}, 500);
+					}, 150);
+				}, 400);
 			}
 		}
 		if (extendoState == Utilities.State.IDLE
@@ -224,7 +224,7 @@ public final class FaneOp extends BaseOpMode
 							}, 150);
 						}, 400);
 					}, 150);
-				}, 200);
+				}, 150);
 			}
 			// Grab and hold
 			else if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY))
@@ -248,8 +248,8 @@ public final class FaneOp extends BaseOpMode
 							robot.rotator.setPosition(rotatorPos);
 
 							waitingToDrop = true;
-						}, 300);
-					}, 300);
+						}, 150);
+					}, 200);
 				}
 				else // Release
 				{
@@ -263,7 +263,7 @@ public final class FaneOp extends BaseOpMode
 
 						extendoState = Utilities.State.IDLE;
 						waitingToDrop = false;
-					}, 300);
+					}, 150);
 				}
 			}
 		}
@@ -303,15 +303,15 @@ public final class FaneOp extends BaseOpMode
 				scorerState = Utilities.State.BUSY;
 				if (grabbedWall) liftOverride = false;
 				else
-					setTimeout(() -> robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY), 500);
+					setTimeout(() -> robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY), 400);
 			}
 			else
 			{
 				robot.scoreClaw.open();
 				setTimeout(() -> {
 					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
-					setTimeout(() -> scorerState = Utilities.State.IDLE, 500);
-				}, 200);
+					setTimeout(() -> scorerState = Utilities.State.IDLE, 300);
+				}, 150);
 			}
 		}
 	}
@@ -343,7 +343,7 @@ public final class FaneOp extends BaseOpMode
 			robot.axle1.close();
 			robot.axle2.close();
 
-			sleep(300);
+			sleep(200);
 
 			robot.drivetrain.leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 			robot.drivetrain.rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
