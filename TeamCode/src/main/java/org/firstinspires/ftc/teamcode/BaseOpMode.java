@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.systems.AbstractSystem;
+import org.firstinspires.ftc.teamcode.systems.SystemComponent;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -149,7 +150,11 @@ public abstract class BaseOpMode extends LinearOpMode
 							Object declaredValue = declaredField.get(value);
 							if (declaredValue instanceof AbstractSystem) {
 								for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
-									if(!field.isAnnotationPresent(Expose.class)) continue;
+									if(!systemField.isAnnotationPresent(SystemComponent.class)) {
+										System.out.println("Field is not annotated with SystemComponent");
+										System.out.println("Field class: " + systemField.getClass().getName());
+										continue;
+									}
 									fields.add(systemField);
 									fieldParents.put(systemField, declaredValue);
 								}

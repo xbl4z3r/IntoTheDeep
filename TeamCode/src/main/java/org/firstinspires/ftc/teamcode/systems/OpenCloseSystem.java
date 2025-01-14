@@ -10,7 +10,7 @@ public class OpenCloseSystem extends AbstractSystem
 	private float OPEN;
 	private float CLOSED;
 
-	@Expose
+	@SystemComponent
 	private final Servo servo;
 
 	public OpenCloseSystem(Servo servo, float open, float closed)

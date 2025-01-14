@@ -91,7 +91,7 @@ public final class FaneOp extends BaseOpMode
 		robot.drivetrain.setDrivePowers(
 				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
 						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(-speed),
-						driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)
+						(driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)) * speed
 				)
 		);
 	}

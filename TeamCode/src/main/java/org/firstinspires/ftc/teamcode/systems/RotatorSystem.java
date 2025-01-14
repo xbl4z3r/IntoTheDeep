@@ -9,7 +9,7 @@ public class RotatorSystem extends AbstractSystem
 {
 	public static final float ROTATOR_BASE = 0.476f;
 
-	@Expose
+	@SystemComponent
 	private final Servo rotator;
 
 	public RotatorSystem(Servo rotator)

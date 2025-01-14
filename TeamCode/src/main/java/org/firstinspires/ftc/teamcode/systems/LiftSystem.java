@@ -11,10 +11,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class LiftSystem extends AbstractSystem
 {
 	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND
-	private final int[] LIFT_LEVELS = { 30, 670, 1800, 200, 980, 700, 770 };
+	private final int[] LIFT_LEVELS = { 30, 670, 1800, 200, 980, 620, 770 };
 	public int TOLERANCE = 20; // Amount to subtract to place specimen on the CHAMBER_HIGH
 
-	@Expose
+	@SystemComponent
 	private final DcMotorEx lift;
 
 	public LiftSystem(DcMotorEx lift)
@@ -46,13 +46,13 @@ public class LiftSystem extends AbstractSystem
 	{
 		return RunSequentially(
 				new InstantAction(() -> setLiftLevel(level)),
-				telemetryPacket -> Math.abs(lift.getCurrentPosition() - lift.getTargetPosition()) > TOLERANCE
+				telemetryPacket -> isLiftBusy()
 		);
 	}
 
 	public boolean isLiftBusy()
 	{
-		return lift.isBusy() || (Math.abs(lift.getCurrentPosition() - lift.getTargetPosition()) > lift.getTargetPositionTolerance());
+		return lift.isBusy();
 	}
 
 	public enum LiftLevel

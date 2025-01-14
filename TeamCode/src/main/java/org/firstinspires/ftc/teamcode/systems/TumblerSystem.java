@@ -14,7 +14,7 @@ public class TumblerSystem extends AbstractSystem
 
 	private TumblerDestination _destination = TumblerDestination.IDLE;
 
-	@Expose
+	@SystemComponent
 	private final Servo tumbler;
 
 	public TumblerSystem(Servo tumbler)
