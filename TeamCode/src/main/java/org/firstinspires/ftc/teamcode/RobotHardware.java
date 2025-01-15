@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.systems.DistanceSystem;
 import org.firstinspires.ftc.teamcode.systems.ExtendoSystem;
 import org.firstinspires.ftc.teamcode.systems.LiftSystem;
 import org.firstinspires.ftc.teamcode.systems.OpenCloseSystem;
@@ -19,6 +21,7 @@ public final class RobotHardware
 	public LiftSystem lift;
 	public RotatorSystem rotator;
 	public OpenCloseSystem claw, scoreClaw, fixedClaw, axle1, axle2;
+	public DistanceSystem distanceSystem;
 
 	public RobotHardware(HardwareMap hardwareMap)
 	{
@@ -30,12 +33,15 @@ public final class RobotHardware
 		rotator = new RotatorSystem(hardwareMap.get(Servo.class, "rotator"));
 		claw = new OpenCloseSystem(hardwareMap.get(Servo.class, "claw"), 0.45f, 0.1f);
 
-		lift = new LiftSystem(hardwareMap.get(DcMotorEx.class, "lift"));
+		lift = new LiftSystem(hardwareMap.get(DcMotorEx.class, "lift1"), hardwareMap.get(DcMotorEx.class, "lift2"));
 		scoreTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "scoreTumbler"), 0.09f, 0.09f, 0.9f, 0.8f);
 		scoreClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "scoreClaw"), 0.8f, 0.6f);
 		fixedClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "fixedClaw"), 0.75f, 0.45f);
 		axle1 = new OpenCloseSystem(hardwareMap.get(Servo.class, "axleServo1"), 0.5f, 0.39f);
 		axle2 = new OpenCloseSystem(hardwareMap.get(Servo.class, "axleServo2"), 0.325f, 0.39f);
+
+		distanceSystem = new DistanceSystem(hardwareMap.get(Rev2mDistanceSensor.class, "leftDist"),
+											hardwareMap.get(Rev2mDistanceSensor.class, "rightDist"));
 	}
 
 	public void init()

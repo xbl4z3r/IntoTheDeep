@@ -32,6 +32,12 @@ public class AutoSpecimen extends BaseOpMode
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
 		robot.fixedClaw.close();
+
+		if (!robot.distanceSystem.StatusOk())
+		{
+			telemetry.addLine("[ERROR] Distance sensor timeout!");
+			telemetry.update();
+		}
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.Utilities.RunSequentially;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -15,31 +14,39 @@ public class LiftSystem extends AbstractSystem
 	public int TOLERANCE = 20; // Amount to subtract to place specimen on the CHAMBER_HIGH
 
 	@SystemComponent
-	private final DcMotorEx lift;
+	private final DcMotorEx lift1, lift2;
 
-	public LiftSystem(DcMotorEx lift)
+	public LiftSystem(DcMotorEx lift1, DcMotorEx lift2)
 	{
-		this.lift = lift;
-		lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		this.lift1 = lift1;
+		this.lift2 = lift2;
+		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 	}
 
 	@Override
 	public void init()
 	{
-		lift.setTargetPosition(0);
-		lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		lift.setPower(1);
+		lift1.setTargetPosition(0);
+		lift2.setTargetPosition(0);
+		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+		lift1.setPower(1);
+		lift2.setPower(1);
 	}
 
 	public void setLiftLevel(LiftLevel level)
 	{
-		lift.setTargetPosition(LIFT_LEVELS[level.ordinal()]);
+		lift1.setTargetPosition(LIFT_LEVELS[level.ordinal()]);
+		lift2.setTargetPosition(LIFT_LEVELS[level.ordinal()]);
 	}
 
 	public void setLiftPower(double power)
 	{
-		lift.setPower(power);
+		lift1.setPower(power);
+		lift2.setPower(power);
 	}
 
 	public Action moveLiftTo(LiftLevel level)
@@ -52,7 +59,7 @@ public class LiftSystem extends AbstractSystem
 
 	public boolean isLiftBusy()
 	{
-		return lift.isBusy();
+		return lift1.isBusy() || lift2.isBusy();
 	}
 
 	public enum LiftLevel
