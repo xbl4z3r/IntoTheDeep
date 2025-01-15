@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.Utilities.CutPower;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,14 +12,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.systems.AbstractSystem;
-import org.firstinspires.ftc.teamcode.systems.SystemComponent;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Base class for all OpModes. This class provides a simple way to create OpModes with a consistent
@@ -150,11 +146,7 @@ public abstract class BaseOpMode extends LinearOpMode
 							Object declaredValue = declaredField.get(value);
 							if (declaredValue instanceof AbstractSystem) {
 								for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
-									if(!systemField.isAnnotationPresent(SystemComponent.class)) {
-										System.out.println("Field is not annotated with SystemComponent");
-										System.out.println("Field class: " + systemField.getClass().getName());
-										continue;
-									}
+									if(systemField.getType().isPrimitive()) continue;
 									fields.add(systemField);
 									fieldParents.put(systemField, declaredValue);
 								}
@@ -236,7 +228,7 @@ public abstract class BaseOpMode extends LinearOpMode
 								Object declaredValue = declaredField.get(value);
 								if (declaredValue instanceof AbstractSystem) {
 									for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
-										if(!field.isAnnotationPresent(Expose.class)) continue;
+										if(systemField.getType().isPrimitive()) continue;
 										fields.add(systemField);
 										fieldParents.put(systemField, declaredValue);
 									}

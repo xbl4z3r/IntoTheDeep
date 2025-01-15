@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class TumblerSystem extends AbstractSystem
@@ -14,7 +13,6 @@ public class TumblerSystem extends AbstractSystem
 
 	private TumblerDestination _destination = TumblerDestination.IDLE;
 
-	@SystemComponent
 	private final Servo tumbler;
 
 	public TumblerSystem(Servo tumbler)

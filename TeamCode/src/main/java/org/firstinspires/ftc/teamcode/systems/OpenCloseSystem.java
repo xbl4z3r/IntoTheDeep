@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class OpenCloseSystem extends AbstractSystem
@@ -10,7 +9,6 @@ public class OpenCloseSystem extends AbstractSystem
 	private float OPEN;
 	private float CLOSED;
 
-	@SystemComponent
 	private final Servo servo;
 
 	public OpenCloseSystem(Servo servo, float open, float closed)

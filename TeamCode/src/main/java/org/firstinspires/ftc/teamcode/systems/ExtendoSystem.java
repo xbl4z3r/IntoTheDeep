@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ExtendoSystem extends AbstractSystem
@@ -15,7 +14,6 @@ public class ExtendoSystem extends AbstractSystem
 
 	private ExtendoLevel _level = ExtendoLevel.RETRACTED;
 
-	@SystemComponent
 	private final Servo extendo1, extendo2;
 
 	public ExtendoSystem(Servo extendo1, Servo extendo2)

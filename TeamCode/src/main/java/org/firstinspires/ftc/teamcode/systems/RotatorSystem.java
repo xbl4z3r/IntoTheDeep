@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.systems;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.google.gson.annotations.Expose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class RotatorSystem extends AbstractSystem
 {
 	public static final float ROTATOR_BASE = 0.476f;
 
-	@SystemComponent
 	private final Servo rotator;
 
 	public RotatorSystem(Servo rotator)

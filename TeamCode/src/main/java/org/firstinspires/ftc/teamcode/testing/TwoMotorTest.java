@@ -22,11 +22,12 @@ public final class TwoMotorTest extends BaseOpMode
 		motor2 = hardwareMap.get(DcMotorEx.class, "motor2");
 		motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-		motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+		motor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		motor1.setDirection(DcMotorSimple.Direction.REVERSE);
+		motor2.setDirection(DcMotorSimple.Direction.REVERSE);
 	}
 
 	@Override
