@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class LiftSystem extends AbstractSystem
 {
 	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND
-	private final int[] LIFT_LEVELS = { 30, 670, 1800, 200, 980, 620, 770 };
+	private final int[] LIFT_LEVELS = { -30, -580, -1300, -200, -780, -500, -600 };
 	public int TOLERANCE = 20; // Amount to subtract to place specimen on the CHAMBER_HIGH
 
 	private final DcMotorEx lift1, lift2;
@@ -24,8 +24,6 @@ public class LiftSystem extends AbstractSystem
 		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		lift1.setDirection(DcMotorSimple.Direction.REVERSE);
-		lift2.setDirection(DcMotorSimple.Direction.REVERSE);
 	}
 
 	@Override

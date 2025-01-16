@@ -48,7 +48,7 @@ public class AutoSpecimen extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(180))
-								.splineToConstantHeading(centimetersToInches(new Vector2d(-70, 3)), DegToRad(180), (pose2dDual, posePath, v) -> 60, (pose2dDual, posePath, v) -> new MinMax(-60, 60))
+								.splineToConstantHeading(centimetersToInches(new Vector2d(-68, 5)), DegToRad(180), (pose2dDual, posePath, v) -> 60, (pose2dDual, posePath, v) -> new MinMax(-40, 60))
 								.build(),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH)
 				)
@@ -59,7 +59,7 @@ public class AutoSpecimen extends BaseOpMode
 						RunSequentially(
 								WaitFor(0.05),
 								robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-										.lineToX(centimetersToInches(-72))
+										.lineToX(centimetersToInches(-71))
 										.build()
 						),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE)
@@ -89,7 +89,7 @@ public class AutoSpecimen extends BaseOpMode
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.BUSY),
 				WaitFor(0.2),
 				robot.claw.closeAction(),
-				WaitFor(0.1),
+				WaitFor(0.2),
 
 				robot.extendo.extendAction(ExtendoSystem.ExtendoLevel.RETRACTED),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.TRANSFER),
@@ -102,7 +102,7 @@ public class AutoSpecimen extends BaseOpMode
 				WaitFor(0.1),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
-				WaitFor(0.4),
+				WaitFor(0.3),
 				robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				WaitFor(0.4),
 				robot.scoreClaw.openAction(),
@@ -124,7 +124,7 @@ public class AutoSpecimen extends BaseOpMode
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.BUSY),
 				WaitFor(0.2),
 				robot.claw.closeAction(),
-				WaitFor(0.1),
+				WaitFor(0.2),
 
 				robot.extendo.extendAction(ExtendoSystem.ExtendoLevel.RETRACTED),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.TRANSFER),
@@ -137,7 +137,7 @@ public class AutoSpecimen extends BaseOpMode
 				WaitFor(0.1),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
-				WaitFor(0.4),
+				WaitFor(0.3),
 				robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				WaitFor(0.4),
 				robot.scoreClaw.openAction(),
@@ -148,7 +148,7 @@ public class AutoSpecimen extends BaseOpMode
 		Actions.runBlocking(RunSequentially(
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-								.turnTo(DegToRad(155))
+								.turnTo(DegToRad(153))
 								.build(),
 						robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.IDLE),
 						robot.extendo.extendAction(ExtendoSystem.ExtendoLevel.THIRD_SAMPLE),
@@ -160,7 +160,7 @@ public class AutoSpecimen extends BaseOpMode
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.BUSY),
 				WaitFor(0.2),
 				robot.claw.closeAction(),
-				WaitFor(0.1),
+				WaitFor(0.2),
 
 				robot.rotator.setPositionAction(RotatorSystem.ROTATOR_BASE),
 				robot.extendo.extendAction(ExtendoSystem.ExtendoLevel.RETRACTED),
@@ -174,14 +174,15 @@ public class AutoSpecimen extends BaseOpMode
 				WaitFor(0.1),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
-				WaitFor(0.4),
+				WaitFor(0.3),
 				robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER),
 				WaitFor(0.4),
 				robot.scoreClaw.openAction(),
 				WaitFor(0.4),
 				robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.IDLE),
 				robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.IDLE),
-				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.IDLE)
+				robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.IDLE),
+				WaitFor(0.1)
 		));
 
 		// Retrieve first specimen
@@ -196,11 +197,11 @@ public class AutoSpecimen extends BaseOpMode
 		// Pickup first specimen
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.lineToX(3)
+						.lineToX(1)
 						.build(),
 				WaitFor(0.1),
 				robot.fixedClaw.closeAction(),
-				WaitFor(0.1),
+				WaitFor(0.2),
 				robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN)
 		));
 
@@ -209,7 +210,8 @@ public class AutoSpecimen extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(180))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-75, 0, DegToRad(0))), DegToRad(180))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-50, 0, DegToRad(0))), DegToRad(180))
+								.splineToConstantHeading(centimetersToInches(new Vector2d( -75, 0)), DegToRad(180))
 								.build(),
 						RunSequentially(
 								WaitFor(0.1),
@@ -252,11 +254,11 @@ public class AutoSpecimen extends BaseOpMode
 		// Pickup the second specimen
 		Actions.runBlocking(RunSequentially(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-						.lineToX(3)
+						.lineToX(1)
 						.build(),
 				WaitFor(0.1),
 				robot.fixedClaw.closeAction(),
-				WaitFor(0.1),
+				WaitFor(0.2),
 				robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN)
 		));
 
@@ -265,7 +267,8 @@ public class AutoSpecimen extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(180))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-78, 0, DegToRad(0))), DegToRad(180))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-50, -10, DegToRad(0))), DegToRad(180))
+								.splineToConstantHeading(centimetersToInches(new Vector2d( -77, -10)), DegToRad(180))
 								.build(),
 						RunSequentially(
 								WaitFor(0.1),

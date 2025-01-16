@@ -113,7 +113,7 @@ public final class FaneOp extends BaseOpMode
 		// Rotator control
 		if (!rotatorLocked)
 		{
-			rotatorPos += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 500f);
+			rotatorPos += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 300f);
 			rotatorPos = com.acmerobotics.roadrunner.Math.clamp(rotatorPos, 0, 1);
 			robot.rotator.setPosition(rotatorPos);
 		}
