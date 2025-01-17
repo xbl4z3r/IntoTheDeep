@@ -9,7 +9,7 @@ public class ExtendoSystem extends AbstractSystem
 	private final float RETRACTED = 0;
 	private final float HALF = 0.5f;
 	private final float SAMPLE = 0.78f;
-	private final float THIRD_SAMPLE = 0.88f;
+	private final float THIRD_SAMPLE = 0.9f;
 	private final float EXTENDED = 1;
 
 	private ExtendoLevel _level = ExtendoLevel.RETRACTED;

@@ -72,7 +72,7 @@ public final class MecanumDrive {
         // feedforward parameters (in tick units)
         public double kS = 1.7209568539422105;
         public double kV = 0.0003738430032473928;
-        public double kA = 0.00013;
+        public double kA = 0.00011;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 80;
@@ -88,9 +88,9 @@ public final class MecanumDrive {
         public double lateralGain = 10.0;
         public double headingGain = 10.0; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain = 2.0;
+        public double lateralVelGain = 2.0;
+        public double headingVelGain = 0; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -312,7 +312,7 @@ public final class MecanumDrive {
             boolean trajOver = t >= timeTrajectory.duration;
             boolean isPositionCorrect = error.position.norm() < 2;
             boolean isHeadingCorrect = Math.toDegrees(Math.abs(error.heading.toDouble())) < 0.01;
-            boolean fallback = t - 0.3 >= timeTrajectory.duration;
+            boolean fallback = t - 0.1 >= timeTrajectory.duration;
             if ((trajOver && isPositionCorrect && isHeadingCorrect) || fallback) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);

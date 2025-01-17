@@ -74,7 +74,7 @@ public class AutoSpecimen extends BaseOpMode
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(0))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-30, 100, DegToRad(180))), DegToRad(90))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-30, 100, DegToRad(177))), DegToRad(90))
 								.build(),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
 				),
@@ -283,7 +283,7 @@ public class AutoSpecimen extends BaseOpMode
 						RunSequentially(
 								WaitFor(0.05),
 								robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-										.lineToX(centimetersToInches(-81))
+										.lineToX(centimetersToInches(-83))
 										.build()
 						),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE)
