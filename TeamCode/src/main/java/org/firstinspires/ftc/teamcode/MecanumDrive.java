@@ -312,7 +312,7 @@ public final class MecanumDrive {
             boolean trajOver = t >= timeTrajectory.duration;
             boolean isPositionCorrect = error.position.norm() < 2;
             boolean isHeadingCorrect = Math.toDegrees(Math.abs(error.heading.toDouble())) < 0.01;
-            boolean fallback = t - 0.1 >= timeTrajectory.duration;
+            boolean fallback = t - 0.0 >= timeTrajectory.duration;
             if ((trajOver && isPositionCorrect && isHeadingCorrect) || fallback) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);

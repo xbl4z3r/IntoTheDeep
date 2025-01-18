@@ -100,6 +100,7 @@ public final class FaneOp extends BaseOpMode
 	private Utilities.State scorerState = Utilities.State.IDLE;
 	private boolean rotatorLocked = false;
 	private boolean waitingToDrop = false;
+	private boolean loweredLift = false;
 	private boolean grabbedWall = false;
 	private boolean liftedSpecimen = false;
 
@@ -140,29 +141,35 @@ public final class FaneOp extends BaseOpMode
 			robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 			robot.lift.setLiftLevel(LiftSystem.LiftLevel.IDLE);
 			liftOverride = false;
+			loweredLift = false;
 			grabbedWall = false;
+			liftedSpecimen = false;
 		}
 
 		// Grabbing logic
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_WALL_KEY))
 		{
-			if (!grabbedWall) // Grab
+			if (!loweredLift)
+			{
+				liftOverride = true;
+				robot.lift.setLiftLevel(LiftSystem.LiftLevel.ZERO);
+				loweredLift = true;
+			}
+			else if (!grabbedWall) // Grab
 			{
 				robot.fixedClaw.close();
 				setTimeout(() -> {
-					liftOverride = true;
 					robot.lift.setLiftLevel(LiftSystem.LiftLevel.CLEAR_SPECIMEN);
 					grabbedWall = true;
 				}, 150);
 			}
-			else if (grabbedWall && !liftedSpecimen)
+			else if (!liftedSpecimen)
 			{
 				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH);
 				liftedSpecimen = true;
 			}
 			else
 			{
-				liftOverride = true;
 				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE);
 
 				setTimeout(() -> {
@@ -171,6 +178,7 @@ public final class FaneOp extends BaseOpMode
 					setTimeout(() -> {
 						scorerState = Utilities.State.IDLE;
 						liftOverride = false;
+						loweredLift = false;
 						grabbedWall = false;
 						liftedSpecimen = false;
 					}, 150);

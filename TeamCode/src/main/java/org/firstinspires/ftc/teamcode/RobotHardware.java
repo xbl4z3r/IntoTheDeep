@@ -36,7 +36,7 @@ public final class RobotHardware
 		lift = new LiftSystem(hardwareMap.get(DcMotorEx.class, "lift1"), hardwareMap.get(DcMotorEx.class, "lift2"));
 		scoreTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "scoreTumbler"), 0.09f, 0.09f, 0.9f, 0.8f);
 		scoreClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "scoreClaw"), 0.8f, 0.6f);
-		fixedClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "fixedClaw"), 0.75f, 0.45f);
+		fixedClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "fixedClaw"), 0.75f, 0.4f);
 		axle1 = new OpenCloseSystem(hardwareMap.get(Servo.class, "axleServo1"), 0.5f, 0.39f);
 		axle2 = new OpenCloseSystem(hardwareMap.get(Servo.class, "axleServo2"), 0.325f, 0.39f);
 
