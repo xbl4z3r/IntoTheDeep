@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.CutPower;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.systems.AbstractSystem;
 
 import java.lang.reflect.Field;
@@ -26,8 +28,8 @@ import java.util.HashMap;
  */
 public abstract class BaseOpMode extends LinearOpMode
 {
-	private boolean internal_DebugMode = false;
-	private boolean internal_DummyMode = false;
+	private volatile boolean internal_DebugMode = false;
+	private volatile boolean internal_DummyMode = false;
 
 	protected InputSystem input1, input2;
 	private final InputSystem.Key debugKey = new InputSystem.Key("left_stick_button");
@@ -69,13 +71,18 @@ public abstract class BaseOpMode extends LinearOpMode
 		// Run the robot
 		internal_ElapsedTimeSinceStart = new ElapsedTime();
 		OnStart();
+		Thread telemetryThread = new Thread(() -> {
+			while (!isStopRequested()) {
+				internal_LoopTime.reset();
+				if (IsDebugRequested()) internal_DebugMode = !internal_DebugMode;
+				OnTelemetry(telemetry);
+				if (internal_DebugMode) OnDebug();
+				telemetry.update();
+			}
+		});
+		telemetryThread.start();
 		while (!isStopRequested()) {
-			internal_LoopTime.reset();
-			if (IsDebugRequested()) internal_DebugMode = !internal_DebugMode;
 			OnRun();
-			OnTelemetry(telemetry);
-			if (internal_DebugMode) OnDebug();
-			telemetry.update();
 			if (internal_IsAutonomous) break;
 		}
 		OnStop();
@@ -182,8 +189,11 @@ public abstract class BaseOpMode extends LinearOpMode
 				} else if (value instanceof Servo) {
 					Servo servo = (Servo) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", servo.getPosition());
-				} else if (value instanceof Enum) {
+				} else if (value instanceof Enum)
+				{
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), ((Enum<?>) value).name());
+				} else if (value instanceof Rev2mDistanceSensor) {
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Distance", ((Rev2mDistanceSensor) value).getDistance(DistanceUnit.CM));
 				} else {
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), value == null ? "NULL" : value.toString());
 				}
