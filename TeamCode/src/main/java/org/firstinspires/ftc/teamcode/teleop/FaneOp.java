@@ -90,7 +90,7 @@ public final class FaneOp extends BaseOpMode
 		else if (driveInput.isPressed(Keybindings.Drive.SUPPRESS_KEY)) speed = 0.4f;
 		robot.drivetrain.setDrivePowers(
 				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
-						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(-speed),
+						driveInput.getValue(Keybindings.Drive.DRIVE_X) * (liftedSpecimen ? -1 : 1)).times(-speed),
 						(driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)) * speed
 				)
 		);
@@ -185,12 +185,14 @@ public final class FaneOp extends BaseOpMode
 				}, 600);
 			}
 		}
+
 		if (extendoState == Utilities.State.IDLE
 				&& !grabbedWall
 				&& (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_TRANSFER_KEY)
 				|| driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_HOLD_KEY)))
 		{
 			extendoState = Utilities.State.BUSY;
+			extendoLevel = ExtendoSystem.ExtendoLevel.EXTENDED;
 			rotatorLocked = false;
 
 			robot.tumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
