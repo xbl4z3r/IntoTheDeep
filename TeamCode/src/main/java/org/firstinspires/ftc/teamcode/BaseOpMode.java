@@ -153,7 +153,7 @@ public abstract class BaseOpMode extends LinearOpMode
 							Object declaredValue = declaredField.get(value);
 							if (declaredValue instanceof AbstractSystem) {
 								for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
-									if(systemField.getType().isPrimitive()) continue;
+									if (systemField.getType().isPrimitive()) continue;
 									fields.add(systemField);
 									fieldParents.put(systemField, declaredValue);
 								}
@@ -161,16 +161,14 @@ public abstract class BaseOpMode extends LinearOpMode
 								fields.add(declaredField);
 								fieldParents.put(declaredField, value);
 							}
-						}
-						catch (Exception e) {
+						} catch (Exception e) {
 							telemetry.addData("[!] " + declaredField.getName(), "Error: " + e.getMessage());
 							e.printStackTrace();
 						}
 					}
 					break;
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -189,16 +187,14 @@ public abstract class BaseOpMode extends LinearOpMode
 				} else if (value instanceof Servo) {
 					Servo servo = (Servo) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", servo.getPosition());
-				} else if (value instanceof Enum)
-				{
+				} else if (value instanceof Enum) {
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), ((Enum<?>) value).name());
 				} else if (value instanceof Rev2mDistanceSensor) {
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Distance", ((Rev2mDistanceSensor) value).getDistance(DistanceUnit.CM));
 				} else {
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()), value == null ? "NULL" : value.toString());
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				telemetry.addData("[!] " + Utilities.toDisplayString(field.getName()), "Error: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -238,7 +234,7 @@ public abstract class BaseOpMode extends LinearOpMode
 								Object declaredValue = declaredField.get(value);
 								if (declaredValue instanceof AbstractSystem) {
 									for (Field systemField : declaredValue.getClass().getDeclaredFields()) {
-										if(systemField.getType().isPrimitive()) continue;
+										if (systemField.getType().isPrimitive()) continue;
 										fields.add(systemField);
 										fieldParents.put(systemField, declaredValue);
 									}
@@ -246,16 +242,14 @@ public abstract class BaseOpMode extends LinearOpMode
 									fields.add(declaredField);
 									fieldParents.put(declaredField, value);
 								}
-							}
-							catch (Exception e) {
+							} catch (Exception e) {
 								telemetry.addData("[!] " + declaredField.getName(), "Error: " + e.getMessage());
 								e.printStackTrace();
 							}
 						}
 						break;
 					}
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 					e.printStackTrace();
 				}
@@ -272,8 +266,7 @@ public abstract class BaseOpMode extends LinearOpMode
 					} else if (value instanceof Servo) {
 						CutPower((Servo) value);
 					}
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					telemetry.addData("[!] " + field.getName(), "Error: " + e.getMessage());
 				}
 			}

@@ -82,7 +82,7 @@ public class AutoSpecimen extends BaseOpMode
 								.setTangent(0)
 								.lineToX(centimetersToInches(-25))
 								.setTangent(DegToRad(270))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-5, 70, DegToRad(180))), DegToRad(0))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 70, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(6))
 								.afterTime(0.1, robot.fixedClaw.closeAction())
@@ -111,10 +111,11 @@ public class AutoSpecimen extends BaseOpMode
 
 		// Grab second specimen
 		Actions.runBlocking(RunSequentially(
+				WaitFor(0.2),
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(0))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-7, 75, DegToRad(180))), DegToRad(0))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 75, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(3))
 								.afterTime(0.1, robot.fixedClaw.closeAction())
@@ -144,10 +145,11 @@ public class AutoSpecimen extends BaseOpMode
 
 		// Grab third specimen
 		Actions.runBlocking(RunSequentially(
+				WaitFor(0.2),
 				RunInParallel(
 						robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 								.setTangent(DegToRad(0))
-								.splineToLinearHeading(centimetersToInches(new Pose2d(-7, 80, DegToRad(180))), DegToRad(0))
+								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 80, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(0))
 								.afterTime(0.1, robot.fixedClaw.closeAction())
