@@ -29,7 +29,7 @@ public final class RobotHardware
 
 		extendo = new ExtendoSystem(hardwareMap.get(Servo.class, "extendo1"), hardwareMap.get(Servo.class, "extendo2"));
 		tumbler = new TumblerSystem(hardwareMap.get(Servo.class, "tumbler"), 0f, 0.145f, 0.74f, 0.82f);
-		smallTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "sTumbler"), 0.32f, 0.32f, 1f, 0.88f);
+		smallTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "sTumbler"), 0.32f, 0.32f, 0.92f, 0.88f);
 		rotator = new RotatorSystem(hardwareMap.get(Servo.class, "rotator"));
 		claw = new OpenCloseSystem(hardwareMap.get(Servo.class, "claw"), 0.45f, 0.1f);
 

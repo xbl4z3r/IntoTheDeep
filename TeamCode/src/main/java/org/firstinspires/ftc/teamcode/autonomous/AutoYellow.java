@@ -31,6 +31,7 @@ public class AutoYellow extends BaseOpMode
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
 		robot.scoreClaw.close();
+		robot.lift.setLiftPower(1);
 		robot.drivetrain.setStartPose(new Pose2d(0, 0, DegToRad(-90)));
 
 		if (!robot.distanceSystem.StatusOk()) {

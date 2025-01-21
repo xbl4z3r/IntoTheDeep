@@ -75,6 +75,7 @@ public final class FaneOp extends BaseOpMode
 	@Override
 	protected void OnRun()
 	{
+		robot.lift.autoPower();
 		Suspender();
 		if (suspending) return;
 		Drive();

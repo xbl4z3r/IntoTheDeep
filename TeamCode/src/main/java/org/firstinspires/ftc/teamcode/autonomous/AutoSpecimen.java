@@ -27,6 +27,7 @@ public class AutoSpecimen extends BaseOpMode
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
 		robot.fixedClaw.close();
+		robot.lift.setLiftPower(1);
 
 		if (!robot.distanceSystem.StatusOk())
 		{

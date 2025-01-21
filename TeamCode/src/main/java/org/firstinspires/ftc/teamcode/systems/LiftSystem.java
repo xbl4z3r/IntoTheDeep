@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class LiftSystem extends AbstractSystem
 {
 	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND, ZERO
-	private final int[] LIFT_LEVELS = { -30, -580, -1300, -200, -780, -500, -600, 0 };
-	public int TOLERANCE = 20; // Amount to subtract to place specimen on the CHAMBER_HIGH
+	private final int[] LIFT_LEVELS = { -20, -580, -1300, -200, -780, -500, -600, 0 };
+	public int TOLERANCE = 10;
 
 	private final DcMotorEx lift1, lift2;
 
@@ -32,8 +32,19 @@ public class LiftSystem extends AbstractSystem
 		lift2.setTargetPosition(0);
 		lift1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		lift2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-		lift1.setPower(1);
-		lift2.setPower(1);
+	}
+
+	public void autoPower()
+	{
+		if (Math.abs(lift1.getTargetPosition() - lift1.getCurrentPosition()) > TOLERANCE)
+			lift1.setPower(1);
+		else
+			lift1.setPower(0.05);
+
+		if (Math.abs(lift2.getTargetPosition() - lift2.getCurrentPosition()) > TOLERANCE)
+			lift2.setPower(1);
+		else
+			lift2.setPower(0.05);
 	}
 
 	public void setLiftLevel(LiftLevel level)

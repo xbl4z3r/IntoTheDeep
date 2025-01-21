@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.systems.AbstractSystem;
 
@@ -181,6 +182,7 @@ public abstract class BaseOpMode extends LinearOpMode
 				if (value instanceof DcMotorEx) {
 					DcMotorEx motor = (DcMotorEx) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Power", motor.getPower());
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Current", motor.getCurrent(CurrentUnit.MILLIAMPS));
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Velocity", motor.getVelocity());
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", motor.getCurrentPosition());
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Target Position", motor.getTargetPosition());
