@@ -62,7 +62,7 @@ public class AutoYellow extends BaseOpMode
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.splineToConstantHeading(centimetersToInches(new Vector2d(27, 85)), DegToRad(0))
 						.afterTime(0.1, robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.TRANSFER))
-						.afterTime(0.2, robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE))
+						.afterTime(0.2, robot.lift.moveLiftTo(LiftSystem.LiftLevel.TRANSFER))
 						.afterTime(0.1, robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER))
 						.afterTime(0.3, robot.smallTumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER))
 						.build()
@@ -116,7 +116,7 @@ public class AutoYellow extends BaseOpMode
 		Actions.runBlocking(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.turnTo(0)
-						.afterTime(0, robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE))
+						.afterTime(0, robot.lift.moveLiftTo(LiftSystem.LiftLevel.TRANSFER))
 						.splineToConstantHeading(centimetersToInches(new Vector2d(25, 107)), DegToRad(0))
 						.afterTime(0.1, robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.TRANSFER))
 						.afterTime(0.1, robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER))
@@ -173,7 +173,7 @@ public class AutoYellow extends BaseOpMode
 		Actions.runBlocking(
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.turnTo(0)
-						.afterTime(0, robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE))
+						.afterTime(0, robot.lift.moveLiftTo(LiftSystem.LiftLevel.TRANSFER))
 						.splineToLinearHeading(centimetersToInches(new Pose2d(25, 109, DegToRad(20))), DegToRad(20))
 						.afterTime(0.1, robot.scoreTumbler.setDestinationAction(TumblerSystem.TumblerDestination.TRANSFER))
 						.afterTime(0.1, robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER))
@@ -230,7 +230,7 @@ public class AutoYellow extends BaseOpMode
 
 		// Drive to park
 		Actions.runBlocking(RunSequentially(
-				robot.lift.moveLiftTo(LiftSystem.LiftLevel.ZERO),
+				robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE),
 				robot.drivetrain.actionBuilder(robot.drivetrain.pose)
 						.splineToLinearHeading(centimetersToInches(new Pose2d(130, 10, DegToRad(90))), DegToRad(-90))
 						.afterTime(0, robot.tumbler.setDestinationAction(TumblerSystem.TumblerDestination.HOVER))

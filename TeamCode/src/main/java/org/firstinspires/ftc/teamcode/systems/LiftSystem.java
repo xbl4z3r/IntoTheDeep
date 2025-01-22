@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class LiftSystem extends AbstractSystem
 {
-	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND, ZERO
-	private final int[] LIFT_LEVELS = { -20, -580, -1300, -200, -780, -500, -600, 0 };
+	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND, TRANSFER
+	private final int[] LIFT_LEVELS = { 0, -580, -1300, -200, -780, -500, -600, -20 };
 	public int TOLERANCE = 10;
 
 	private final DcMotorEx lift1, lift2;
@@ -81,6 +81,6 @@ public class LiftSystem extends AbstractSystem
 		CHAMBER_HIGH,
 		CHAMBER_HIGH_PLACE,
 		SUSPEND,
-		ZERO
+		TRANSFER
 	}
 }

@@ -89,7 +89,7 @@ public class AutoSpecimen extends BaseOpMode
 								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
-						robot.lift.moveLiftTo(LiftSystem.LiftLevel.ZERO)
+						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
 				)
 		);
 
@@ -122,7 +122,7 @@ public class AutoSpecimen extends BaseOpMode
 								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
-						robot.lift.moveLiftTo(LiftSystem.LiftLevel.ZERO)
+						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
 				)
 		));
 
@@ -156,7 +156,7 @@ public class AutoSpecimen extends BaseOpMode
 								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
-						robot.lift.moveLiftTo(LiftSystem.LiftLevel.ZERO)
+						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
 				)
 		));
 
@@ -175,7 +175,7 @@ public class AutoSpecimen extends BaseOpMode
 						)
 				),
 				robot.distanceSystem.ApproachAndPlace(robot, 11, 13),
-				robot.lift.moveLiftTo(LiftSystem.LiftLevel.ZERO),
+				robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE),
 				WaitFor(30)
 		));
 	}
