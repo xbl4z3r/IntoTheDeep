@@ -28,13 +28,13 @@ public final class RobotHardware
 		drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
 		extendo = new ExtendoSystem(hardwareMap.get(Servo.class, "extendo1"), hardwareMap.get(Servo.class, "extendo2"));
-		tumbler = new TumblerSystem(hardwareMap.get(Servo.class, "tumbler"), 0f, 0.145f, 0.74f, 0.82f);
-		smallTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "sTumbler"), 0.32f, 0.32f, 0.92f, 0.88f);
+		tumbler = new TumblerSystem(hardwareMap.get(Servo.class, "tumbler"), 0f, 0.17f, 0.5f, 0.74f, 0.82f);
+		smallTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "sTumbler"), 0.32f, 0.32f, 0.5f, 0.92f, 0.88f);
 		rotator = new RotatorSystem(hardwareMap.get(Servo.class, "rotator"));
 		claw = new OpenCloseSystem(hardwareMap.get(Servo.class, "claw"), 0.45f, 0.1f);
 
 		lift = new LiftSystem(hardwareMap.get(DcMotorEx.class, "lift1"), hardwareMap.get(DcMotorEx.class, "lift2"));
-		scoreTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "scoreTumbler"), 0.09f, 0.09f, 0.9f, 0.8f);
+		scoreTumbler = new TumblerSystem(hardwareMap.get(Servo.class, "scoreTumbler"), 0.09f, 0.09f, 0.9f, 0.9f, 0.8f);
 		scoreClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "scoreClaw"), 0.8f, 0.6f);
 		fixedClaw = new OpenCloseSystem(hardwareMap.get(Servo.class, "fixedClaw"), 0.75f, 0.4f);
 		axle1 = new OpenCloseSystem(hardwareMap.get(Servo.class, "axleServo1"), 0.5f, 0.39f);

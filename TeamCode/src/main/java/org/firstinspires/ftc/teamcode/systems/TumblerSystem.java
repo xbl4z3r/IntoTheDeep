@@ -8,6 +8,7 @@ public class TumblerSystem extends AbstractSystem
 {
 	private float TRANSFER;
 	private float IDLE;
+	private float HOLD;
 	private float HOVER;
 	private float BUSY;
 
@@ -17,19 +18,20 @@ public class TumblerSystem extends AbstractSystem
 
 	public TumblerSystem(Servo tumbler)
 	{
-		this(tumbler, 0, 0, 0, 0);
+		this(tumbler, 0, 0, 0, 0, 0);
 	}
 
-	public TumblerSystem(Servo tumbler, float transfer, float idle, float hover, float pickup)
+	public TumblerSystem(Servo tumbler, float transfer, float idle, float hold, float hover, float pickup)
 	{
-		this(tumbler, transfer, idle, hover, pickup, false);
+		this(tumbler, transfer, idle, hold, hover, pickup, false);
 	}
 
-	public TumblerSystem(Servo tumbler, float transfer, float idle, float hover, float pickup, boolean reverse)
+	public TumblerSystem(Servo tumbler, float transfer, float idle, float hold, float hover, float pickup, boolean reverse)
 	{
 		this.tumbler = tumbler;
 		TRANSFER = transfer;
 		IDLE = idle;
+		HOLD = hold;
 		HOVER = hover;
 		BUSY = pickup;
 		if (reverse) tumbler.setDirection(Servo.Direction.REVERSE);
@@ -54,6 +56,9 @@ public class TumblerSystem extends AbstractSystem
 			case IDLE:
 				tumbler.setPosition(IDLE);
 				break;
+			case HOLD:
+				tumbler.setPosition(HOLD);
+				break;
 			case HOVER:
 				tumbler.setPosition(HOVER);
 				break;
@@ -76,6 +81,7 @@ public class TumblerSystem extends AbstractSystem
 	public enum TumblerDestination {
 		TRANSFER,
 		IDLE,
+		HOLD,
 		HOVER,
 		BUSY
 	}

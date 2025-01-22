@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class LiftSystem extends AbstractSystem
 {
-	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND, TRANSFER
-	private final int[] LIFT_LEVELS = { 0, -580, -1300, -200, -780, -500, -600, -20 };
+	// IDLE, BASKET_LOW, BASKET_HIGH, CLEAR_SPECIMEN, CHAMBER_HIGH, CHAMBER_HIGH_PLACE, SUSPEND
+	private final int[] LIFT_LEVELS = { 0, -580, -1300, -200, -780, -500, -600 };
 	public int TOLERANCE = 10;
 
 	private final DcMotorEx lift1, lift2;
@@ -19,10 +19,12 @@ public class LiftSystem extends AbstractSystem
 	{
 		this.lift1 = lift1;
 		this.lift2 = lift2;
-		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		lift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		lift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		lift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+		lift1.setTargetPositionTolerance(TOLERANCE);
+		lift2.setTargetPositionTolerance(TOLERANCE);
 	}
 
 	@Override
@@ -36,12 +38,12 @@ public class LiftSystem extends AbstractSystem
 
 	public void autoPower()
 	{
-		if (Math.abs(lift1.getTargetPosition() - lift1.getCurrentPosition()) > TOLERANCE)
+		if (lift1.isBusy())
 			lift1.setPower(1);
 		else
-			lift1.setPower(0.05);
+			lift1.setPower(0);
 
-		if (Math.abs(lift2.getTargetPosition() - lift2.getCurrentPosition()) > TOLERANCE)
+		if (lift2.isBusy())
 			lift2.setPower(1);
 		else
 			lift2.setPower(0.05);
@@ -80,7 +82,6 @@ public class LiftSystem extends AbstractSystem
 		CLEAR_SPECIMEN,
 		CHAMBER_HIGH,
 		CHAMBER_HIGH_PLACE,
-		SUSPEND,
-		TRANSFER
+		SUSPEND
 	}
 }

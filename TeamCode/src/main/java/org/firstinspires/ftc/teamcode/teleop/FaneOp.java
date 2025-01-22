@@ -91,7 +91,7 @@ public final class FaneOp extends BaseOpMode
 		else if (driveInput.isPressed(Keybindings.Drive.SUPPRESS_KEY)) speed = 0.4f;
 		robot.drivetrain.setDrivePowers(
 				new PoseVelocity2d(new Vector2d(driveInput.getValue(Keybindings.Drive.DRIVE_Y),
-						driveInput.getValue(Keybindings.Drive.DRIVE_X) * (liftedSpecimen ? -1 : 1)).times(-speed),
+						driveInput.getValue(Keybindings.Drive.DRIVE_X)).times(-speed * (liftedSpecimen ? -1 : 1)),
 						(driveInput.getValue(Keybindings.Drive.DRIVE_ROT_L) - driveInput.getValue(Keybindings.Drive.DRIVE_ROT_R)) * speed
 				)
 		);
@@ -114,7 +114,7 @@ public final class FaneOp extends BaseOpMode
 		// Rotator control
 		if (!rotatorLocked)
 		{
-			rotatorPos -= (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 300f);
+			rotatorPos += (float) (driveInput.getValue(Keybindings.Drive.ROTATOR_ANGLE) / 100f);
 			rotatorPos = com.acmerobotics.roadrunner.Math.clamp(rotatorPos, 0, 1);
 			robot.rotator.setPosition(rotatorPos);
 		}
@@ -198,9 +198,6 @@ public final class FaneOp extends BaseOpMode
 				rotatorLocked = true;
 
 				robot.scoreClaw.open();
-
-				liftOverride = true;
-				robot.lift.setLiftLevel(LiftSystem.LiftLevel.TRANSFER);
 				robot.tumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 				robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 				setTimeout(() -> {
@@ -248,6 +245,7 @@ public final class FaneOp extends BaseOpMode
 							robot.extendo.extend(extendoLevel);
 
 							robot.tumbler.setDestination(TumblerSystem.TumblerDestination.HOVER);
+							robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.HOLD);
 
 							rotatorPos = RotatorSystem.ROTATOR_BASE;
 							robot.rotator.setPosition(rotatorPos);

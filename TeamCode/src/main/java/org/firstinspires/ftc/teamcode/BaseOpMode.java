@@ -186,6 +186,7 @@ public abstract class BaseOpMode extends LinearOpMode
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Velocity", motor.getVelocity());
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", motor.getCurrentPosition());
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Target Position", motor.getTargetPosition());
+					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Busy", motor.isBusy());
 				} else if (value instanceof Servo) {
 					Servo servo = (Servo) value;
 					telemetry.addData("[DEBUG] " + Utilities.toDisplayString(field.getName()) + " Position", servo.getPosition());
