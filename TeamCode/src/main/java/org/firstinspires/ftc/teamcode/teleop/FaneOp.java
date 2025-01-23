@@ -35,6 +35,7 @@ public final class FaneOp extends BaseOpMode
 			public static final InputSystem.Key BASKET_HIGH_KEY = new InputSystem.Key("dpad_up");
 			public static final InputSystem.Key CHAMBER_HIGH_KEY = new InputSystem.Key("dpad_left");
 			public static final InputSystem.Key PRIMARY_KEY = new InputSystem.Key("a");
+			public static final InputSystem.Key SPECIMEN_KEY = new InputSystem.Key("b");
 			public static final InputSystem.Key SUSPEND_KEY = new InputSystem.Key("y");
 			public static final InputSystem.Key CANCEL_SUSPEND_KEY = new InputSystem.Key("x");
 		}
@@ -158,12 +159,12 @@ public final class FaneOp extends BaseOpMode
 			}
 			else if (!liftedSpecimen)
 			{
-				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH);
+				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_FIXED_CLAW);
 				liftedSpecimen = true;
 			}
 			else
 			{
-				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE);
+				robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE_FIXED_CLAW);
 
 				setTimeout(() -> {
 					while (robot.lift.isLiftBusy()) sleep(15);
@@ -290,6 +291,12 @@ public final class FaneOp extends BaseOpMode
 				if (scorerState == Utilities.State.BUSY)
 					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
 			}
+			else if (armInput.wasPressedThisFrame(Keybindings.Arm.CHAMBER_HIGH_KEY))
+			{
+				liftLevel = LiftSystem.LiftLevel.CHAMBER_HIGH;
+				if (scorerState == Utilities.State.BUSY)
+					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY);
+			}
 
 			// Lift central control
 			if (scorerState == Utilities.State.BUSY)
@@ -315,6 +322,30 @@ public final class FaneOp extends BaseOpMode
 					robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 					setTimeout(() -> scorerState = Utilities.State.IDLE, 300);
 				}, 150);
+			}
+		}
+		if (armInput.wasPressedThisFrame(Keybindings.Arm.SPECIMEN_KEY))
+		{
+			if (scorerState == Utilities.State.IDLE)
+			{
+				scorerState = Utilities.State.BUSY;
+
+				liftLevel = LiftSystem.LiftLevel.CHAMBER_HIGH;
+				setTimeout(() -> robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.BUSY), 400);
+
+				if (grabbedWall) liftOverride = false;
+			}
+			else
+			{
+				liftLevel = LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE;
+
+				setTimeout(() -> {
+					robot.scoreClaw.open();
+					setTimeout(() -> {
+						robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
+						setTimeout(() -> scorerState = Utilities.State.IDLE, 500);
+					}, 300);
+				}, 500);
 			}
 		}
 	}

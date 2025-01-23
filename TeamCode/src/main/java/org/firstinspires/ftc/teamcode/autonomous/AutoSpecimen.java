@@ -46,7 +46,7 @@ public class AutoSpecimen extends BaseOpMode
 								.setTangent(DegToRad(180))
 								.splineToConstantHeading(centimetersToInches(new Vector2d(-69, 10)), DegToRad(180), (pose2dDual, posePath, v) -> 65, (pose2dDual, posePath, v) -> new MinMax(-65, 65))
 								.build(),
-						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH)
+						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_FIXED_CLAW)
 				)
 		));
 
@@ -58,7 +58,7 @@ public class AutoSpecimen extends BaseOpMode
 										.lineToX(centimetersToInches(-72))
 										.build()
 						),
-						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE)
+						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE_FIXED_CLAW)
 				),
 				WaitFor(0.1),
 				robot.fixedClaw.openAction()
@@ -104,7 +104,7 @@ public class AutoSpecimen extends BaseOpMode
 								.build(),
 						RunSequentially(
 								WaitFor(0.1),
-								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH)
+								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_FIXED_CLAW)
 						)
 				),
 				robot.distanceSystem.ApproachAndPlace(robot, 11, 13)
@@ -137,7 +137,7 @@ public class AutoSpecimen extends BaseOpMode
 								.build(),
 						RunSequentially(
 								WaitFor(0.1),
-								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH)
+								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_FIXED_CLAW)
 						)
 				),
 				robot.distanceSystem.ApproachAndPlace(robot, 11, 13)
@@ -171,7 +171,7 @@ public class AutoSpecimen extends BaseOpMode
 								.build(),
 						RunSequentially(
 								WaitFor(0.1),
-								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH)
+								robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_FIXED_CLAW)
 						)
 				),
 				robot.distanceSystem.ApproachAndPlace(robot, 11, 13),
