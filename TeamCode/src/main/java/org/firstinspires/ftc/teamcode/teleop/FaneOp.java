@@ -136,7 +136,6 @@ public final class FaneOp extends BaseOpMode
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_RESET_KEY))
 		{
 			robot.extendo.extend(ExtendoSystem.ExtendoLevel.RETRACTED);
-			robot.fixedClaw.open();
 			robot.claw.open();
 			robot.tumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 			robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
@@ -150,7 +149,7 @@ public final class FaneOp extends BaseOpMode
 		if (driveInput.wasPressedThisFrame(Keybindings.Drive.GRAB_WALL_KEY))
 		{if (!grabbedWall) // Grab
 			{
-				robot.fixedClaw.close();
+
 				setTimeout(() -> {
 					liftOverride = true;
 					robot.lift.setLiftLevel(LiftSystem.LiftLevel.CLEAR_SPECIMEN);
@@ -168,7 +167,7 @@ public final class FaneOp extends BaseOpMode
 
 				setTimeout(() -> {
 					while (robot.lift.isLiftBusy()) sleep(15);
-					robot.fixedClaw.open();
+
 					setTimeout(() -> {
 						scorerState = Utilities.State.IDLE;
 						liftOverride = false;
@@ -210,10 +209,13 @@ public final class FaneOp extends BaseOpMode
 						robot.tumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
 						robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
 
+
 						rotatorPos = RotatorSystem.ROTATOR_BASE;
 						robot.rotator.setPosition(rotatorPos);
 
 						setTimeout(() -> {
+							robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
+							robot.scoreStumbler.setDestination(TumblerSystem.TumblerDestination.TRANSFER);
 							robot.scoreClaw.close();
 							setTimeout(() -> {
 								robot.claw.open();
@@ -222,10 +224,13 @@ public final class FaneOp extends BaseOpMode
 									robot.tumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 									robot.smallTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
 
+									robot.scoreTumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
+									robot.scoreStumbler.setDestination(TumblerSystem.TumblerDestination.IDLE);
+
 									extendoState = Utilities.State.IDLE;
-								}, 150);
+								}, 200);
 							}, 150);
-						}, 400);
+						}, 800);
 					}, 150);
 				}, 150);
 			}

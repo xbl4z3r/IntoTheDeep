@@ -59,7 +59,6 @@ public class DistanceSystem extends AbstractSystem
 					if (GetAverageDistanceCM() <= releaseDistCm)
 					{
 						robot.lift.setLiftLevel(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE_FIXED_CLAW);
-						setTimeout(() -> robot.fixedClaw.open(), 300);
 					}
 
 					if (Math.abs(GetLeftDistanceCM() - GetRightDistanceCM()) > headingToleranceCM && GetAverageDistanceCM() < 40)

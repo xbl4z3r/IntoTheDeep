@@ -20,7 +20,6 @@ public class ApproachToDistanceTest extends BaseOpMode
 	{
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
-		robot.fixedClaw.close();
 	}
 
 	@Override

@@ -26,7 +26,7 @@ public class AutoSpecimen extends BaseOpMode
 	{
 		robot = new RobotHardware(hardwareMap);
 		robot.init();
-		robot.fixedClaw.close();
+
 		robot.lift.setLiftPower(1);
 
 		if (!robot.distanceSystem.StatusOk())
@@ -60,8 +60,8 @@ public class AutoSpecimen extends BaseOpMode
 						),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.CHAMBER_HIGH_PLACE_FIXED_CLAW)
 				),
-				WaitFor(0.1),
-				robot.fixedClaw.openAction()
+				WaitFor(0.1)
+
 		));
 
 		// Move samples to human and grab first specimen
@@ -86,7 +86,6 @@ public class AutoSpecimen extends BaseOpMode
 								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 70, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(6))
-								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
@@ -119,7 +118,6 @@ public class AutoSpecimen extends BaseOpMode
 								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 75, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(3))
-								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
@@ -153,7 +151,6 @@ public class AutoSpecimen extends BaseOpMode
 								.splineToLinearHeading(centimetersToInches(new Pose2d(-2, 80, DegToRad(180))), DegToRad(0))
 								.setTangent(DegToRad(0))
 								.lineToX(centimetersToInches(0))
-								.afterTime(0.1, robot.fixedClaw.closeAction())
 								.afterTime(0.5, robot.lift.moveLiftTo(LiftSystem.LiftLevel.CLEAR_SPECIMEN))
 								.build(),
 						robot.lift.moveLiftTo(LiftSystem.LiftLevel.IDLE)
